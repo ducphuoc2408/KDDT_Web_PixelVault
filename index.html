@@ -1,0 +1,708 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelVault – Máy Ảnh Kỹ Thuật Số Chuyên Nghiệp</title>
+  <meta name="description" content="Cửa hàng máy ảnh kỹ thuật số hàng đầu Việt Nam. Sony, Canon, Fujifilm, Nikon – bảo hành chính hãng, giao hàng toàn quốc.">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+  <style>
+    /* Homepage Extras */
+    .hero-bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--border-1) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border-1) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .hero-gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border-2);
+    }
+
+    /* Newsletter */
+    .newsletter-section {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+      border-top: 1px solid var(--border-1);
+      border-bottom: 1px solid var(--border-1);
+      padding: 64px 0;
+      text-align: center;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 8px;
+      max-width: 420px;
+      margin: 24px auto 0;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 12px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-full);
+      color: var(--text-100);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+    }
+
+    .newsletter-input:focus {
+      border-color: var(--border-gold);
+      box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
+    }
+
+    .newsletter-input::placeholder { color: var(--text-400); }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-1);
+      border-radius: var(--r-lg);
+      padding: 24px;
+      transition: all var(--dur-mid) var(--ease-1);
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--border-gold);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .testimonial-stars { display: flex; gap: 2px; margin-bottom: 12px; }
+    .testimonial-text { font-size: 0.885rem; color: var(--text-300); line-height: 1.75; margin-bottom: 16px; font-style: italic; }
+
+    .testimonial-author { display: flex; align-items: center; gap: 10px; }
+    .author-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-600), var(--gold-400));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #06060d;
+      flex-shrink: 0;
+    }
+
+    .author-name { font-weight: 600; font-size: 0.875rem; color: var(--text-100); }
+    .author-meta { font-size: 0.73rem; color: var(--text-400); }
+
+    /* Floating promo tag */
+    .promo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: var(--r-full);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--red-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 900px) {
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ NAVIGATION ============ -->
+<nav class="navbar" id="main-navbar">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo" id="nav-logo">
+      <div class="logo-mark">
+        <svg class="logo-icon-svg" viewBox="0 0 24 24">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+      <span class="logo-text">PixelVault</span>
+    </a>
+
+    <!-- Links -->
+    <div class="nav-links" id="nav-links">
+      <a href="index.html" class="nav-link active" id="nl-home">Trang chủ</a>
+      <div class="nav-dropdown">
+        <a href="pages/products.html" class="nav-link" id="nl-products">Sản phẩm</a>
+        <div class="nav-dropdown-menu">
+          <a href="pages/products.html?cat=mirrorless" class="nav-dropdown-item" id="nddi-mirrorless">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Mirrorless
+          </a>
+          <a href="pages/products.html?cat=dslr" class="nav-dropdown-item" id="nddi-dslr">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="3"/></svg>
+            DSLR
+          </a>
+          <a href="pages/products.html?cat=lens" class="nav-dropdown-item" id="nddi-lens">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Ống kính
+          </a>
+          <a href="pages/products.html?cat=compact" class="nav-dropdown-item" id="nddi-compact">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
+            Compact
+          </a>
+        </div>
+      </div>
+      <a href="pages/compare.html" class="nav-link" id="nl-compare">So sánh</a>
+      <a href="pages/contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
+    </div>
+
+    <!-- Actions -->
+        <div class="nav-actions">
+      <div class="nav-search" id="nav-search-bar">
+        <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
+          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+        <button class="nav-search-btn" id="btn-nav-search"
+          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <button class="nav-icon-btn" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <button class="nav-icon-btn" id="btn-cart" onclick="cartOpen()" title="Giỏ hàng" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cart-badge-nav" style="display:none;">0</span>
+      </button>
+      
+      <div style="position:relative;" id="user-menu-container">
+        <button class="nav-icon-btn" id="btn-user" style="display:none;" title="Tài khoản" onclick="toggleUserDropdown()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown" style="display:none; position:absolute; top:50px; right:0; background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:var(--r-md); padding:8px 0; min-width:180px; flex-direction:column; box-shadow:var(--shadow-lg); z-index:100;">
+          <a href="pages/account.html" id="user-dropdown-name" style="padding:10px 16px; color:var(--text-200); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Tài khoản của tôi</a>
+          <div style="height:1px; background:var(--border-1); margin:4px 0;"></div>
+          <a href="#" onclick="logout()" style="padding:10px 16px; color:var(--danger); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Đăng xuất</a>
+        </div>
+      </div>
+
+      <button class="btn btn-nav-login" id="btn-login" onclick="openModal('auth-modal')">Đăng nhập</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <img class="hero-banner" src="assets/images/hero_banner_clean.jpg" alt="PixelVault Hero" id="hero-img">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-gradient-orb" style="width:400px;height:400px;background:var(--gold-500);top:-100px;left:-100px;"></div>
+  <div class="hero-gradient-orb" style="width:300px;height:300px;background:var(--blue-500);bottom:50px;right:200px;"></div>
+  <div class="hero-overlay">
+    <div class="hero-content">
+
+      <h1 class="hero-title">
+        Khám Phá<br>
+        <span class="text-gradient">Nghệ Thuật</span><br>
+        Nhiếp Ảnh
+      </h1>
+      <p class="hero-desc">
+        Từ máy ảnh mirrorless chuyên nghiệp đến ống kính cao cấp — PixelVault mang đến thiết bị tốt nhất cho hành trình nhiếp ảnh của bạn.
+      </p>
+      <div class="hero-cta">
+        <a href="pages/products.html" class="btn btn-primary btn-lg" id="hero-btn-shop">
+          Khám phá sản phẩm
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="pages/compare.html" class="btn btn-secondary btn-lg" id="hero-btn-compare">So sánh máy ảnh</a>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div>
+          <div class="hero-stat-value">500+</div>
+          <div class="hero-stat-label">Sản phẩm</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div>
+          <div class="hero-stat-value">50K+</div>
+          <div class="hero-stat-label">Khách hàng</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div>
+          <div class="hero-stat-value">4.9★</div>
+          <div class="hero-stat-label">Đánh giá</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BRANDS MARQUEE ============ -->
+<div class="brands-strip" aria-hidden="true">
+  <div class="brands-track" id="brands-track">
+    <span class="brand-item">SONY</span>
+    <span class="brand-item">CANON</span>
+    <span class="brand-item">FUJIFILM</span>
+    <span class="brand-item">NIKON</span>
+    <span class="brand-item">PANASONIC</span>
+    <span class="brand-item">LEICA</span>
+    <span class="brand-item">SIGMA</span>
+    <span class="brand-item">TAMRON</span>
+    <span class="brand-item">SONY</span>
+    <span class="brand-item">CANON</span>
+    <span class="brand-item">FUJIFILM</span>
+    <span class="brand-item">NIKON</span>
+    <span class="brand-item">PANASONIC</span>
+    <span class="brand-item">LEICA</span>
+    <span class="brand-item">SIGMA</span>
+    <span class="brand-item">TAMRON</span>
+  </div>
+</div>
+
+<!-- ============ CATEGORIES ============ -->
+<section class="section" id="categories-section">
+  <div class="container">
+    <div class="section-header animate-in" style="text-align: center;">
+      <span class="section-label">Danh mục</span>
+      <h2 class="section-title">Tìm Thiết Bị Phù Hợp</h2>
+      <p class="section-desc">Dải sản phẩm đa dạng từ máy ảnh chuyên nghiệp đến phụ kiện nhiếp ảnh</p>
+    </div>
+    <div class="categories-grid" id="categories-grid" style="justify-content: center;">
+      <a href="pages/products.html?cat=mirrorless" class="category-card animate-in" id="cat-mirrorless">
+        <div class="category-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+        <div class="category-name">Mirrorless</div>
+        <div class="category-count">4 sản phẩm</div>
+      </a>
+      <a href="pages/products.html?cat=dslr" class="category-card animate-in" id="cat-dslr">
+        <div class="category-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="3"/></svg>
+        </div>
+        <div class="category-name">DSLR</div>
+        <div class="category-count">1 sản phẩm</div>
+      </a>
+      <a href="pages/products.html?cat=lens" class="category-card animate-in" id="cat-lens">
+        <div class="category-icon-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        </div>
+        <div class="category-name">Ống kính</div>
+        <div class="category-count">2 sản phẩm</div>
+      </a>
+      <a href="pages/products.html?cat=compact" class="category-card animate-in" id="cat-compact">
+        <div class="category-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
+        </div>
+        <div class="category-name">Compact</div>
+        <div class="category-count">Sắp có</div>
+      </a>
+      <a href="pages/products.html" class="category-card animate-in" id="cat-all">
+        <div class="category-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </div>
+        <div class="category-name">Tất cả</div>
+        <div class="category-count">8 sản phẩm</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED PRODUCTS ============ -->
+<section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-1); border-bottom: 1px solid var(--border-1);" id="featured-section">
+  <div class="container">
+    <div class="section-header animate-in">
+      <span class="section-label">Nổi bật</span>
+      <h2 class="section-title">Sản Phẩm Bán Chạy</h2>
+      <p class="section-desc">Được tin dùng bởi hàng ngàn nhiếp ảnh gia trên toàn quốc</p>
+    </div>
+    <div class="products-grid" id="featured-grid"></div>
+    <div style="text-align:center; margin-top:40px;" class="animate-in">
+      <a href="pages/products.html" class="btn btn-ghost btn-lg" id="btn-view-all">
+        Xem tất cả sản phẩm
+        <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROMO BANNERS ============ -->
+<section class="section" id="promo-section">
+  <div class="container">
+    <div class="promo-grid">
+      <!-- Large promo -->
+      <div class="promo-card animate-in" id="promo-main" onclick="window.location.href='pages/products.html?brand=Sony'">
+        <img src="assets/images/sony_alpha.jpg" alt="Sony Sale">
+        <div class="promo-card-overlay">
+          <div class="promo-label">Ưu đãi độc quyền</div>
+          <div class="promo-title">Sony Alpha<br>Giảm đến 15%</div>
+          <div class="promo-desc">Toàn bộ dòng Sony Alpha – ưu đãi giới hạn đến cuối tháng</div>
+          <a href="pages/products.html?brand=Sony" class="btn btn-primary btn-sm" id="btn-promo-sony" onclick="event.stopPropagation()">
+            Mua ngay
+            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Small promos -->
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="promo-card animate-in" id="promo-fuji" onclick="window.location.href='pages/products.html?brand=Fujifilm'" style="flex:1;">
+          <img src="assets/images/fujifilm_xt5.jpg" alt="Fujifilm">
+          <div class="promo-card-overlay">
+            <div class="promo-label">Mới về</div>
+            <div class="promo-title" style="font-size:1.15rem;">Fujifilm X-T5</div>
+            <div class="promo-desc" style="font-size:0.78rem;">Cảm biến 40MP – Từ 42.99 triệu</div>
+          </div>
+        </div>
+        <div class="promo-card animate-in" id="promo-canon" onclick="window.location.href='pages/product-detail.html?id=4'" style="flex:1;">
+          <img src="assets/images/canon_lens.jpg" alt="Ống kính">
+          <div class="promo-card-overlay">
+            <div class="promo-label">Bán chạy</div>
+            <div class="promo-title" style="font-size:1.15rem;">Canon RF 70-200mm</div>
+            <div class="promo-desc" style="font-size:0.78rem;">Ống kính L-Series cao cấp</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURES ============ -->
+<section class="section" style="background: var(--bg-secondary); border-top: 1px solid var(--border-1);" id="features-section">
+  <div class="container">
+    <div class="section-header animate-in">
+      <span class="section-label">Tại sao chọn PixelVault</span>
+      <h2 class="section-title">Cam Kết Chất Lượng</h2>
+    </div>
+    <div class="features-grid" id="features-grid">
+      <div class="feature-card animate-in" id="feat-genuine">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3 class="feature-title">Hàng chính hãng 100%</h3>
+        <p class="feature-desc">Mọi sản phẩm đều có tem bảo hành chính hãng từ nhà sản xuất, không hàng xách tay hay hàng nhái.</p>
+      </div>
+      <div class="feature-card animate-in" id="feat-ship">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <h3 class="feature-title">Giao hàng toàn quốc</h3>
+        <p class="feature-desc">Giao trong ngày tại TP.HCM & Hà Nội. Toàn quốc 2–3 ngày làm việc. Đóng gói kỹ lưỡng, đảm bảo an toàn.</p>
+      </div>
+      <div class="feature-card animate-in" id="feat-return">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </div>
+        <h3 class="feature-title">Đổi trả 30 ngày</h3>
+        <p class="feature-desc">Không hài lòng? Đổi trả miễn phí trong 30 ngày đầu nếu sản phẩm còn nguyên vẹn, đầy đủ phụ kiện.</p>
+      </div>
+      <div class="feature-card animate-in" id="feat-installment">
+        <div class="feature-icon-wrap">
+          <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <h3 class="feature-title">Trả góp 0% lãi</h3>
+        <p class="feature-desc">Hỗ trợ trả góp 0% qua thẻ tín dụng VCB, Techcombank, BIDV, ACB. Kỳ hạn linh hoạt 3–24 tháng.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section" id="testimonials-section">
+  <div class="container">
+    <div class="section-header animate-in">
+      <span class="section-label">Đánh giá</span>
+      <h2 class="section-title">Khách Hàng Nói Gì?</h2>
+    </div>
+    <div class="testimonials-grid" id="testimonials-grid">
+      <div class="testimonial-card animate-in">
+        <div class="testimonial-stars">
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"Mua Sony A7IV tại PixelVault, hàng đúng chính hãng, đóng gói rất cẩn thận. Nhân viên tư vấn nhiệt tình, giao hàng đúng hẹn. Sẽ quay lại mua thêm ống kính."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">A</div>
+          <div>
+            <div class="author-name">Nguyễn Văn An</div>
+            <div class="author-meta">Nhiếp ảnh gia – TP.HCM</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate-in">
+        <div class="testimonial-stars">
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"Fujifilm X-T5 tôi mua tại đây giá rất tốt so với thị trường, còn được giảm thêm với mã PIXEL10. Website dễ dùng, thanh toán nhanh, review sản phẩm chi tiết."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">B</div>
+          <div>
+            <div class="author-name">Trần Thị Bình</div>
+            <div class="author-meta">Blogger du lịch – Hà Nội</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card animate-in">
+        <div class="testimonial-stars">
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg style="width:14px;height:14px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testimonial-text">"Dịch vụ xuất sắc! Tôi hỏi tư vấn qua hotline về ống kính Canon và được giải thích rất rõ ràng. Hàng về nhanh, đẹp như hình. Sẽ giới thiệu cho bạn bè."</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">N</div>
+          <div>
+            <div class="author-name">Lê Hoàng Nam</div>
+            <div class="author-meta">Wedding Photographer – Đà Nẵng</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NEWSLETTER ============ -->
+<div class="newsletter-section" id="newsletter-section">
+  <div class="container">
+    <div class="section-label">Newsletter</div>
+    <h2 class="section-title" style="font-size:1.8rem;">Nhận Ưu Đãi Độc Quyền</h2>
+    <p class="section-desc">Đăng ký để nhận thông báo sản phẩm mới và mã giảm giá sớm nhất</p>
+    <form class="newsletter-form" id="newsletter-form" onsubmit="subscribeNewsletter(event)">
+      <input class="newsletter-input" type="email" id="newsletter-email" placeholder="Email của bạn" required>
+      <button type="submit" class="btn btn-primary" id="btn-newsletter-sub">Đăng ký</button>
+    </form>
+    <p style="font-size:0.75rem; color:var(--text-400); margin-top:12px;">Không spam. Hủy đăng ký bất kỳ lúc nào.</p>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer" id="main-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo" style="margin-bottom:14px; display:inline-flex;">
+          <div class="logo-mark">
+            <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <span class="logo-text">PixelVault</span>
+        </a>
+        <p>Cửa hàng máy ảnh kỹ thuật số hàng đầu Việt Nam. Hàng chính hãng, bảo hành dài hạn, dịch vụ tư vấn chuyên nghiệp.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" id="social-fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-ig" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-yt" aria-label="YouTube">
+            <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div>
+        <div class="footer-heading">Sản phẩm</div>
+        <div class="footer-links">
+          <a href="pages/products.html?cat=mirrorless" id="fl-mirrorless">Máy ảnh Mirrorless</a>
+          <a href="pages/products.html?cat=dslr" id="fl-dslr">Máy ảnh DSLR</a>
+          <a href="pages/products.html?cat=lens" id="fl-lens">Ống kính</a>
+          <a href="pages/products.html?cat=compact" id="fl-compact">Máy ảnh Compact</a>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <div class="footer-heading">Thông tin</div>
+        <div class="footer-links">
+          <a href="pages/contact.html" id="fl-contact">Liên hệ</a>
+          <a href="#" id="fl-about">Về chúng tôi</a>
+          <a href="#" id="fl-policy">Chính sách bảo hành</a>
+          <a href="#" id="fl-return">Chính sách đổi trả</a>
+          <a href="admin/index.html" id="fl-admin">Quản trị</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <div class="footer-heading">Liên hệ</div>
+        <div class="footer-links">
+          <a href="tel:19001234" id="fl-phone">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>
+            1900 1234
+          </a>
+          <a href="mailto:support@pixelvault.vn" id="fl-email">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            support@pixelvault.vn
+          </a>
+          <a href="#" id="fl-address">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            123 Nguyễn Huệ, Q.1, TP.HCM
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <span>© 2026 PixelVault. Đề án môn học – Nhóm 4 sinh viên CNTT.</span>
+      <span>Xây dựng với HTML · CSS · JavaScript</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
+<div class="cart-overlay" id="cart-overlay">
+  <div class="cart-drawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng</h3>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div id="cart-total"></div>
+      <a href="pages/checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Compare Bar -->
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
+    </div>
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="assets/js/data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Render featured products (top 4 by reviews)
+  const sorted = [...Store.products].sort((a,b) => b.reviews - a.reviews).slice(0, 4);
+  const grid = document.getElementById('featured-grid');
+  grid.innerHTML = sorted.map(p => renderProductCard(p)).join('');
+  initScrollAnimations();
+});
+
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  const email = document.getElementById('newsletter-email').value;
+  showToast(`Đăng ký thành công với ${email}!`, 'success');
+  document.getElementById('newsletter-form').reset();
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

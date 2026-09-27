@@ -1,0 +1,360 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sản phẩm - PixelVault</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+</head>
+<body>
+
+<nav class="navbar" id="main-navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-mark">
+        <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <span class="logo-text">PixelVault</span>
+    </a>
+    <div class="nav-links">
+      <a href="../index.html" class="nav-link">Trang chủ</a>
+      <a href="products.html" class="nav-link active">Sản phẩm</a>
+      <a href="compare.html" class="nav-link">So sánh</a>
+      <a href="contact.html" class="nav-link">Liên hệ</a>
+    </div>
+                <div class="nav-actions">
+      <div class="nav-search" id="nav-search-bar">
+        <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
+          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+        <button class="nav-search-btn" id="btn-nav-search"
+          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <button class="nav-icon-btn" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <button class="nav-icon-btn" id="btn-cart" onclick="cartOpen()" title="Giỏ hàng" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cart-badge-nav" style="display:none;">0</span>
+      </button>
+      
+      <div style="position:relative;" id="user-menu-container">
+        <button class="nav-icon-btn" id="btn-user" style="display:none;" title="Tài khoản" onclick="toggleUserDropdown()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown" style="display:none; position:absolute; top:50px; right:0; background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:var(--r-md); padding:8px 0; min-width:180px; flex-direction:column; box-shadow:var(--shadow-lg); z-index:100;">
+          <a href="account.html" id="user-dropdown-name" style="padding:10px 16px; color:var(--text-200); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Tài khoản của tôi</a>
+          <div style="height:1px; background:var(--border-1); margin:4px 0;"></div>
+          <a href="#" onclick="logout()" style="padding:10px 16px; color:var(--danger); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Đăng xuất</a>
+        </div>
+      </div>
+
+      <button class="btn btn-nav-login" id="btn-login" onclick="openModal('auth-modal')">Đăng nhập</button>
+    </div>
+  </div>
+</nav>
+
+<div class="section" style="margin-top: var(--nav-h);">
+  <div class="container">
+    <div class="section-header" style="text-align:left; margin-bottom:32px;">
+      <h1 class="section-title">Khám Phá Sản Phẩm</h1>
+      <p class="section-desc" style="margin:0;">Lựa chọn thiết bị nhiếp ảnh chuyên nghiệp từ các thương hiệu hàng đầu thế giới.</p>
+    </div>
+
+    <!-- Active Filters -->
+    <div style="display:flex; gap:10px; margin-bottom:24px; min-height:28px;" id="active-filters"></div>
+
+    <div class="shop-layout">
+      <!-- Sidebar -->
+      <aside class="filter-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <h3 style="font-size:1.05rem; font-family:'Outfit',sans-serif; font-weight:700; color:var(--text-100);">Bộ lọc</h3>
+          <button class="btn btn-ghost btn-sm" onclick="clearFilters()" style="font-size:0.75rem;">Xóa tất cả</button>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Danh mục</div>
+          <label class="filter-option"><input type="checkbox" hidden value="mirrorless" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Máy ảnh Mirrorless</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="dslr" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Máy ảnh DSLR</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="lens" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Ống kính (Lens)</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="compact" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Máy ảnh Compact</span></label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Thương hiệu</div>
+          <label class="filter-option"><input type="checkbox" hidden value="Sony" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Sony</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="Canon" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Canon</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="Fujifilm" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Fujifilm</span></label>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Khoảng giá</div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="number" class="price-input" id="price-min" placeholder="Từ" onchange="applyFilters()">
+            <span style="color:var(--text-400); font-weight:700;">-</span>
+            <input type="number" class="price-input" id="price-max" placeholder="Đến" onchange="applyFilters()">
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <div class="filter-title">Tình trạng</div>
+          <label class="filter-option"><input type="checkbox" hidden value="instock" data-filter="status"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Còn hàng</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="sale" data-filter="status"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Đang giảm giá</span></label>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border-1);">
+          <div style="font-size:0.875rem; color:var(--text-300);" id="product-count">Hiển thị 0 sản phẩm</div>
+          <div style="display:flex; align-items:center; gap:16px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-400);">Sắp xếp:</span>
+              <select class="sort-select" id="sort-select" onchange="applyFilters()">
+                <option value="default">Mặc định</option>
+                <option value="price-asc">Giá: Thấp đến Cao</option>
+                <option value="price-desc">Giá: Cao đến Thấp</option>
+                <option value="rating">Đánh giá cao nhất</option>
+                <option value="newest">Mới nhất</option>
+              </select>
+            </div>
+            <div class="view-toggle">
+              <button class="view-btn active" id="btn-grid-view" onclick="setView('grid')" title="Lưới">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              </button>
+              <button class="view-btn" id="btn-list-view" onclick="setView('list')" title="Danh sách">
+                <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="products-grid" id="products-grid"></div>
+        <div id="no-products" style="display:none; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
+          <svg style="width:64px;height:64px;stroke:var(--text-400);fill:none;stroke-width:1;margin:0 auto 16px;display:block;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:700; color:var(--text-100); margin-bottom:8px;">Không tìm thấy sản phẩm</h3>
+          <p style="font-size:0.875rem; color:var(--text-400); margin-bottom:20px;">Vui lòng thử thay đổi bộ lọc hoặc từ khóa tìm kiếm.</p>
+          <button class="btn btn-secondary" onclick="clearFilters()">Xóa bộ lọc</button>
+        </div>
+
+        <!-- Pagination -->
+        <div style="display:flex; justify-content:center; gap:8px; margin-top:48px;" id="pagination">
+          <button class="btn btn-secondary btn-sm" style="padding:8px 12px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="btn btn-primary btn-sm" style="padding:8px 14px;">1</button>
+          <button class="btn btn-secondary btn-sm" style="padding:8px 14px;">2</button>
+          <button class="btn btn-secondary btn-sm" style="padding:8px 12px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="9 18 15 12 9 6"/></svg></button>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer">
+  <div class="footer-bottom">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.79rem; color:var(--text-500);">
+      <span>© 2026 PixelVault. Đề án môn học.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Overlays -->
+<div class="cart-overlay" id="cart-overlay">
+  <div class="cart-drawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng</h3>
+      <button class="cart-close" onclick="cartClose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div id="cart-total"></div>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;">Thanh toán</a>
+    </div>
+  </div>
+</div>
+
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();">Xóa</button>
+</div>
+
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-header">
+      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <h2 class="modal-title">Đăng nhập</h2>
+    </div>
+    <div class="modal-body">
+      <form id="login-form">
+        <div class="form-group"><input type="email" id="login-email" class="form-input" placeholder="Email"></div>
+        <div class="form-group"><input type="password" id="login-password" class="form-input" placeholder="Mật khẩu"></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Đăng nhập</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../assets/js/data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let currentView = 'grid';
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Parse URL params
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('q')) document.getElementById('nav-q').value = params.get('q');
+  if (params.has('cat')) setCheckboxValue('cat', params.get('cat'));
+  if (params.has('brand')) setCheckboxValue('brand', params.get('brand'));
+
+  // Bind checkbox events
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', function() {
+      this.parentElement.classList.toggle('selected', this.checked);
+      applyFilters();
+    });
+  });
+
+  applyFilters();
+});
+
+function setCheckboxValue(filterName, val) {
+  const cb = document.querySelector(`input[data-filter="${filterName}"][value="${val}"]`);
+  if (cb) { cb.checked = true; cb.parentElement.classList.add('selected'); }
+}
+
+function setView(view) {
+  currentView = view;
+  document.getElementById('btn-grid-view').classList.toggle('active', view === 'grid');
+  document.getElementById('btn-list-view').classList.toggle('active', view === 'list');
+  const grid = document.getElementById('products-grid');
+  if (view === 'list') grid.classList.add('list-view');
+  else grid.classList.remove('list-view');
+}
+
+function clearFilters() {
+  document.getElementById('nav-q').value = '';
+  document.getElementById('price-min').value = '';
+  document.getElementById('price-max').value = '';
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.checked = false;
+    cb.parentElement.classList.remove('selected');
+  });
+  document.getElementById('sort-select').value = 'default';
+  // Xóa tham số trên URL
+  window.history.replaceState({}, '', 'products.html');
+  applyFilters();
+}
+
+function removeFilter(type, value) {
+  if (type === 'search') document.getElementById('nav-q').value = '';
+  else if (type === 'price') { document.getElementById('price-min').value = ''; document.getElementById('price-max').value = ''; }
+  else {
+    const cb = document.querySelector(`input[data-filter="${type}"][value="${value}"]`);
+    if (cb) { cb.checked = false; cb.parentElement.classList.remove('selected'); }
+  }
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = (document.getElementById('nav-q').value || '').toLowerCase();
+  const minPrice = parseInt(document.getElementById('price-min').value) || 0;
+  const maxPrice = parseInt(document.getElementById('price-max').value) || Infinity;
+  
+  const selectedCats = Array.from(document.querySelectorAll('input[data-filter="cat"]:checked')).map(cb => cb.value);
+  const selectedBrands = Array.from(document.querySelectorAll('input[data-filter="brand"]:checked')).map(cb => cb.value);
+  const selectedStatus = Array.from(document.querySelectorAll('input[data-filter="status"]:checked')).map(cb => cb.value);
+  const sortBy = document.getElementById('sort-select').value;
+
+  // Filter
+  let results = Store.products.filter(p => {
+    const matchQ = !q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    const matchCat = selectedCats.length === 0 || selectedCats.includes(p.category);
+    const matchBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
+    const matchPrice = p.price >= minPrice && p.price <= maxPrice;
+    
+    let matchStatus = true;
+    if (selectedStatus.includes('instock') && p.stock === 0) matchStatus = false;
+    if (selectedStatus.includes('sale') && p.originalPrice <= p.price) matchStatus = false;
+
+    return matchQ && matchCat && matchBrand && matchPrice && matchStatus;
+  });
+
+  // Sort
+  if (sortBy === 'price-asc') results.sort((a,b) => a.price - b.price);
+  if (sortBy === 'price-desc') results.sort((a,b) => b.price - a.price);
+  if (sortBy === 'rating') results.sort((a,b) => b.rating - a.rating);
+  if (sortBy === 'newest') results.sort((a,b) => b.id - a.id); // Giả lập mới nhất theo ID
+
+  // Render UI
+  const grid = document.getElementById('products-grid');
+  const noProducts = document.getElementById('no-products');
+  const pag = document.getElementById('pagination');
+
+  document.getElementById('product-count').textContent = `Hiển thị ${results.length} sản phẩm`;
+
+  if (results.length === 0) {
+    grid.style.display = 'none';
+    noProducts.style.display = 'block';
+    pag.style.display = 'none';
+  } else {
+    grid.style.display = 'grid';
+    noProducts.style.display = 'none';
+    pag.style.display = 'flex';
+    grid.innerHTML = results.map(p => renderProductCard(p)).join('');
+  }
+
+  renderActiveFilters(q, minPrice, maxPrice, selectedCats, selectedBrands, selectedStatus);
+}
+
+function renderActiveFilters(q, minPrice, maxPrice, cats, brands, status) {
+  const container = document.getElementById('active-filters');
+  const tags = [];
+  const svgX = `<svg style="width:12px;height:12px;margin-left:4px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+  if (q) tags.push(`<span class="active-filter-tag" onclick="removeFilter('search')">Tìm: "${q}" ${svgX}</span>`);
+  if (minPrice > 0 || maxPrice < Infinity) {
+    let txt = '';
+    if (minPrice > 0 && maxPrice < Infinity) txt = `${formatPrice(minPrice)} - ${formatPrice(maxPrice)}`;
+    else if (minPrice > 0) txt = `Từ ${formatPrice(minPrice)}`;
+    else txt = `Đến ${formatPrice(maxPrice)}`;
+    tags.push(`<span class="active-filter-tag" onclick="removeFilter('price')">Giá: ${txt} ${svgX}</span>`);
+  }
+  
+  cats.forEach(c => tags.push(`<span class="active-filter-tag" onclick="removeFilter('cat','${c}')">${c} ${svgX}</span>`));
+  brands.forEach(b => tags.push(`<span class="active-filter-tag" onclick="removeFilter('brand','${b}')">${b} ${svgX}</span>`));
+  status.forEach(s => {
+    const lbl = s === 'instock' ? 'Còn hàng' : 'Đang sale';
+    tags.push(`<span class="active-filter-tag" onclick="removeFilter('status','${s}')">${lbl} ${svgX}</span>`);
+  });
+
+  if (tags.length > 0) {
+    tags.push(`<button class="btn btn-ghost btn-sm" onclick="clearFilters()">Xóa tất cả</button>`);
+  }
+  container.innerHTML = tags.join('');
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

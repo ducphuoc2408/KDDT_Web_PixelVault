@@ -1,0 +1,302 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thanh toán - PixelVault</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+</head>
+<body>
+
+<nav class="navbar" id="main-navbar">
+  <div class="nav-container" style="justify-content:center;">
+    <a href="../index.html" class="nav-logo">
+      <div class="logo-mark">
+        <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <span class="logo-text">PixelVault Thanh Toán An Toàn</span>
+    </a>
+  </div>
+</nav>
+
+<div style="margin-top: var(--nav-h); padding: 40px 0;">
+  <div class="container">
+    <div style="text-align:center; margin-bottom:40px;">
+      <h1 class="section-title">Thanh toán</h1>
+      <p class="section-desc">Hoàn tất đơn hàng của bạn</p>
+    </div>
+
+    <div class="checkout-grid" id="checkout-grid">
+      <!-- Form info -->
+      <div>
+        <div style="background:var(--bg-card); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg); margin-bottom:24px;">
+          <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Thông tin giao hàng
+          </h3>
+          
+          <form id="checkout-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Họ và tên *</label>
+                <input type="text" id="co-name" class="form-input" required placeholder="Nguyễn Văn A">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Số điện thoại *</label>
+                <input type="tel" id="co-phone" class="form-input" required placeholder="0901234567">
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Email *</label>
+              <input type="email" id="co-email" class="form-input" required placeholder="email@example.com">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Địa chỉ giao hàng *</label>
+              <input type="text" id="co-address" class="form-input" required placeholder="Số nhà, Tên đường, Phường/Xã, Quận/Huyện, Tỉnh/TP">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ghi chú (Tùy chọn)</label>
+              <textarea id="co-note" class="form-input" rows="3" style="resize:vertical;" placeholder="Ghi chú thêm về đơn hàng..."></textarea>
+            </div>
+          </form>
+        </div>
+
+        <div style="background:var(--bg-card); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg);">
+          <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:20px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Phương thức thanh toán
+          </h3>
+          
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <label class="filter-option" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
+              <input type="radio" name="payment" value="cod" checked hidden>
+              <div class="filter-checkbox" style="border-radius:50%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div style="flex:1;">
+                <div style="font-weight:600; color:var(--text-100); margin-bottom:4px;">Thanh toán khi nhận hàng (COD)</div>
+                <div style="font-size:0.75rem; color:var(--text-400);">Thanh toán bằng tiền mặt khi giao hàng tận nơi.</div>
+              </div>
+            </label>
+            
+            <label class="filter-option" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
+              <input type="radio" name="payment" value="banking" hidden>
+              <div class="filter-checkbox" style="border-radius:50%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div style="flex:1;">
+                <div style="font-weight:600; color:var(--text-100); margin-bottom:4px;">Chuyển khoản ngân hàng</div>
+                <div style="font-size:0.75rem; color:var(--text-400);">Chuyển khoản qua số tài khoản hoặc quét mã QR (giảm 2%).</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div>
+        <div style="background:var(--bg-glass); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg); position:sticky; top:100px;">
+          <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border-1);">Đơn hàng của bạn</h3>
+          
+          <div id="checkout-items" style="display:flex; flex-direction:column; gap:16px; margin-bottom:24px;"></div>
+          
+          <div style="padding-bottom:16px; border-bottom:1px solid var(--border-1); margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.875rem;">
+              <span style="color:var(--text-300);">Tạm tính</span>
+              <span id="co-subtotal" style="font-weight:600; color:var(--text-100);">0đ</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.875rem;">
+              <span style="color:var(--text-300);">Phí vận chuyển</span>
+              <span style="color:var(--green-400); font-weight:600;">Miễn phí</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.875rem; display:none;" id="co-discount-row">
+              <span style="color:var(--text-300);">Mã giảm giá <span id="co-discount-code" style="color:var(--gold-400); font-family:monospace; margin-left:4px;"></span></span>
+              <span id="co-discount-amt" style="color:var(--red-400); font-weight:600;">-0đ</span>
+            </div>
+          </div>
+          
+          <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:24px;">
+            <span style="font-size:1.1rem; font-weight:600; color:var(--text-100);">Tổng cộng</span>
+            <span id="co-total" style="font-size:1.5rem; font-family:'Outfit',sans-serif; font-weight:800; color:var(--gold-400);">0đ</span>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-bottom:24px;">
+            <input type="text" id="coupon-input" class="form-input" placeholder="Mã giảm giá (vd: PIXEL10)" style="flex:1;">
+            <button class="btn btn-secondary" onclick="applyCoupon()">Áp dụng</button>
+          </div>
+
+          <button class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" onclick="processCheckout()" id="btn-submit-order">
+            Đặt hàng ngay
+            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="footer-bottom">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.79rem; color:var(--text-500);">
+      <span>© 2026 PixelVault. Đề án môn học.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script src="../assets/js/data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/main.js"></script>
+<script>
+let discountPct = 0;
+let appliedCode = '';
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (Store.cart.length === 0) {
+    document.getElementById('checkout-grid').innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
+        <svg style="width:64px;height:64px;stroke:var(--text-400);fill:none;stroke-width:1;margin:0 auto 16px;display:block;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <h3 style="font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:700; color:var(--text-100); margin-bottom:8px;">Giỏ hàng trống</h3>
+        <p style="font-size:0.875rem; color:var(--text-400); margin-bottom:20px;">Vui lòng thêm sản phẩm vào giỏ hàng trước khi thanh toán.</p>
+        <a href="products.html" class="btn btn-primary">Quay lại cửa hàng</a>
+      </div>
+    `;
+    return;
+  }
+
+  // Pre-fill user data
+  if (Store.currentUser) {
+    document.getElementById('co-name').value = Store.currentUser.name;
+    document.getElementById('co-email').value = Store.currentUser.email;
+  }
+
+  // Handle radio styles
+  document.querySelectorAll('input[name="payment"]').forEach(r => {
+    r.addEventListener('change', (e) => {
+      document.querySelectorAll('input[name="payment"]').forEach(i => i.parentElement.classList.remove('selected'));
+      e.target.parentElement.classList.add('selected');
+    });
+  });
+
+  renderCheckoutItems();
+});
+
+function renderCheckoutItems() {
+  const container = document.getElementById('checkout-items');
+  let subtotal = 0;
+
+  const html = Store.cart.map(item => {
+    const p = Store.products.find(x => x.id === item.id);
+    if (!p) return '';
+    const lineTotal = p.price * item.qty;
+    subtotal += lineTotal;
+    const imgPath = p.images[0].startsWith('assets') ? '../' + p.images[0] : p.images[0];
+
+    return `
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div style="position:relative;">
+          <img src="${imgPath}" style="width:64px;height:64px;border-radius:var(--r-sm);object-fit:cover;background:var(--bg-secondary);">
+          <span style="position:absolute; top:-8px; right:-8px; background:var(--gold-500); color:#06060d; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700;">${item.qty}</span>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:600; font-size:0.875rem; color:var(--text-100); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name}</div>
+          <div style="font-size:0.75rem; color:var(--text-400);">${p.brand}</div>
+        </div>
+        <div style="font-weight:700; color:var(--text-200); font-size:0.9rem;">${formatPrice(lineTotal)}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = html;
+  
+  const discountAmt = subtotal * discountPct;
+  const total = subtotal - discountAmt;
+
+  document.getElementById('co-subtotal').textContent = formatPrice(subtotal);
+  document.getElementById('co-total').textContent = formatPrice(total);
+  
+  const dRow = document.getElementById('co-discount-row');
+  if (discountAmt > 0) {
+    dRow.style.display = 'flex';
+    document.getElementById('co-discount-code').textContent = `(${appliedCode})`;
+    document.getElementById('co-discount-amt').textContent = '-' + formatPrice(discountAmt);
+  } else {
+    dRow.style.display = 'none';
+  }
+}
+
+function applyCoupon() {
+  const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+  if (!code) return;
+
+  if (code === 'PIXEL10') {
+    discountPct = 0.1;
+    appliedCode = code;
+    showToast('Áp dụng mã giảm giá 10% thành công', 'success');
+  } else if (code === 'CAMERA20') {
+    const sub = Store.cart.reduce((s, item) => {
+      const p = Store.products.find(x => x.id === item.id);
+      return s + (p ? p.price * item.qty : 0);
+    }, 0);
+    if (sub >= 30000000) {
+      discountPct = 0.2;
+      appliedCode = code;
+      showToast('Áp dụng mã giảm giá 20% thành công', 'success');
+    } else {
+      showToast('Mã CAMERA20 áp dụng cho đơn từ 30 triệu', 'error');
+      return;
+    }
+  } else {
+    showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn', 'error');
+    return;
+  }
+  renderCheckoutItems();
+}
+
+function processCheckout() {
+  const form = document.getElementById('checkout-form');
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-order');
+  btn.textContent = 'Đang xử lý...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    Store.cart = [];
+    saveStore();
+    
+    document.getElementById('checkout-grid').innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
+        <svg style="width:64px;height:64px;stroke:var(--gold-400);fill:none;stroke-width:2;margin:0 auto 20px;display:block;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đặt Hàng Thành Công!</h2>
+        <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+          Cảm ơn <b>${document.getElementById('co-name').value}</b> đã mua sắm tại PixelVault.<br>
+          Mã đơn hàng của bạn là <b style="color:var(--gold-400);">#PV${Math.floor(Math.random()*10000)+1000}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.
+        </p>
+        <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
+      </div>
+    `;
+    
+    // update cart badge
+    document.querySelectorAll('.cart-badge').forEach(b => b.style.display = 'none');
+  }, 1500);
+}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
