@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -179,22 +179,34 @@
 </div>
 
 <div class="toast-container" id="toast-container"></div>
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
-function submitContact(e) {
+async function submitContact(e) {
   e.preventDefault();
   const btn = document.getElementById('btn-submit');
   btn.textContent = 'Đang gửi...';
   btn.disabled = true;
-  
-  setTimeout(() => {
+
+  const formData = {
+    name:    document.getElementById('ct-name')?.value    || document.querySelector('[name="name"]')?.value    || '',
+    email:   document.getElementById('ct-email')?.value   || document.querySelector('[name="email"]')?.value   || '',
+    subject: document.getElementById('ct-subject')?.value || document.querySelector('[name="subject"]')?.value || '',
+    message: document.getElementById('ct-message')?.value || document.querySelector('[name="message"]')?.value || '',
+  };
+
+  const ok = await window.SupabaseDB.submitContact(formData);
+
+  if (ok) {
     showToast('Cảm ơn bạn. Chúng tôi sẽ phản hồi trong thời gian sớm nhất!', 'success');
     e.target.reset();
-    btn.innerHTML = `Gửi tin nhắn <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
-    btn.disabled = false;
-  }, 1000);
+  } else {
+    showToast('Có lỗi xảy ra. Vui lòng thử lại sau.', 'error');
+  }
+
+  btn.innerHTML = `Gửi tin nhắn <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`;
+  btn.disabled = false;
 }
 </script>
 </body>

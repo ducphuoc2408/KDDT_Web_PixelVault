@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -145,8 +145,8 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
 let discountPct = 0;
@@ -254,7 +254,7 @@ function applyCoupon() {
   renderCheckoutItems();
 }
 
-function processCheckout() {
+async function processCheckout() {
   const form = document.getElementById('checkout-form');
   if (!form.checkValidity()) {
     form.reportValidity();
@@ -265,29 +265,52 @@ function processCheckout() {
   btn.textContent = 'Đang xử lý...';
   btn.disabled = true;
 
-  setTimeout(() => {
-    Store.cart = [];
-    saveStore();
-    
-    document.getElementById('checkout-grid').innerHTML = `
-      <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
-        <svg style="width:64px;height:64px;stroke:var(--gold-400);fill:none;stroke-width:2;margin:0 auto 20px;display:block;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đặt Hàng Thành Công!</h2>
-        <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
-          Cảm ơn <b>${document.getElementById('co-name').value}</b> đã mua sắm tại PixelVault.<br>
-          Mã đơn hàng của bạn là <b style="color:var(--gold-400);">#PV${Math.floor(Math.random()*10000)+1000}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.
-        </p>
-        <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
-      </div>
-    `;
-    
-    // update cart badge
-    document.querySelectorAll('.cart-badge').forEach(b => b.style.display = 'none');
-  }, 1500);
+  // Tạo đơn hàng trên Supabase
+  const customerName = document.getElementById('co-name').value;
+  const payment = document.querySelector('input[name="payment"]:checked')?.value || 'COD';
+  const subtotal = Store.cart.reduce((s, item) => s + item.price * item.qty, 0);
+  const discountAmt = subtotal * discountPct;
+  const total = subtotal - discountAmt;
+  const productNames = Store.cart.map(i => i.name).join(', ');
+
+  const newOrder = await window.SupabaseDB.createOrder({
+    customer: customerName,
+    userId:   Store.currentUser?.id || null,
+    product:  productNames,
+    total:    total,
+    payment:  payment,
+    items:    Store.cart.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+    address: {
+      address: document.getElementById('co-address')?.value || '',
+      phone:   document.getElementById('co-phone')?.value   || '',
+      note:    document.getElementById('co-note')?.value    || '',
+    },
+  });
+
+  Store.cart = [];
+  cartPersist();
+
+  const orderId = newOrder?.id || ('PV-' + Math.floor(Math.random()*10000+1000));
+
+  document.getElementById('checkout-grid').innerHTML = `
+    <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
+      <svg style="width:64px;height:64px;stroke:var(--gold-400);fill:none;stroke-width:2;margin:0 auto 20px;display:block;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đặt Hàng Thành Công!</h2>
+      <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+        Cảm ơn <b>${customerName}</b> đã mua sắm tại PixelVault.<br>
+        Mã đơn hàng của bạn là <b style="color:var(--gold-400);">${orderId}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.
+      </p>
+      <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
+    </div>
+  `;
+
+  // update cart badge
+  document.querySelectorAll('.cart-badge').forEach(b => b.style.display = 'none');
 }
 </script>
 </body>
 </html>
+
 
 
 

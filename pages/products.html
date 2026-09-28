@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -91,6 +91,9 @@
           <label class="filter-option"><input type="checkbox" hidden value="Sony" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Sony</span></label>
           <label class="filter-option"><input type="checkbox" hidden value="Canon" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Canon</span></label>
           <label class="filter-option"><input type="checkbox" hidden value="Fujifilm" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Fujifilm</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="Nikon" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Nikon</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="Panasonic" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Panasonic</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="Olympus" data-filter="brand"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Olympus</span></label>
         </div>
 
         <div class="filter-section">
@@ -145,10 +148,6 @@
 
         <!-- Pagination -->
         <div style="display:flex; justify-content:center; gap:8px; margin-top:48px;" id="pagination">
-          <button class="btn btn-secondary btn-sm" style="padding:8px 12px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg></button>
-          <button class="btn btn-primary btn-sm" style="padding:8px 14px;">1</button>
-          <button class="btn btn-secondary btn-sm" style="padding:8px 14px;">2</button>
-          <button class="btn btn-secondary btn-sm" style="padding:8px 12px;"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
       </main>
     </div>
@@ -204,28 +203,41 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
 let currentView = 'grid';
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Parse URL params
-  const params = new URLSearchParams(window.location.search);
-  if (params.has('q')) document.getElementById('nav-q').value = params.get('q');
-  if (params.has('cat')) setCheckboxValue('cat', params.get('cat'));
-  if (params.has('brand')) setCheckboxValue('brand', params.get('brand'));
+let _domReady   = false;
+let _storeReady = false;
 
-  // Bind checkbox events
+function _tryInit() {
+  if (!_domReady || !_storeReady) return;
+  // Đọc URL params
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('q'))     { document.getElementById('nav-q').value = params.get('q'); }
+  if (params.has('cat'))   setCheckboxValue('cat',   params.get('cat'));
+  if (params.has('brand')) setCheckboxValue('brand', params.get('brand'));
+  applyFilters();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  _domReady = true;
+  // Bind checkbox change events
   document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
     cb.addEventListener('change', function() {
       this.parentElement.classList.toggle('selected', this.checked);
       applyFilters();
     });
   });
+  _tryInit();
+});
 
-  applyFilters();
+// Render products sau khi Supabase data đã tải xong
+document.addEventListener('store:ready', () => {
+  _storeReady = true;
+  _tryInit();
 });
 
 function setCheckboxValue(filterName, val) {
@@ -266,6 +278,10 @@ function removeFilter(type, value) {
   applyFilters();
 }
 
+let currentFilteredResults = [];
+let currentPage = 1;
+const ITEMS_PER_PAGE = 15;
+
 function applyFilters() {
   const q = (document.getElementById('nav-q').value || '').toLowerCase();
   const minPrice = parseInt(document.getElementById('price-min').value) || 0;
@@ -278,7 +294,7 @@ function applyFilters() {
 
   // Filter
   let results = Store.products.filter(p => {
-    const matchQ = !q || p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q);
+    const matchQ = !q || (p.name || '').toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q);
     const matchCat = selectedCats.length === 0 || selectedCats.includes(p.category);
     const matchBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
     const matchPrice = p.price >= minPrice && p.price <= maxPrice;
@@ -296,14 +312,20 @@ function applyFilters() {
   if (sortBy === 'rating') results.sort((a,b) => b.rating - a.rating);
   if (sortBy === 'newest') results.sort((a,b) => b.id - a.id); // Giả lập mới nhất theo ID
 
-  // Render UI
+  currentFilteredResults = results;
+  currentPage = 1;
+  renderPage();
+  renderActiveFilters(q, minPrice, maxPrice, selectedCats, selectedBrands, selectedStatus);
+}
+
+function renderPage() {
   const grid = document.getElementById('products-grid');
   const noProducts = document.getElementById('no-products');
   const pag = document.getElementById('pagination');
 
-  document.getElementById('product-count').textContent = `Hiển thị ${results.length} sản phẩm`;
+  document.getElementById('product-count').textContent = `Hiển thị ${currentFilteredResults.length} sản phẩm`;
 
-  if (results.length === 0) {
+  if (currentFilteredResults.length === 0) {
     grid.style.display = 'none';
     noProducts.style.display = 'block';
     pag.style.display = 'none';
@@ -311,10 +333,45 @@ function applyFilters() {
     grid.style.display = 'grid';
     noProducts.style.display = 'none';
     pag.style.display = 'flex';
-    grid.innerHTML = results.map(p => renderProductCard(p)).join('');
+    
+    const startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+    const pageItems = currentFilteredResults.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+    
+    grid.innerHTML = pageItems.map(p => renderProductCard(p)).join('');
+    renderPagination();
   }
+}
 
-  renderActiveFilters(q, minPrice, maxPrice, selectedCats, selectedBrands, selectedStatus);
+function renderPagination() {
+  const pag = document.getElementById('pagination');
+  const totalPages = Math.ceil(currentFilteredResults.length / ITEMS_PER_PAGE);
+  if (totalPages <= 1) {
+    pag.style.display = 'none';
+    return;
+  }
+  
+  let html = '';
+  html += `<button class="btn btn-secondary btn-sm" style="padding:8px 12px;" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="15 18 9 12 15 6"/></svg></button>`;
+  
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+      html += `<button class="btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'} btn-sm" style="padding:8px 14px;" onclick="changePage(${i})">${i}</button>`;
+    } else if (i === currentPage - 2 || i === currentPage + 2) {
+      html += `<span style="padding:8px; color:var(--text-400);">...</span>`;
+    }
+  }
+  
+  html += `<button class="btn btn-secondary btn-sm" style="padding:8px 12px;" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})"><svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;"><polyline points="9 18 15 12 9 6"/></svg></button>`;
+  
+  pag.innerHTML = html;
+}
+
+function changePage(page) {
+  const totalPages = Math.ceil(currentFilteredResults.length / ITEMS_PER_PAGE);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderPage();
+  window.scrollTo({ top: document.querySelector('.shop-layout').offsetTop - 100, behavior: 'smooth' });
 }
 
 function renderActiveFilters(q, minPrice, maxPrice, cats, brands, status) {

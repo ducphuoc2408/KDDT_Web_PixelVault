@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -161,8 +161,8 @@
 </footer>
 
 <div class="toast-container" id="toast-container"></div>
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -170,16 +170,22 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = '../index.html';
     return;
   }
-  
+
   const u = Store.currentUser;
   document.getElementById('acc-name').textContent = u.name;
   document.getElementById('acc-avatar').textContent = u.name[0].toUpperCase();
   document.getElementById('acc-email').textContent = u.email;
-
   document.getElementById('pf-name').value = u.name;
   document.getElementById('pf-email').value = u.email;
+});
 
-  renderUserOrders(u.name);
+// Load orders + wishlist sau khi Supabase data sẵn sàng
+document.addEventListener('store:ready', async () => {
+  if (!Store.currentUser) return;
+  const u = Store.currentUser;
+  // Lấy đơn hàng của user từ Supabase
+  const myOrders = await window.SupabaseDB.getMyOrders(u.id);
+  renderUserOrders(myOrders);
   renderWishlist();
 });
 
@@ -194,20 +200,23 @@ function switchTab(tabId, el) {
   document.getElementById(`tab-${tabId}`).style.display = 'block';
 }
 
-function saveProfile(e) {
+async function saveProfile(e) {
   e.preventDefault();
   const newName = document.getElementById('pf-name').value;
   Store.currentUser.name = newName;
-  saveStore();
-  
+  localStorage.setItem('pv_user', JSON.stringify(Store.currentUser));
+
+  // Cập nhật lên Supabase
+  if (Store.currentUser.id) {
+    await window.SupabaseDB.updateProfile(Store.currentUser.id, { name: newName });
+  }
+
   document.getElementById('acc-name').textContent = newName;
   document.getElementById('acc-avatar').textContent = newName[0].toUpperCase();
-  
   showToast('Đã cập nhật hồ sơ cá nhân', 'success');
 }
 
-function renderUserOrders(userName) {
-  const myOrders = Store.orders.filter(o => o.customer === userName);
+function renderUserOrders(myOrders) {
   const tbody = document.getElementById('user-orders-list');
   const statusMap = {
     pending:    ['status-pending',    'Chờ xác nhận'],

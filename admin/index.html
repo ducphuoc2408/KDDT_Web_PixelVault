@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -289,7 +289,7 @@
             23% tháng này
           </div>
         </div>
-        <div class="stat-card red">
+        <div class="stat-card red" style="cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="showLowStockModal()">
           <div class="stat-header">
             <span class="stat-label">Sắp hết hàng</span>
             <div class="stat-icon">
@@ -310,7 +310,12 @@
         <div class="data-table-wrap" style="padding:24px;">
           <div class="data-table-header" style="padding:0 0 18px;">
             <div class="data-table-title">Doanh thu theo tháng (triệu đồng)</div>
-            <span style="font-size:0.75rem; color:var(--text-400);">6 tháng gần nhất</span>
+            <select id="revenue-time-filter" class="sort-select" style="font-size:0.8rem; padding:4px 8px; min-width:auto;" onchange="renderRevenueChart()">
+              <option value="3">3 tháng gần nhất</option>
+              <option value="6" selected>6 tháng gần nhất</option>
+              <option value="12">1 năm qua</option>
+              <option value="100">Tất cả thời gian</option>
+            </select>
           </div>
           <div class="chart-bar" id="revenue-chart"></div>
         </div>
@@ -547,7 +552,36 @@
 </div>
 
 <!-- ============ MODALS ============ -->
-<!-- Product Form Modal -->
+<!-- Product Form Modal (Full) -->
+<style>
+#product-modal .modal { max-width: 780px; max-height: 90vh; overflow-y: auto; }
+#product-modal .modal-body { padding-top: 0; }
+.pm-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-1); margin-bottom: 20px; }
+.pm-tab { padding: 10px 18px; font-size: 0.82rem; font-weight: 600; color: var(--text-400); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; letter-spacing: .3px; }
+.pm-tab.active { color: var(--gold-400); border-bottom-color: var(--gold-400); }
+.pm-panel { display: none; } .pm-panel.active { display: block; }
+.pm-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 12px; }
+.pm-img-thumb { position: relative; aspect-ratio: 1; border-radius: var(--r-sm); overflow: hidden; background: var(--bg-secondary); border: 1px solid var(--border-1); }
+.pm-img-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pm-img-thumb .pm-rm-img { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; background: rgba(239,68,68,.9); border: none; color: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.spec-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.spec-row .form-input { flex: 1; }
+.spec-row .rm-spec { width: 32px; height: 32px; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); color: var(--red-400,#ef4444); border-radius: var(--r-sm); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tag-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; background: var(--bg-secondary); border: 1px solid var(--border-1); border-radius: var(--r-sm); min-height: 42px; cursor: text; }
+.tag-chip { background: var(--bg-glass); border: 1px solid var(--border-1); border-radius: var(--r-full); padding: 3px 10px; font-size: 0.75rem; color: var(--text-200); display: flex; align-items: center; gap: 5px; }
+.tag-chip button { background: none; border: none; color: var(--text-400); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+.tag-input-hidden { border: none; background: none; outline: none; color: var(--text-100); font-size: 0.8rem; min-width: 80px; flex: 1; font-family: inherit; }
+.badge-select-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge-opt { padding: 4px 14px; border-radius: var(--r-full); border: 1px solid var(--border-1); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all .15s; background: transparent; }
+.badge-opt.selected { background: var(--gold-500); border-color: var(--gold-500); color: #06060d; }
+.badge-opt[data-val="HOT"] { color: #f97316; border-color: rgba(249,115,22,.3); }
+.badge-opt[data-val="HOT"].selected { background: #f97316; color: #fff; border-color: #f97316; }
+.badge-opt[data-val="NEW"] { color: #22c55e; border-color: rgba(34,197,94,.3); }
+.badge-opt[data-val="NEW"].selected { background: #22c55e; color: #fff; border-color: #22c55e; }
+.badge-opt[data-val="SALE"] { color: #ef4444; border-color: rgba(239,68,68,.3); }
+.badge-opt[data-val="SALE"].selected { background: #ef4444; color: #fff; border-color: #ef4444; }
+.badge-opt[data-val=""] { color: var(--text-400); }
+</style>
 <div class="modal-overlay" id="product-modal">
   <div class="modal wide">
     <button class="modal-close-btn" onclick="closeModal('product-modal')" id="btn-close-product-modal">
@@ -560,50 +594,150 @@
       <h2 class="modal-title" id="product-modal-title">Thêm sản phẩm</h2>
     </div>
     <div class="modal-body">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Tên sản phẩm *</label>
-          <input type="text" id="pm-name" class="form-input" placeholder="Sony Alpha A7 IV">
+      <!-- Tabs -->
+      <div class="pm-tabs">
+        <div class="pm-tab active" onclick="pmSwitchTab('basic', this)">📋 Thông tin cơ bản</div>
+        <div class="pm-tab" onclick="pmSwitchTab('images', this)">🖼️ Hình ảnh</div>
+        <div class="pm-tab" onclick="pmSwitchTab('specs', this)">🔧 Thông số kỹ thuật</div>
+        <div class="pm-tab" onclick="pmSwitchTab('meta', this)">🏷️ Tags & Badge</div>
+      </div>
+
+      <!-- Panel 1: Basic -->
+      <div class="pm-panel active" id="pm-panel-basic">
+        <div class="form-row">
+          <div class="form-group" style="flex:2;">
+            <label class="form-label">Tên sản phẩm *</label>
+            <input type="text" id="pm-name" class="form-input" placeholder="Sony Alpha A7 IV">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hãng *</label>
+            <select id="pm-brand" class="form-input">
+              <option>Sony</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option><option>Leica</option><option>Panasonic</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Danh mục *</label>
+            <select id="pm-cat" class="form-input">
+              <option value="mirrorless">Mirrorless</option>
+              <option value="dslr">DSLR</option>
+              <option value="lens">Ống kính</option>
+              <option value="accessory">Phụ kiện</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tồn kho</label>
+            <input type="number" id="pm-stock" class="form-input" placeholder="0" min="0">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Giá bán (đ) *</label>
+            <input type="number" id="pm-price" class="form-input" placeholder="62990000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Giá gốc (đ)</label>
+            <input type="number" id="pm-original-price" class="form-input" placeholder="Để trống nếu không sale">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Đánh giá (0–5)</label>
+            <input type="number" id="pm-rating" class="form-input" placeholder="4.8" min="0" max="5" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Số lượt review</label>
+            <input type="number" id="pm-reviews" class="form-input" placeholder="0" min="0">
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Hãng *</label>
-          <select id="pm-brand" class="form-input">
-            <option>Sony</option><option>Canon</option><option>Fujifilm</option><option>Nikon</option>
-          </select>
+          <label class="form-label">Mô tả sản phẩm</label>
+          <textarea id="pm-desc" class="form-input" rows="4" style="resize:vertical;" placeholder="Mô tả ngắn gọn về sản phẩm..."></textarea>
         </div>
       </div>
-      <div class="form-row">
+
+      <!-- Panel 2: Images -->
+      <div class="pm-panel" id="pm-panel-images">
         <div class="form-group">
-          <label class="form-label">Danh mục *</label>
-          <select id="pm-cat" class="form-input">
-            <option value="mirrorless">Mirrorless</option>
-            <option value="dslr">DSLR</option>
-            <option value="lens">Ống kính</option>
-            <option value="compact">Compact</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tồn kho</label>
-          <input type="number" id="pm-stock" class="form-input" placeholder="0" min="0">
+          <label class="form-label">Hình ảnh sản phẩm (có thể chọn nhiều ảnh)</label>
+          <!-- Thumbnails grid -->
+          <div class="pm-img-grid" id="pm-img-grid"></div>
+          <!-- Drop zone -->
+          <div id="pm-drop-zone" style="
+            border: 2px dashed var(--border-1); border-radius: var(--r-md);
+            padding: 32px 20px; text-align: center; cursor: pointer;
+            background: var(--bg-secondary); transition: border-color .2s, background .2s;
+          " onclick="document.getElementById('pm-image-file').click()"
+             ondragover="event.preventDefault(); this.style.borderColor='var(--gold-400)'; this.style.background='rgba(212,168,67,0.06)';"
+             ondragleave="this.style.borderColor=''; this.style.background='';"
+             ondrop="pmHandleDrop(event)">
+            <input type="file" id="pm-image-file" accept="image/*" multiple style="display:none" onchange="pmHandleFileSelect(event)">
+            <svg style="width:40px;height:40px;stroke:var(--text-500);fill:none;stroke-width:1.4;margin:0 auto 12px;display:block;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div style="font-size:.875rem; color:var(--text-400); margin-bottom:5px;">Kéo thả nhiều ảnh vào đây hoặc <span style="color:var(--gold-400);font-weight:600;">chọn tệp</span></div>
+            <div style="font-size:.73rem; color:var(--text-500);">PNG · JPG · WebP · Mỗi ảnh tối đa 5MB</div>
+          </div>
+          <div id="pm-upload-progress" style="display:none; margin-top:10px; font-size:.8rem; color:var(--text-400);"></div>
         </div>
       </div>
-      <div class="form-row">
+
+      <!-- Panel 3: Specs -->
+      <div class="pm-panel" id="pm-panel-specs">
         <div class="form-group">
-          <label class="form-label">Giá bán (đồng) *</label>
-          <input type="number" id="pm-price" class="form-input" placeholder="0">
+          <label class="form-label">Thông số kỹ thuật <span style="color:var(--text-500); font-weight:400;">(thêm từng dòng)</span></label>
+          <div id="pm-specs-list"></div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="pmAddSpecRow()" style="margin-top:8px;">
+            <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Thêm thông số
+          </button>
         </div>
-        <div class="form-group">
-          <label class="form-label">Giá gốc (đồng)</label>
-          <input type="number" id="pm-original-price" class="form-input" placeholder="Để trống nếu không sale">
+        <div style="margin-top:16px; padding:14px; background:var(--bg-secondary); border-radius:var(--r-sm); border:1px solid var(--border-1);">
+          <div style="font-size:.75rem; color:var(--text-500); font-weight:600; margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px;">Gợi ý thông số phổ biến</div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Cảm biến', '')">Cảm biến</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('ISO', '')">ISO</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Tốc độ chụp liên tiếp', '')">Tốc độ chụp</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Quay video', '')">Quay video</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Lấy nét', '')">Lấy nét</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Ổn định hình ảnh', '')">IBIS</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Màn hình', '')">Màn hình</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Kết nối', '')">Kết nối</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Pin', '')">Pin</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Trọng lượng', '')">Trọng lượng</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Bảo hành', '')">Bảo hành</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Tiêu cự', '')">Tiêu cự</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Khẩu độ tối đa', '')">Khẩu độ</button>
+            <button type="button" class="btn btn-sm" style="font-size:.72rem; padding:3px 10px; background:var(--bg-glass); border:1px solid var(--border-1); border-radius:var(--r-full);" onclick="pmAddSpecRow('Đường kính lọc', '')">Filter size</button>
+          </div>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Mô tả</label>
-        <textarea id="pm-desc" class="form-input" rows="3" style="resize:vertical;" placeholder="Mô tả ngắn gọn về sản phẩm..."></textarea>
+
+      <!-- Panel 4: Tags & Badge -->
+      <div class="pm-panel" id="pm-panel-meta">
+        <div class="form-group">
+          <label class="form-label">Tags <span style="color:var(--text-500);font-weight:400;">(gõ rồi nhấn Enter hoặc dấu phẩy)</span></label>
+          <div class="tag-chips" id="pm-tag-chips" onclick="document.getElementById('pm-tag-input').focus()">
+            <input type="text" id="pm-tag-input" class="tag-input-hidden" placeholder="Full-Frame, 33MP, 4K..." onkeydown="pmHandleTagInput(event)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Badge</label>
+          <div class="badge-select-row" id="pm-badge-row">
+            <button type="button" class="badge-opt selected" data-val="" onclick="pmSelectBadge(this)">Không có</button>
+            <button type="button" class="badge-opt" data-val="HOT" onclick="pmSelectBadge(this)">HOT</button>
+            <button type="button" class="badge-opt" data-val="NEW" onclick="pmSelectBadge(this)">NEW</button>
+            <button type="button" class="badge-opt" data-val="SALE" onclick="pmSelectBadge(this)">SALE</button>
+          </div>
+        </div>
       </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:4px;">
+
+      <!-- Footer -->
+      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border-1);">
         <button class="btn btn-secondary" onclick="closeModal('product-modal')" id="btn-cancel-product">Hủy</button>
-        <button class="btn btn-primary" onclick="saveProduct()" id="btn-save-product">Lưu sản phẩm</button>
+        <button class="btn btn-primary" onclick="saveProduct()" id="btn-save-product">
+          <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Lưu sản phẩm
+        </button>
       </div>
     </div>
   </div>
@@ -625,10 +759,38 @@
   </div>
 </div>
 
+<!-- Low Stock Modal -->
+<div class="modal-overlay" id="low-stock-modal">
+  <div class="modal" style="max-width:600px; max-height:80vh; display:flex; flex-direction:column;">
+    <button class="modal-close-btn" onclick="closeModal('low-stock-modal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header" style="flex-shrink:0;">
+      <div class="modal-icon" style="background:rgba(239, 68, 68, 0.1); color:var(--red-400);">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h2 class="modal-title">Sản phẩm sắp hết hàng (≤ 5)</h2>
+    </div>
+    <div class="modal-body" style="padding:0; overflow-y:auto; flex:1;">
+      <table class="data-table">
+        <thead style="position:sticky; top:0; background:var(--bg-card); z-index:1;">
+          <tr>
+            <th>Mã SP</th>
+            <th>Hình ảnh</th>
+            <th>Tên sản phẩm</th>
+            <th>Tồn kho</th>
+          </tr>
+        </thead>
+        <tbody id="low-stock-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 <div class="toast-container" id="toast-container"></div>
 
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
 /* -------- Data -------- */
@@ -654,38 +816,6 @@ const pendingReviews = [
   { author: 'Lê Thu',       product: 'Canon RF 70-200mm', rating: 5, text: 'Ống kính sharp cực kỳ, màu rất đẹp!', date: '25/09/2026' },
 ];
 
-/* -------- Dynamic Data Fetch from Supabase -------- */
-async function loadAdminData() {
-  const { data: orders } = await supabaseClient.from('orders').select('*');
-  const { data: products } = await supabaseClient.from('products').select('*');
-  
-  if (orders) Store.orders = orders;
-  if (products && products.length > 0) Store.products = products;
-  
-  // Calculate total revenue
-  const totalRevenue = (Store.orders || []).reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
-  const totalOrders = (Store.orders || []).length;
-  
-  // Update UI Stats
-  const revenueStat = document.querySelector('.stat-card.gold .stat-value');
-  if (revenueStat) revenueStat.textContent = (totalRevenue / 1000000).toFixed(1) + 'M đ';
-  
-  const ordersStat = document.querySelector('.stat-card.blue .stat-value');
-  if (ordersStat) ordersStat.textContent = totalOrders;
-  
-  // Generate Revenue Chart (Mocking last 6 months based on actual total for demo)
-  window.revenueData = [
-    { month: 'T4', value: 120, pct: 30 },
-    { month: 'T5', value: 150, pct: 40 },
-    { month: 'T6', value: 180, pct: 50 },
-    { month: 'T7', value: 210, pct: 60 },
-    { month: 'T8', value: 250, pct: 75 },
-    { month: 'T9', value: (totalRevenue / 1000000).toFixed(1), pct: 85 }
-  ];
-  
-  renderDashboard();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   const u = Store.currentUser;
   if (u) {
@@ -695,10 +825,112 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString('vi-VN', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   });
-  
-  // Load real data instead of just calling renderDashboard
-  loadAdminData();
 });
+
+// Load data từ Supabase sau khi store sẵn sàng
+document.addEventListener('store:ready', () => {
+  updateAdminStats();
+  renderDashboard();
+});
+
+function updateAdminStats() {
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
+  let lastMonth = currentMonth - 1;
+  let lastMonthYear = currentYear;
+  if (lastMonth === 0) { lastMonth = 12; lastMonthYear = currentYear - 1; }
+  
+  // Orders by month
+  const thisMonthOrders = Store.orders.filter(o => {
+    if(!o.date) return false;
+    const d = new Date(o.date);
+    return d.getMonth() + 1 === currentMonth && d.getFullYear() === currentYear;
+  });
+  const lastMonthOrders = Store.orders.filter(o => {
+    if(!o.date) return false;
+    const d = new Date(o.date);
+    return d.getMonth() + 1 === lastMonth && d.getFullYear() === lastMonthYear;
+  });
+
+  const totalRevenueThisMonth = thisMonthOrders.reduce((s, o) => s + Number(o.total || 0), 0);
+  const totalRevenueLastMonth = lastMonthOrders.reduce((s, o) => s + Number(o.total || 0), 0);
+  
+  let revDiffPct = 0;
+  if (totalRevenueLastMonth > 0) {
+    revDiffPct = ((totalRevenueThisMonth - totalRevenueLastMonth) / totalRevenueLastMonth * 100).toFixed(1);
+  } else if (totalRevenueThisMonth > 0) {
+    revDiffPct = 100;
+  }
+  
+  // Calculate today's orders
+  const today = new Date().toISOString().split('T')[0];
+  const todayOrders = Store.orders.filter(o => o.date && o.date.startsWith(today)).length;
+  const yesterdayOrders = Store.orders.filter(o => {
+    if(!o.date) return false;
+    const d = new Date(); d.setDate(d.getDate() - 1);
+    return o.date.startsWith(d.toISOString().split('T')[0]);
+  }).length;
+  const orderDiff = todayOrders - yesterdayOrders;
+
+  // Calculate unique customers
+  const uniqueCustomers = new Set(Store.orders.map(o => o.customer || o.userId)).size;
+  const custThisMonth = new Set(thisMonthOrders.map(o => o.customer || o.userId)).size;
+  const custLastMonth = new Set(lastMonthOrders.map(o => o.customer || o.userId)).size;
+  let custDiffPct = 0;
+  if (custLastMonth > 0) {
+    custDiffPct = ((custThisMonth - custLastMonth) / custLastMonth * 100).toFixed(1);
+  } else if (custThisMonth > 0) {
+    custDiffPct = 100;
+  }
+
+  // Calculate low stock products
+  const lowStockCount = Store.products.filter(p => p.stock > 0 && p.stock <= 5).length;
+
+  const revenueStat = document.querySelector('.stat-card.gold .stat-value');
+  if (revenueStat) {
+    revenueStat.textContent = (totalRevenueThisMonth / 1000000).toFixed(1) + 'M đ';
+    const diffEl = revenueStat.nextElementSibling;
+    if (diffEl) {
+      diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${revDiffPct >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(revDiffPct)}% so với tháng trước`;
+      diffEl.className = `stat-change ${revDiffPct >= 0 ? 'up' : 'down'}`;
+    }
+  }
+
+  const ordersStat = document.querySelector('.stat-card.blue .stat-value');
+  if (ordersStat) {
+    ordersStat.textContent = todayOrders;
+    const diffEl = ordersStat.nextElementSibling;
+    if (diffEl) {
+      diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${orderDiff >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(orderDiff)} đơn so với hôm qua`;
+      diffEl.className = `stat-change ${orderDiff >= 0 ? 'up' : 'down'}`;
+    }
+  }
+
+  const customersStat = document.querySelector('.stat-card.purple .stat-value');
+  if (customersStat) {
+    customersStat.textContent = uniqueCustomers;
+    const diffEl = customersStat.nextElementSibling;
+    if (diffEl) {
+      diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${custDiffPct >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(custDiffPct)}% so với tháng trước`;
+      diffEl.className = `stat-change ${custDiffPct >= 0 ? 'up' : 'down'}`;
+    }
+  }
+
+  const stockStat = document.querySelector('.stat-card.red .stat-value');
+  if (stockStat) {
+    stockStat.textContent = lowStockCount;
+    const diffEl = stockStat.nextElementSibling;
+    if (diffEl) {
+      if (lowStockCount > 0) {
+        diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Cần nhập thêm hàng`;
+        diffEl.className = 'stat-change down';
+      } else {
+        diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Kho hàng ổn định`;
+        diffEl.className = 'stat-change up';
+      }
+    }
+  }
+}
 
 /* -------- Section Switch -------- */
 function showSection(section, navEl) {
@@ -720,33 +952,112 @@ function renderDashboard() {
 function renderRevenueChart() {
   const el = document.getElementById('revenue-chart');
   if (!el) return;
-  el.innerHTML = revenueData.map(d => `
+  const filterVal = parseInt(document.getElementById('revenue-time-filter')?.value || 6);
+  
+  const months = {};
+  Store.orders.forEach(o => {
+    if (!o.date) return;
+    const d = new Date(o.date);
+    const key = `T${d.getMonth() + 1}/${d.getFullYear()}`;
+    if (!months[key]) months[key] = 0;
+    months[key] += Number(o.total || 0);
+  });
+  
+  const sortedKeys = Object.keys(months).sort((a,b) => {
+    const [ma, ya] = a.substring(1).split('/').map(Number);
+    const [mb, yb] = b.substring(1).split('/').map(Number);
+    return (ya - yb) || (ma - mb);
+  }).slice(-filterVal);
+  
+  if (sortedKeys.length === 0) {
+    el.innerHTML = '<div style="padding:40px 0; text-align:center; color:var(--text-400);">Chưa có dữ liệu doanh thu (tháng này chưa có đơn hàng nào)</div>';
+    return;
+  }
+  
+  const maxVal = Math.max(...sortedKeys.map(k => months[k]));
+  const chartData = sortedKeys.map(k => {
+    const val = months[k] / 1000000;
+    const pct = maxVal > 0 ? (months[k] / maxVal) * 100 : 0;
+    return { month: k.split('/')[0], value: val.toFixed(1), pct: Math.min(Math.max(pct, 5), 100) };
+  });
+
+  el.innerHTML = chartData.map(d => `
     <div class="chart-row">
-      <div class="chart-label">${d.month}/2026</div>
+      <div class="chart-label">${d.month}</div>
       <div class="chart-track">
         <div class="chart-fill" data-pct="${d.pct}">${d.value >= 50 ? d.value + 'M' : ''}</div>
       </div>
       <div class="chart-value">${d.value}M đ</div>
     </div>`).join('');
-  // Animate bars
+    
   setTimeout(() => {
     el.querySelectorAll('.chart-fill').forEach(bar => {
       bar.style.width = bar.dataset.pct + '%';
     });
-  }, 100);
+  }, 10);
+}
+
+function showLowStockModal() {
+  const tbody = document.getElementById('low-stock-tbody');
+  const lowStockProducts = Store.products.filter(p => p.stock > 0 && p.stock <= 5);
+  
+  if (lowStockProducts.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:30px 0; color:var(--text-400);">Không có sản phẩm nào sắp hết hàng</td></tr>`;
+  } else {
+    tbody.innerHTML = lowStockProducts.map(p => `
+      <tr>
+        <td style="color:var(--text-400); font-size:0.75rem;">PV-${String(p.id).padStart(4,'0')}</td>
+        <td><img src="${getProductImageSrc(p.images, false)}" style="width:36px;height:36px;border-radius:var(--r-sm);object-fit:cover;background:var(--bg-secondary);" onerror="this.src=''"></td>
+        <td style="font-weight:600; color:var(--text-100);">${p.name}</td>
+        <td style="font-weight:700; color:var(--red-400);">${p.stock}</td>
+      </tr>
+    `).join('');
+  }
+  openModal('low-stock-modal');
 }
 
 function renderTopProducts() {
   const el = document.getElementById('top-products-list');
   if (!el) return;
-  const sorted = [...Store.products].sort((a,b) => b.reviews - a.reviews).slice(0,5);
+  
+  // Calculate sales from Store.orders
+  const salesMap = {};
+  Store.orders.forEach(o => {
+    if (Array.isArray(o.items) && o.items.length > 0) {
+      o.items.forEach(item => {
+        if (!salesMap[item.id]) salesMap[item.id] = 0;
+        salesMap[item.id] += (item.qty || 1);
+      });
+    } else if (o.product) {
+      // Fallback for older mock orders where product is just a string
+      const matchedProd = Store.products.find(p => p.name === o.product || o.product.includes(p.name));
+      if (matchedProd) {
+        if (!salesMap[matchedProd.id]) salesMap[matchedProd.id] = 0;
+        salesMap[matchedProd.id] += 1;
+      }
+    }
+  });
+
+  const sorted = [...Store.products].map(p => ({
+    ...p,
+    salesCount: salesMap[p.id] || 0
+  }))
+  .filter(p => p.salesCount > 0)
+  .sort((a,b) => b.salesCount - a.salesCount)
+  .slice(0,5);
+
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="padding:40px 0; text-align:center; color:var(--text-400);">Chưa có dữ liệu bán hàng</div>';
+    return;
+  }
+
   el.innerHTML = sorted.map((p,i) => `
     <div class="top-product-row">
       <div class="top-product-rank rank-${i+1}">${i < 3 ? ['01','02','03'][i] : '0'+(i+1)}</div>
-      <img src="../${p.images[0]}" style="width:36px;height:36px;border-radius:var(--r-sm);object-fit:cover;background:var(--bg-secondary);">
+      <img src="${getProductImageSrc(p.images, false)}" style="width:36px;height:36px;border-radius:var(--r-sm);object-fit:cover;background:var(--bg-secondary);" onerror="this.src=''">
       <div style="flex:1; min-width:0;">
         <div style="font-size:0.845rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-100);">${p.name}</div>
-        <div style="font-size:0.72rem; color:var(--text-400);">${p.reviews} đánh giá</div>
+        <div style="font-size:0.72rem; color:var(--text-400);">${p.salesCount} lượt mua</div>
       </div>
       <div style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--gold-400); font-size:0.875rem; white-space:nowrap;">${formatPrice(p.price)}</div>
     </div>`).join('');
@@ -797,7 +1108,7 @@ function filterAdminProducts() {
   tbody.innerHTML = list.map(p => `
     <tr>
       <td style="color:var(--text-400); font-size:0.75rem;">PV-${String(p.id).padStart(4,'0')}</td>
-      <td><img class="tbl-product-img" src="../${p.images[0]}" alt="" onerror="this.style.opacity='.2'"></td>
+      <td><img class="tbl-product-img" src="${getProductImageSrc(p.images, false)}" alt="" onerror="this.style.opacity='.2'"></td>
       <td style="font-weight:600; color:var(--text-100);">${p.name}</td>
       <td>${p.brand}</td>
       <td><span class="order-status status-processing" style="font-size:0.68rem;">${catLabel[p.category]||p.category}</span></td>
@@ -929,72 +1240,341 @@ function renderReports() {
 }
 
 /* -------- Actions -------- */
+
+/* === Tab switcher === */
+function pmSwitchTab(name, el) {
+  document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.pm-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('pm-panel-' + name).classList.add('active');
+}
+
+/* === Multi-image state === */
+let _pmImages = []; // { file: File|null, url: string, isExisting: bool }
+
+function pmRenderImageGrid() {
+  const grid = document.getElementById('pm-img-grid');
+  if (!grid) return;
+  grid.innerHTML = _pmImages.map((img, i) => `
+    <div class="pm-img-thumb">
+      <img src="${img.url}" alt="img ${i+1}" onerror="this.src=''">
+      <button type="button" class="pm-rm-img" onclick="pmRemoveImage(${i})">×</button>
+    </div>`).join('');
+}
+
+function pmRemoveImage(idx) {
+  _pmImages.splice(idx, 1);
+  pmRenderImageGrid();
+}
+
+function pmHandleFileSelect(event) {
+  const files = Array.from(event.target.files);
+  pmAddFiles(files);
+  event.target.value = ''; // reset so same file can be re-added
+}
+
+function pmHandleDrop(event) {
+  event.preventDefault();
+  event.currentTarget.style.borderColor = '';
+  event.currentTarget.style.background  = '';
+  const files = Array.from(event.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+  pmAddFiles(files);
+}
+
+function pmAddFiles(files) {
+  const valid = files.filter(f => {
+    if (f.size > 5 * 1024 * 1024) { showToast(`${f.name} quá 5MB`, 'error'); return false; }
+    return true;
+  });
+  valid.forEach(file => {
+    const url = URL.createObjectURL(file);
+    _pmImages.push({ file, url, isExisting: false });
+  });
+  pmRenderImageGrid();
+  if (valid.length) showToast(`Đã thêm ${valid.length} ảnh`, 'info');
+}
+
+async function pmUploadAllImages() {
+  const progressEl = document.getElementById('pm-upload-progress');
+  const toUpload = _pmImages.filter(img => !img.isExisting && img.file);
+  if (toUpload.length === 0) return _pmImages.map(img => img.url);
+
+  if (progressEl) { progressEl.style.display = 'block'; progressEl.textContent = `Đang upload 0/${toUpload.length} ảnh...`; }
+
+  let uploaded = 0;
+  for (const img of toUpload) {
+    const ext  = img.file.name.split('.').pop();
+    const path = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+    const { data, error } = await window._pvSupabase.storage
+      .from('product-images')
+      .upload(path, img.file, { cacheControl: '3600', upsert: false });
+    if (!error) {
+      const { data: urlData } = window._pvSupabase.storage.from('product-images').getPublicUrl(path);
+      img.url = urlData.publicUrl;
+      img.isExisting = true;
+      img.file = null;
+    } else {
+      console.error('Upload error:', error.message);
+    }
+    uploaded++;
+    if (progressEl) progressEl.textContent = `Đang upload ${uploaded}/${toUpload.length} ảnh...`;
+  }
+  if (progressEl) progressEl.style.display = 'none';
+  return _pmImages.map(img => img.url);
+}
+
+/* === Specs rows === */
+function pmAddSpecRow(key = '', value = '') {
+  const list = document.getElementById('pm-specs-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'spec-row';
+  row.innerHTML = `
+    <input type="text" class="form-input spec-key" placeholder="Tên thông số (ví dụ: Cảm biến)" value="${key}" style="flex:1;">
+    <input type="text" class="form-input spec-val" placeholder="Giá trị" value="${value}" style="flex:1.5;">
+    <button type="button" class="rm-spec" onclick="this.closest('.spec-row').remove()" title="Xóa">
+      <svg style="width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>`;
+  list.appendChild(row);
+  // Focus value field if key was preset
+  if (key) row.querySelector('.spec-val').focus();
+  else row.querySelector('.spec-key').focus();
+}
+
+function pmGetSpecs() {
+  const specs = {};
+  document.querySelectorAll('#pm-specs-list .spec-row').forEach(row => {
+    const k = row.querySelector('.spec-key').value.trim();
+    const v = row.querySelector('.spec-val').value.trim();
+    if (k) specs[k] = v;
+  });
+  return specs;
+}
+
+/* === Tags === */
+let _pmTags = [];
+
+function pmRenderTags() {
+  const chips = document.getElementById('pm-tag-chips');
+  if (!chips) return;
+  const input = document.getElementById('pm-tag-input');
+  chips.innerHTML = '';
+  _pmTags.forEach((tag, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'tag-chip';
+    chip.innerHTML = `${tag} <button type="button" onclick="pmRemoveTag(${i})">×</button>`;
+    chips.appendChild(chip);
+  });
+  chips.appendChild(input);
+}
+
+function pmRemoveTag(i) {
+  _pmTags.splice(i, 1);
+  pmRenderTags();
+}
+
+function pmHandleTagInput(e) {
+  const input = e.target;
+  if (e.key === 'Enter' || e.key === ',') {
+    e.preventDefault();
+    const val = input.value.replace(/,/g, '').trim();
+    if (val && !_pmTags.includes(val)) { _pmTags.push(val); pmRenderTags(); }
+    input.value = '';
+  } else if (e.key === 'Backspace' && input.value === '' && _pmTags.length) {
+    _pmTags.pop(); pmRenderTags();
+  }
+}
+
+/* === Badge selector === */
+function pmSelectBadge(el) {
+  document.querySelectorAll('#pm-badge-row .badge-opt').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function pmGetBadge() {
+  const sel = document.querySelector('#pm-badge-row .badge-opt.selected');
+  return sel ? (sel.dataset.val || null) : null;
+}
+
+/* === Open modal === */
 function openProductModal(productId = null) {
   const modal = document.getElementById('product-modal');
   const title = document.getElementById('product-modal-title');
+
+  // Reset all state
+  _pmImages = [];
+  _pmTags   = [];
+  pmRenderImageGrid();
+  pmRenderTags();
+  document.getElementById('pm-specs-list').innerHTML = '';
+  document.querySelectorAll('#pm-badge-row .badge-opt').forEach(b => b.classList.remove('selected'));
+  document.querySelector('#pm-badge-row .badge-opt[data-val=""]').classList.add('selected');
+
+  // Switch back to first tab
+  pmSwitchTab('basic', document.querySelector('.pm-tab'));
+
   if (productId) {
     const p = Store.products.find(x => x.id === productId);
     if (!p) return;
     title.textContent = 'Chỉnh sửa sản phẩm';
-    document.getElementById('pm-name').value = p.name;
-    document.getElementById('pm-brand').value = p.brand;
-    document.getElementById('pm-cat').value = p.category;
-    document.getElementById('pm-stock').value = p.stock;
-    document.getElementById('pm-price').value = p.price;
+    document.getElementById('pm-name').value           = p.name;
+    document.getElementById('pm-brand').value          = p.brand;
+    document.getElementById('pm-cat').value            = p.category;
+    document.getElementById('pm-stock').value          = p.stock;
+    document.getElementById('pm-price').value          = p.price;
     document.getElementById('pm-original-price').value = p.originalPrice || '';
-    document.getElementById('pm-desc').value = p.description;
+    document.getElementById('pm-rating').value         = p.rating || '';
+    document.getElementById('pm-reviews').value        = p.reviews || '';
+    document.getElementById('pm-desc').value           = p.description || '';
+    // Images
+    if (p.images && p.images.length) {
+      _pmImages = p.images.map(url => ({ file: null, url, isExisting: true }));
+      pmRenderImageGrid();
+    }
+    // Specs
+    if (p.specs && typeof p.specs === 'object') {
+      Object.entries(p.specs).forEach(([k,v]) => pmAddSpecRow(k, v));
+    }
+    // Tags
+    _pmTags = p.tags ? [...p.tags] : [];
+    pmRenderTags();
+    // Badge
+    const badgeBtn = document.querySelector(`#pm-badge-row .badge-opt[data-val="${p.badge || ''}"]`);
+    if (badgeBtn) pmSelectBadge(badgeBtn);
     modal.dataset.editId = productId;
   } else {
     title.textContent = 'Thêm sản phẩm mới';
-    ['pm-name','pm-stock','pm-price','pm-original-price','pm-desc'].forEach(id => document.getElementById(id).value = '');
+    ['pm-name','pm-stock','pm-price','pm-original-price','pm-rating','pm-reviews','pm-desc'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('pm-brand').value = 'Sony';
+    document.getElementById('pm-cat').value   = 'mirrorless';
     delete modal.dataset.editId;
   }
   openModal('product-modal');
 }
 
-function saveProduct() {
+/* ==== Image Upload Helpers ==== */
+let _pendingImageFile = null;
+let _pendingImageUrl  = null;
+
+function handleImageSelect(event) {
+  const file = event.target.files[0];
+  if (file) _setImageFile(file);
+}
+
+function handleImageDrop(event) {
+  event.preventDefault();
+  const file = event.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) _setImageFile(file);
+  event.currentTarget.style.borderColor = '';
+  event.currentTarget.style.background  = '';
+}
+
+function _setImageFile(file) {
+  if (file.size > 5 * 1024 * 1024) { showToast('Ảnh quá 5MB!', 'error'); return; }
+  _pendingImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('pm-preview-img').src = e.target.result;
+    document.getElementById('pm-image-preview').style.display = 'block';
+    document.getElementById('pm-upload-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImageUpload() {
+  _pendingImageFile = null;
+  document.getElementById('pm-image-file').value = '';
+  document.getElementById('pm-image-preview').style.display  = 'none';
+  document.getElementById('pm-upload-placeholder').style.display = 'block';
+}
+
+async function _uploadImageToSupabase(file) {
+  const ext  = file.name.split('.').pop();
+  const path = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const { data, error } = await window._pvSupabase.storage
+    .from('product-images')
+    .upload(path, file, { cacheControl: '3600', upsert: false });
+  if (error) { console.error('Upload error:', error); return null; }
+  const { data: urlData } = window._pvSupabase.storage
+    .from('product-images')
+    .getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
+/* ==== Product CRUD (Supabase-backed) ==== */
+async function saveProduct() {
   const name  = document.getElementById('pm-name').value.trim();
   const price = parseInt(document.getElementById('pm-price').value);
-  if (!name || !price) { showToast('Vui lòng điền đầy đủ thông tin bắt buộc', 'error'); return; }
+  if (!name || !price) { showToast('Vui lòng điền đầy đủ Tên và Giá bán', 'error'); return; }
+
+  const btn = document.getElementById('btn-save-product');
+  btn.disabled = true;
+  btn.innerHTML = `<svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;margin-right:6px;" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Đang lưu...`;
+
+  // Upload all images
+  const imageUrls = await pmUploadAllImages();
+
+  const productData = {
+    name,
+    brand:         document.getElementById('pm-brand').value,
+    category:      document.getElementById('pm-cat').value,
+    stock:         parseInt(document.getElementById('pm-stock').value) || 0,
+    price,
+    originalPrice: parseInt(document.getElementById('pm-original-price').value) || price,
+    description:   document.getElementById('pm-desc').value,
+    rating:        parseFloat(document.getElementById('pm-rating').value) || 0,
+    reviews:       parseInt(document.getElementById('pm-reviews').value) || 0,
+    images:        imageUrls,
+    specs:         pmGetSpecs(),
+    tags:          _pmTags,
+    badge:         pmGetBadge()
+  };
+
   const modal = document.getElementById('product-modal');
   if (modal.dataset.editId) {
-    const p = Store.products.find(x => x.id === parseInt(modal.dataset.editId));
-    if (p) {
-      Object.assign(p, {
-        name, brand: document.getElementById('pm-brand').value,
-        category: document.getElementById('pm-cat').value,
-        stock: parseInt(document.getElementById('pm-stock').value) || 0,
-        price, originalPrice: parseInt(document.getElementById('pm-original-price').value) || price,
-        description: document.getElementById('pm-desc').value,
-      });
+    const id = parseInt(modal.dataset.editId);
+    const updated = await window.SupabaseDB.updateProduct(id, productData);
+    if (updated) {
+      const idx = Store.products.findIndex(p => p.id === id);
+      if (idx >= 0) Store.products[idx] = updated;
+      showToast('Cập nhật sản phẩm thành công', 'success');
+    } else {
+      showToast('Lỗi cập nhật sản phẩm', 'error');
     }
-    showToast('Cập nhật sản phẩm thành công', 'success');
   } else {
-    Store.products.push({
-      id: Store.products.length + 1, name,
-      brand: document.getElementById('pm-brand').value,
-      category: document.getElementById('pm-cat').value,
-      price, originalPrice: parseInt(document.getElementById('pm-original-price').value) || price,
-      images: ['assets/images/sony_alpha.jpg'],
-      specs: {}, tags: [], rating: 0, reviews: 0,
-      stock: parseInt(document.getElementById('pm-stock').value) || 0,
-      badge: null, description: document.getElementById('pm-desc').value,
-    });
-    showToast('Thêm sản phẩm thành công', 'success');
+    const created = await window.SupabaseDB.addProduct(productData);
+    if (created) {
+      Store.products.push(created);
+      showToast('Thêm sản phẩm thành công!', 'success');
+    } else {
+      showToast('Lỗi thêm sản phẩm', 'error');
+    }
   }
+
+  btn.disabled = false;
+  btn.innerHTML = `<svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Lưu sản phẩm`;
   closeModal('product-modal');
   filterAdminProducts();
+  updateAdminStats();
 }
 
 function editProduct(id) { openProductModal(id); }
 
-function deleteProduct(id) {
+async function deleteProduct(id) {
   const p = Store.products.find(x => x.id === id);
   if (!p) return;
-  if (confirm(`Xóa sản phẩm "${p.name}"?`)) {
+  if (!confirm(`Xóa sản phẩm "${p.name}"?`)) return;
+  const ok = await window.SupabaseDB.deleteProduct(id);
+  if (ok) {
     Store.products = Store.products.filter(x => x.id !== id);
     showToast('Đã xóa sản phẩm', 'info');
     filterAdminProducts();
+    updateAdminStats();
+  } else {
+    showToast('Lỗi khi xóa sản phẩm', 'error');
   }
 }
 
@@ -1021,12 +1601,19 @@ function viewOrder(id) {
   openModal('order-modal');
 }
 
-function updateOrderStatus(id, status) {
-  const o = Store.orders.find(x => x.id === id);
-  if (!o) return;
-  o.status = status;
+async function updateOrderStatus(id, status) {
   const labels = { pending:'Chờ xác nhận', confirmed:'Đã xác nhận', processing:'Đang xử lý', shipping:'Đang giao', completed:'Hoàn tất', cancelled:'Đã hủy' };
-  showToast(`Đơn ${id}: ${labels[status]}`, 'success');
+  const updated = await window.SupabaseDB.updateOrderStatus(id, status);
+  if (updated) {
+    const idx = Store.orders.findIndex(x => x.id === id);
+    if (idx >= 0) Store.orders[idx] = updated;
+    showToast(`Đơn ${id}: ${labels[status]}`, 'success');
+  } else {
+    // Cập nhật local nếu Supabase lỗi (admin đang test offline)
+    const o = Store.orders.find(x => x.id === id);
+    if (o) o.status = status;
+    showToast(`Đã cập nhật trạng thái (local)`, 'info');
+  }
   renderOrders();
   renderRecentOrders();
   // Update badge

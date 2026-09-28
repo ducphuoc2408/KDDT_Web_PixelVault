@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -115,17 +115,19 @@
 
 <div class="toast-container" id="toast-container"></div>
 
-<script src="../assets/js/data.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
 let currentProduct = null;
 let currentQty = 1;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('store:ready', async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const id = parseInt(urlParams.get('id')) || 1;
-  currentProduct = Store.products.find(p => p.id === id);
+  // Lấy sản phẩm từ Supabase
+  currentProduct = Store.products.find(p => p.id === id)
+    || await window.SupabaseDB.getProductById(id);
 
   if (!currentProduct) {
     document.getElementById('product-container').innerHTML = `
@@ -155,7 +157,13 @@ function renderProductDetails() {
     </div>`;
 
   // Gallery
-  const mainImage = p.images[0].startsWith('assets') ? '../' + p.images[0] : p.images[0];
+  const validImages = Array.isArray(p.images) && p.images.length > 0 ? p.images : [''];
+  const mainImage = getProductImageSrc(validImages, false);
+  const galleryThumbsHtml = validImages.map((img, idx) => {
+    const src = getProductImageSrc([img], false);
+    return `<div class="gallery-thumb ${idx === 0 ? 'active' : ''}"><img src="${src}"></div>`;
+  }).join('');
+
   const galleryHtml = `
     <div>
       <div class="gallery-main" id="gallery-main">
@@ -163,9 +171,7 @@ function renderProductDetails() {
         <img src="${mainImage}" alt="${p.name}">
       </div>
       <div class="gallery-thumbs">
-        <div class="gallery-thumb active"><img src="${mainImage}"></div>
-        <div class="gallery-thumb"><img src="${mainImage}" style="filter:grayscale(1) contrast(1.5);"></div>
-        <div class="gallery-thumb"><img src="${mainImage}" style="filter:sepia(0.5);"></div>
+        ${galleryThumbsHtml}
       </div>
     </div>`;
 

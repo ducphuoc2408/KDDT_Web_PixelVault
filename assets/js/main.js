@@ -49,9 +49,9 @@ const SVG = {
 
 /* ---- In-Memory Data Store ---- */
 const Store = {
-  products: typeof DB_DATA !== 'undefined' ? DB_DATA.products : [],
-  users: typeof DB_DATA !== 'undefined' ? DB_DATA.users : [],
-  orders: typeof DB_DATA !== 'undefined' ? DB_DATA.orders : [],
+  // Populated async from Supabase via initStore()
+  products:    [],
+  orders:      [],
 
   cart:        [],
   wishlist:    [],
@@ -59,20 +59,32 @@ const Store = {
   currentUser: null,
 };
 
-/* ---- Supabase Initialization ---- */
-const supabaseUrl = 'https://cklxpfaylobqcymnyahm.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrbHhwZmF5bG9icWN5bW55YWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTc4MTcsImV4cCI6MjEwNjA5MzgxN30.URLcP2ISCqdnw_IUHwW6Bv-hx5_qJAnbGnT1U4qnfew';
-const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-window.supabaseClient = supabaseClient; // Make it global for admin/index.html
+// supabaseClient is set by data.js (loaded before main.js)
+const supabaseClient = window.supabaseClient;
+
+/* ---- Load Store data từ Supabase ---- */
+async function initStore() {
+  try {
+    const [products, orders] = await Promise.all([
+      window.SupabaseDB.getProducts(),
+      window.SupabaseDB.getOrders().catch(() => []),
+    ]);
+    Store.products = products;
+    Store.orders   = orders;
+  } catch (err) {
+    console.error('[Store] initStore failed:', err);
+  }
+  // Thông báo cho các page biết Store đã sẵn sàng
+  document.dispatchEvent(new CustomEvent('store:ready', { detail: Store }));
+}
 
 /* ---- Restore session ---- */
 (function init() {
-  const savedUsers = localStorage.getItem('pv_users');
-  if (savedUsers) {
-    try { Store.users = JSON.parse(savedUsers); } catch {}
-  } else {
-    localStorage.setItem('pv_users', JSON.stringify(Store.users));
+  const saved = localStorage.getItem('pv_user');
+  if (saved) {
+    try { Store.currentUser = JSON.parse(saved); } catch {}
   }
+
   // Check Supabase session
   supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (session) handleSession(session.user);
@@ -86,6 +98,7 @@ window.supabaseClient = supabaseClient; // Make it global for admin/index.html
       updateAuthUI();
     }
   });
+
   const savedCart = localStorage.getItem('pv_cart');
   if (savedCart) {
     try { Store.cart = JSON.parse(savedCart); } catch {}
@@ -94,11 +107,14 @@ window.supabaseClient = supabaseClient; // Make it global for admin/index.html
   if (savedWL) {
     try { Store.wishlist = JSON.parse(savedWL); } catch {}
   }
+
   window.addEventListener('DOMContentLoaded', () => {
     cartUpdate();
     updateAuthUI();
     initNavScroll();
     initScrollAnimations();
+    // Fetch data from Supabase
+    initStore();
   });
 })();
 
@@ -214,7 +230,7 @@ function cartUpdate() {
   } else {
     itemsEl.innerHTML = Store.cart.map(item => `
       <div class="cart-item" id="cart-item-${item.id}">
-        <img class="cart-item-img" src="${item.images[0].startsWith('assets') ? '../' : ''}${item.images[0]}" alt="${item.name}" onerror="this.style.opacity='.3'">
+        <img class="cart-item-img" src="${getProductImageSrc(item.images, false)}" alt="${item.name}" onerror="this.style.opacity='.3'">
         <div class="cart-item-info">
           <div class="cart-item-brand">${item.brand}</div>
           <div class="cart-item-name">${item.name}</div>
@@ -268,17 +284,21 @@ document.addEventListener('submit', async (e) => {
     const email = document.getElementById('login-email')?.value;
     const password = document.getElementById('login-password')?.value;
     
-    // Check if it's the local mock admin
-    if (email === 'admin@pixelvault.vn' && password === 'admin123') {
-      const adminUser = Store.users.find(u => u.role === 'admin');
-      if (adminUser) return handleLoginSuccess(adminUser);
-    }
+    
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) { showToast('Email hoặc mật khẩu không đúng', 'error'); return; }
+        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { showToast('Lỗi: ' + error.message, 'error'); return; }
     
     closeModal('auth-modal');
-    showToast(`Đăng nhập thành công!`, 'success');
+    
+    // Đọc thông tin từ bảng profiles trong Supabase
+    const userRecord = data.user;
+    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', userRecord.id).single();
+    
+    const name = profile?.name || userRecord.user_metadata?.name || userRecord.email.split('@')[0];
+    const role = profile?.role || 'customer';
+    
+    handleLoginSuccess({ id: userRecord.id, name, email: userRecord.email, role });
   } else if (e.target.id === 'register-form') {
     e.preventDefault();
     const name = document.getElementById('reg-name')?.value;
@@ -296,23 +316,34 @@ document.addEventListener('submit', async (e) => {
 });
 
 async function handleSession(userRecord) {
-  const name = userRecord.user_metadata?.name || userRecord.email.split('@')[0];
-  const role = userRecord.user_metadata?.role || 'customer';
+  // Đọc thông tin từ bảng profiles
+  let { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', userRecord.id).maybeSingle();
+  
+  if (!profile) {
+    // Nếu chưa có profile trong bảng (do thiếu trigger), frontend tự tạo luôn!
+    const newProfile = {
+      id: userRecord.id,
+      name: userRecord.user_metadata?.name || userRecord.email.split('@')[0],
+      email: userRecord.email,
+      role: 'customer'
+    };
+    await supabaseClient.from('profiles').insert([newProfile]);
+    profile = newProfile;
+  }
+  
+  const name = profile.name;
+  const role = profile.role;
   
   const user = { id: userRecord.id, name, email: userRecord.email, role };
   Store.currentUser = user;
-  
-  // Create profile if not exists (handled by trigger mostly, but we can sync local mock for now)
-  if (!Store.users.find(u => u.email === user.email)) {
-    Store.users.push(user);
-    localStorage.setItem('pv_users', JSON.stringify(Store.users));
-  }
+  localStorage.setItem('pv_user', JSON.stringify(user));
   
   updateAuthUI();
 }
 
 function handleLoginSuccess(user) {
   Store.currentUser = user;
+  localStorage.setItem('pv_user', JSON.stringify(user));
   updateAuthUI();
   showToast(`Chào mừng, ${user.name}!`, 'success');
   
@@ -374,6 +405,7 @@ function switchAuthTab(tab) {
 function logout() {
   supabaseClient.auth.signOut().then(() => {
     Store.currentUser = null;
+    localStorage.removeItem('pv_user');
     updateAuthUI();
     showToast('Đã đăng xuất', 'info');
     const dropdown = document.getElementById('user-dropdown');
@@ -517,12 +549,33 @@ function getBadgeHTML(badge) {
   return `<span class="badge ${map[badge] || ''}">${badge}</span>`;
 }
 
-function renderProductCard(p) {
+/** Normalize image src: Supabase URL / relative path / placeholder */
+function getProductImageSrc(images, fromRoot = true) {
+  let src = '';
+  if (Array.isArray(images) && images.length > 0) src = images[0];
+  else if (typeof images === 'string') {
+    try {
+      const parsed = JSON.parse(images);
+      if (Array.isArray(parsed) && parsed.length > 0) src = parsed[0];
+    } catch { src = images; }
+  }
+  
+  if (!src) return ''; // onerror handles empty
+  if (src.startsWith('http')) return src; // Supabase Storage URL
+  if (src.startsWith('assets/')) return fromRoot ? src : '../' + src;
+  return src;
+}
+
+function renderProductCard(p, fromRoot = null) {
+  // Auto-detect page context
+  if (fromRoot === null) fromRoot = !window.location.pathname.includes('/pages/');
   const discount = p.originalPrice > p.price ? getDiscountPct(p.price, p.originalPrice) : '';
+  const imgSrc   = getProductImageSrc(p.images, fromRoot);
+  const detailUrl = fromRoot ? `pages/product-detail.html?id=${p.id}` : `product-detail.html?id=${p.id}`;
   return `
-    <div class="product-card animate-in" id="pcard-${p.id}" onclick="window.location.href='pages/product-detail.html?id=${p.id}'">
+    <div class="product-card" id="pcard-${p.id}" onclick="window.location.href='${detailUrl}'">
       <div class="product-image-wrap">
-        <img src="${p.images[0]}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='.2'">
+        <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='.2'">
         <div class="product-badges">${getBadgeHTML(p.badge)}</div>
         <div class="product-quick-actions">
           <button class="quick-action-btn" onclick="event.stopPropagation(); wishlistToggle(${p.id})" title="Yêu thích">${SVG.heart}</button>
@@ -532,7 +585,7 @@ function renderProductCard(p) {
       <div class="product-info">
         <div class="product-brand">${p.brand}</div>
         <h3 class="product-name">${p.name}</h3>
-        <div class="product-specs">${p.tags.map(t => `<span class="spec-tag">${t}</span>`).join('')}</div>
+        <div class="product-specs">${(Array.isArray(p.tags) ? p.tags : []).map(t => `<span class="spec-tag">${t}</span>`).join('')}</div>
         <div class="product-rating">
           <div class="stars">${getStarsHTML(p.rating)}</div>
           <span class="rating-count">(${p.reviews})</span>
@@ -573,3 +626,4 @@ if (localStorage.getItem('theme') === 'light') {
     if(tIcon) tIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
   });
 }
+
