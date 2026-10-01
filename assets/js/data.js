@@ -44,9 +44,10 @@ function mapOrder(row) {
     status:   row.status,
     payment:  row.payment,
     date:     row.created_at ? row.created_at.split('T')[0] : '',
-    items:    row.items   || [],
-    address:  row.address || {},
-    userId:   row.user_id || null,
+    items:          row.items   || [],
+    address:        row.address || {},
+    userId:         row.user_id || null,
+    discountAmount: row.discount_amount || 0,
   };
 }
 
@@ -154,17 +155,18 @@ const SupabaseDB = {
 
   /** Tạo đơn hàng mới */
   async createOrder(orderData) {
-    const orderId = 'PV-' + Date.now();
+    const orderId = 'PV' + Date.now();
     const row = {
       id:       orderId,
       customer: orderData.customer,
       user_id:  orderData.userId   || null,
       product:  orderData.product  || '',
       total:    orderData.total,
-      status:   orderData.status   || 'pending',
-      payment:  orderData.payment  || 'COD',
-      items:    orderData.items    || [],
-      address:  orderData.address  || {},
+      status:          orderData.status   || 'pending',
+      payment:         orderData.payment  || 'COD',
+      items:           orderData.items    || [],
+      address:         orderData.address  || {},
+      discount_amount: orderData.discountAmount || 0,
     };
     const { data, error } = await _db.from('orders').insert([row]).select().single();
     if (error) { console.error('[SupabaseDB] createOrder:', error.message); return null; }
@@ -215,6 +217,72 @@ const SupabaseDB = {
     if (error) { console.error('[SupabaseDB] updateProfile:', error.message); return null; }
     return data;
   },
+
+  /* ---------- COUPONS ---------- */
+
+  /** Lấy danh sách mã giảm giá */
+  async getCoupons() {
+    const { data, error } = await _db.from('coupons').select('*').order('created_at', { ascending: true });
+    if (error) { console.error('[SupabaseDB] getCoupons:', error.message); return []; }
+    return data;
+  },
+
+  /** Thêm mã giảm giá mới */
+  async addCoupon(couponData) {
+    const { data, error } = await _db.from('coupons').insert([couponData]).select().single();
+    if (error) { console.error('[SupabaseDB] addCoupon:', error.message); return null; }
+    return data;
+  },
+
+  /** Xóa mã giảm giá */
+  async deleteCoupon(id) {
+    const { error } = await _db.from('coupons').delete().eq('id', id);
+    if (error) { console.error('[SupabaseDB] deleteCoupon:', error.message); return false; }
+    return true;
+  },
+
+  /** Tăng lượt sử dụng */
+  async incrementCouponUsage(id, currentUses) {
+    const { error } = await _db.from('coupons').update({ uses: currentUses + 1 }).eq('id', id);
+    if (error) { console.error('[SupabaseDB] incrementCouponUsage:', error.message); return false; }
+    return true;
+  },
+
+  /* ---------- REVIEWS ---------- */
+
+  /** Lấy đánh giá của một sản phẩm (chỉ những đánh giá đã duyệt) */
+  async getProductReviews(productId) {
+    const { data, error } = await _db.from('reviews')
+      .select('*')
+      .eq('product_id', productId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getProductReviews:', error.message); return []; }
+    return data;
+  },
+
+  /** Admin: Lấy tất cả đánh giá */
+  async getAllReviews() {
+    const { data, error } = await _db.from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getAllReviews:', error.message); return []; }
+    return data;
+  },
+
+  /** Gửi đánh giá mới */
+  async submitReview(reviewData) {
+    const { data, error } = await _db.from('reviews').insert([reviewData]).select().single();
+    if (error) { console.error('[SupabaseDB] submitReview:', error.message); return null; }
+    return data;
+  },
+
+  /** Admin: Cập nhật trạng thái đánh giá */
+  async updateReviewStatus(reviewId, status) {
+    const { error } = await _db.from('reviews').update({ status }).eq('id', reviewId);
+    if (error) { console.error('[SupabaseDB] updateReviewStatus:', error.message); return false; }
+    return true;
+  }
 };
 
 // Expose globally

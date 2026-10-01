@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – PixelVault</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
   <style>
     /* Admin-specific additional styles */
@@ -207,6 +209,7 @@
       <div class="admin-nav-item" id="nav-reviews" onclick="showSection('reviews', this)">
         <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Đánh giá
+        <span class="admin-nav-badge" id="reviews-badge" style="display:none;">0</span>
       </div>
 
       <div class="admin-nav-group" style="margin-top:8px;">Thống kê</div>
@@ -455,7 +458,7 @@
       </div>
       <div class="data-table-wrap">
         <table class="data-table">
-          <thead><tr><th>ID</th><th>Họ tên</th><th>Email</th><th>Vai trò</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+          <thead><tr><th>ID</th><th>Khách hàng</th><th>Số điện thoại</th><th>Tổng chi tiêu</th><th>Hạng thành viên</th><th>Số đơn</th></tr></thead>
           <tbody id="customers-body"></tbody>
         </table>
       </div>
@@ -466,7 +469,7 @@
       <div class="admin-topbar">
         <div><div class="admin-page-sub">Quản lý</div><h1 class="admin-title">Khuyến mãi</h1></div>
         <button class="btn btn-primary btn-sm" id="btn-add-coupon"
-          onclick="showToast('Chức năng thêm mã giảm giá sẽ được cập nhật', 'info')">
+          onclick="addCouponPrompt()">
           <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Tạo mã mới
         </button>
@@ -474,24 +477,22 @@
       <div class="stats-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:20px;">
         <div class="stat-card green" style="--green-400:#4ade80;">
           <div class="stat-header"><span class="stat-label">Mã đang hoạt động</span><div class="stat-icon" style="background:rgba(34,197,94,0.12);"><svg viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div></div>
-          <div class="stat-value" style="color:var(--green-400);">3</div>
+          <div class="stat-value" style="color:var(--green-400);" id="stat-active-coupons">0</div>
         </div>
         <div class="stat-card blue">
           <div class="stat-header"><span class="stat-label">Lượt sử dụng</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div>
-          <div class="stat-value">128</div>
+          <div class="stat-value" id="stat-coupon-uses">0</div>
         </div>
         <div class="stat-card gold">
           <div class="stat-header"><span class="stat-label">Tổng tiết kiệm cho KH</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
-          <div class="stat-value">24.5M</div>
+          <div class="stat-value" id="stat-coupon-saved">0 đ</div>
         </div>
       </div>
       <div class="data-table-wrap">
         <table class="data-table">
           <thead><tr><th>Mã giảm giá</th><th>Giảm</th><th>Điều kiện</th><th>Hết hạn</th><th>Lượt dùng</th><th>Trạng thái</th></tr></thead>
-          <tbody>
-            <tr><td><span class="coupon-code">PIXEL10</span></td><td>10%</td><td>Không giới hạn</td><td>31/12/2026</td><td>45</td><td><span class="order-status status-completed">Hoạt động</span></td></tr>
-            <tr><td><span class="coupon-code">CAMERA20</span></td><td>20%</td><td>Đơn từ 30 triệu</td><td>30/10/2026</td><td>23</td><td><span class="order-status status-completed">Hoạt động</span></td></tr>
-            <tr><td><span class="coupon-code">FIRSTBUY</span></td><td>15%</td><td>Đơn đầu tiên</td><td>31/12/2026</td><td>60</td><td><span class="order-status status-completed">Hoạt động</span></td></tr>
+          <tbody id="promotions-body">
+            <!-- Dynamic coupons rendered here -->
           </tbody>
         </table>
       </div>
@@ -509,32 +510,43 @@
     <div id="section-reports" style="display:none;">
       <div class="admin-topbar">
         <div><div class="admin-page-sub">Thống kê</div><h1 class="admin-title">Báo cáo</h1></div>
-        <button class="btn btn-secondary btn-sm" id="btn-export"
-          onclick="showToast('Đang xuất báo cáo PDF...', 'info')">
-          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Xuất báo cáo
-        </button>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <div style="display:flex; align-items:center; background:var(--bg-primary); border:1px solid var(--border-1); border-radius:var(--r-sm); overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05); height:34px; transition:border-color 0.2s;">
+            <div style="padding:0 10px; color:var(--text-400); font-size:0.8rem; font-weight:500; background:var(--bg-secondary); border-right:1px solid var(--border-1); height:100%; display:flex; align-items:center;">
+              <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;margin-right:6px;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              Thời gian
+            </div>
+            <input type="text" id="report-date-range" placeholder="Chọn khoảng thời gian..." style="border:none; background:transparent; padding:0 12px; font-size:0.85rem; color:var(--text-200); outline:none; font-family:inherit; cursor:pointer; width:220px;">
+            <button class="btn" style="background:transparent; border:none; color:var(--text-400); padding:0 10px; cursor:pointer;" onclick="document.getElementById('report-date-range')._flatpickr.clear(); renderReports();" title="Xóa bộ lọc">
+              <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-export" onclick="openModal('export-report-modal')">
+            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Xuất báo cáo
+          </button>
+        </div>
       </div>
       <div class="stats-grid" style="margin-bottom:20px;">
         <div class="stat-card gold">
-          <div class="stat-header"><span class="stat-label">Doanh thu Q3/2026</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
-          <div class="stat-value">892.4M</div>
-          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> 32% so với Q2</div>
+          <div class="stat-header"><span class="stat-label">Tổng doanh thu</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+          <div class="stat-value">0 đ</div>
+          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> Cập nhật theo thời gian thực</div>
         </div>
         <div class="stat-card blue">
           <div class="stat-header"><span class="stat-label">Tổng đơn hàng</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div>
-          <div class="stat-value">1,247</div>
-          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> 18%</div>
+          <div class="stat-value">0</div>
+          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> Số đơn hoàn tất</div>
         </div>
         <div class="stat-card purple">
           <div class="stat-header"><span class="stat-label">Giá trị đơn TB</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div></div>
-          <div class="stat-value">35.8M</div>
-          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> 5.2%</div>
+          <div class="stat-value">0 đ</div>
+          <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> Mức chi tiêu trung bình</div>
         </div>
         <div class="stat-card red">
-          <div class="stat-header"><span class="stat-label">Tỷ lệ hoàn hàng</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
-          <div class="stat-value">1.2%</div>
-          <div class="stat-change down"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg> Thấp – tốt</div>
+          <div class="stat-header"><span class="stat-label">Tỷ lệ hủy / hoàn</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div></div>
+          <div class="stat-value">0%</div>
+          <div class="stat-change down"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg> Dựa trên đơn hủy</div>
         </div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
@@ -810,11 +822,7 @@ const categoryData = [
   { name: 'Compact',    value: 44,  pct: 7 },
 ];
 
-const pendingReviews = [
-  { author: 'Nguyễn Hoàng', product: 'Sony Alpha A7 IV', rating: 5, text: 'Máy ảnh quá tốt! Mua lần đầu rất hài lòng.', date: '27/09/2026' },
-  { author: 'Trần Minh',    product: 'Fujifilm X-T5',    rating: 4, text: 'Chất lượng ảnh đẹp, màu sắc phong phú.', date: '26/09/2026' },
-  { author: 'Lê Thu',       product: 'Canon RF 70-200mm', rating: 5, text: 'Ống kính sharp cực kỳ, màu rất đẹp!', date: '25/09/2026' },
-];
+let reviewsList = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   const u = Store.currentUser;
@@ -852,8 +860,8 @@ function updateAdminStats() {
     return d.getMonth() + 1 === lastMonth && d.getFullYear() === lastMonthYear;
   });
 
-  const totalRevenueThisMonth = thisMonthOrders.reduce((s, o) => s + Number(o.total || 0), 0);
-  const totalRevenueLastMonth = lastMonthOrders.reduce((s, o) => s + Number(o.total || 0), 0);
+  const totalRevenueThisMonth = thisMonthOrders.filter(o => o.status === 'completed').reduce((s, o) => s + Number(o.total || 0), 0);
+  const totalRevenueLastMonth = lastMonthOrders.filter(o => o.status === 'completed').reduce((s, o) => s + Number(o.total || 0), 0);
   
   let revDiffPct = 0;
   if (totalRevenueLastMonth > 0) {
@@ -930,6 +938,35 @@ function updateAdminStats() {
       }
     }
   }
+
+  updateSidebarBadges();
+}
+
+async function updateSidebarBadges() {
+  const pendingOrders = (Store.orders || []).filter(o => o.status === 'pending').length;
+  const badgeOrders = document.getElementById('pending-badge');
+  if (badgeOrders) {
+    if (pendingOrders > 0) {
+      badgeOrders.textContent = pendingOrders;
+      badgeOrders.style.display = 'inline-flex';
+    } else {
+      badgeOrders.style.display = 'none';
+    }
+  }
+
+  try {
+    const allReviews = await window.SupabaseDB.getAllReviews();
+    const pendingReviews = allReviews.filter(r => r.status === 'pending').length;
+    const badgeReviews = document.getElementById('reviews-badge');
+    if (badgeReviews) {
+      if (pendingReviews > 0) {
+        badgeReviews.textContent = pendingReviews;
+        badgeReviews.style.display = 'inline-flex';
+      } else {
+        badgeReviews.style.display = 'none';
+      }
+    }
+  } catch(e) {}
 }
 
 /* -------- Section Switch -------- */
@@ -938,7 +975,7 @@ function showSection(section, navEl) {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`section-${section}`).style.display = 'block';
   if (navEl) navEl.classList.add('active');
-  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports };
+  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons };
   if (renders[section]) renders[section]();
 }
 
@@ -1174,68 +1211,196 @@ function filterOrders() {
 
 /* -------- Customers -------- */
 function renderCustomers() {
-  document.getElementById('customers-body').innerHTML = Store.users.map(u => `
+  const customerMap = {};
+  Store.orders.forEach(o => {
+    // We group by phone if available, else by customer name
+    const key = (o.address && o.address.phone) ? o.address.phone : o.customer;
+    if (!customerMap[key]) {
+      customerMap[key] = {
+        name: o.customer,
+        phone: (o.address && o.address.phone) ? o.address.phone : 'N/A',
+        totalSpent: 0,
+        orderCount: 0
+      };
+    }
+    if (o.status !== 'cancelled') {
+       customerMap[key].totalSpent += o.total;
+    }
+    customerMap[key].orderCount += 1;
+  });
+
+  const customers = Object.values(customerMap).sort((a,b) => b.totalSpent - a.totalSpent);
+
+  document.getElementById('customers-body').innerHTML = customers.map((c, idx) => {
+    let tier = 'Thành viên';
+    let tierClass = 'status-confirmed'; // default (greenish)
+    if (c.totalSpent >= 1000000000) { tier = 'Kim cương'; tierClass = 'status-processing'; }
+    else if (c.totalSpent >= 500000000) { tier = 'Vàng'; tierClass = 'status-pending'; }
+    else if (c.totalSpent >= 100000000) { tier = 'Bạc'; tierClass = 'status-completed'; }
+
+    return `
     <tr>
-      <td style="color:var(--text-400);">USR-${String(u.id).padStart(4,'0')}</td>
-      <td style="font-weight:600; color:var(--text-100);">${u.name}</td>
-      <td>${u.email}</td>
-      <td><span class="order-status ${u.role==='admin'?'status-processing':'status-confirmed'}">${u.role==='admin'?'Quản trị viên':'Khách hàng'}</span></td>
-      <td><span class="order-status status-completed">Hoạt động</span></td>
-      <td><button class="btn btn-secondary btn-sm" onclick="showToast('Chi tiết: ${u.name}', 'info')">Xem</button></td>
-    </tr>`).join('');
+      <td style="color:var(--text-400);">CUS-${String(idx + 1).padStart(4,'0')}</td>
+      <td style="font-weight:600; color:var(--text-100);">${c.name}</td>
+      <td>${c.phone}</td>
+      <td style="font-weight:700; color:var(--gold-400);">${formatPrice(c.totalSpent)}</td>
+      <td><span class="order-status ${tierClass}">${tier}</span></td>
+      <td>${c.orderCount} đơn</td>
+    </tr>`;
+  }).join('');
 }
 
 /* -------- Reviews -------- */
-function renderReviews() {
+async function renderReviews() {
   const el = document.getElementById('reviews-list');
-  el.innerHTML = pendingReviews.map((r,i) => `
-    <div class="review-pending-card" id="review-card-${i}">
-      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
-        <div>
-          <div style="font-weight:700; color:var(--text-100);">${r.author}</div>
-          <div style="font-size:0.75rem; color:var(--gold-500); margin-bottom:3px;">${r.product}</div>
-          <div style="display:flex; gap:1px;">
-            ${'<svg style="width:12px;height:12px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'.repeat(r.rating)}
+  if (!el) return;
+  
+  const allReviews = await window.SupabaseDB.getAllReviews();
+  const pending = allReviews.filter(r => r.status === 'pending');
+  
+  if (pending.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-400); padding:20px 0;">Không có đánh giá nào đang chờ duyệt.</div>';
+    return;
+  }
+  
+  el.innerHTML = pending.map((r, i) => {
+    const product = Store.products.find(p => p.id == r.product_id);
+    const productName = product ? product.name : 'Sản phẩm không xác định';
+    const dateStr = r.created_at ? r.created_at.split('T')[0] : '';
+    
+    return `
+      <div class="review-pending-card" id="review-card-${r.id}">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+          <div>
+            <div style="font-weight:700; color:var(--text-100);">${r.user_name}</div>
+            <div style="font-size:0.75rem; color:var(--gold-500); margin-bottom:3px;">${productName}</div>
+            <div style="display:flex; gap:1px;">
+              ${'<svg style="width:12px;height:12px;fill:var(--gold-400);stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'.repeat(r.rating)}
+            </div>
           </div>
+          <span style="font-size:0.73rem; color:var(--text-400);">${dateStr}</span>
         </div>
-        <span style="font-size:0.73rem; color:var(--text-400);">${r.date}</span>
-      </div>
-      <p style="font-size:0.855rem; color:var(--text-300); line-height:1.7; margin-bottom:14px; font-style:italic;">"${r.text}"</p>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-primary btn-sm" onclick="approveReview(${i})">Duyệt</button>
-        <button class="btn btn-secondary btn-sm" onclick="rejectReview(${i})" style="color:var(--red-400); border-color:rgba(239,68,68,0.2);">Ẩn</button>
-      </div>
-    </div>`).join('');
+        <p style="font-size:0.855rem; color:var(--text-300); line-height:1.7; margin-bottom:14px; font-style:italic;">"${r.content}"</p>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-primary btn-sm" onclick="approveReview('${r.id}')">Duyệt</button>
+          <button class="btn btn-secondary btn-sm" onclick="rejectReview('${r.id}')" style="color:var(--red-400); border-color:rgba(239,68,68,0.2);">Ẩn</button>
+        </div>
+      </div>`;
+  }).join('');
+  
+  updateSidebarBadges();
 }
 
 /* -------- Reports -------- */
 function renderReports() {
+  const rangeStr = document.getElementById('report-date-range')?.value;
+  
+  let allOrders = Store.orders || [];
+  
+  if (rangeStr) {
+    const parts = rangeStr.split(' to ');
+    const from = new Date(parts[0]);
+    from.setHours(0,0,0,0);
+    const to = parts[1] ? new Date(parts[1]) : new Date(parts[0]);
+    to.setHours(23,59,59,999);
+    
+    allOrders = allOrders.filter(o => new Date(o.date) >= from && new Date(o.date) <= to);
+  }
+
+  const completedOrders = allOrders.filter(o => o.status === 'completed');
+  const cancelledOrders = allOrders.filter(o => o.status === 'cancelled');
+  
+  // 1. Calculate Top Stats
+  const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrders = completedOrders.length;
+  const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+  const returnRate = allOrders.length > 0 ? (cancelledOrders.length / allOrders.length * 100).toFixed(1) : 0;
+
+  // Render Top Stats
+  const revEl = document.querySelector('#section-reports .stat-card.gold .stat-value');
+  const ordEl = document.querySelector('#section-reports .stat-card.blue .stat-value');
+  const avgEl = document.querySelector('#section-reports .stat-card.purple .stat-value');
+  const retEl = document.querySelector('#section-reports .stat-card.red .stat-value');
+  
+  if (revEl) revEl.textContent = formatPrice(totalRevenue);
+  if (ordEl) ordEl.textContent = totalOrders.toLocaleString('vi-VN');
+  if (avgEl) avgEl.textContent = formatPrice(avgOrderValue);
+  if (retEl) retEl.textContent = returnRate + '%';
+
+  // 2. Revenue by Category
+  const catSales = {};
+  completedOrders.forEach(o => {
+    (o.items || []).forEach(item => {
+      const p = Store.products.find(x => x.id === item.id);
+      if (p) {
+        catSales[p.category] = (catSales[p.category] || 0) + (p.price * item.qty);
+      }
+    });
+  });
+
   const catEl = document.getElementById('category-chart');
   if (catEl) {
-    catEl.innerHTML = categoryData.map(d => `
-      <div class="chart-row">
-        <div class="chart-label" style="width:90px;">${d.name}</div>
-        <div class="chart-track">
-          <div class="chart-fill" data-pct="${d.pct}">${d.value}M</div>
-        </div>
-        <div class="chart-value">${d.value}M đ</div>
-      </div>`).join('');
-    setTimeout(() => {
-      catEl.querySelectorAll('.chart-fill').forEach(b => b.style.width = b.dataset.pct + '%');
-    }, 100);
+    const cats = Object.keys(catSales).map(k => ({ name: k, value: catSales[k] }))
+      .sort((a,b) => b.value - a.value);
+      
+    const maxVal = cats.length > 0 ? cats[0].value : 1;
+    
+    if (cats.length === 0) {
+      catEl.innerHTML = '<div style="color:var(--text-400); padding:20px 0;">Chưa có dữ liệu</div>';
+    } else {
+      catEl.innerHTML = cats.map(d => {
+        const pct = (d.value / maxVal * 100).toFixed(0);
+        return `
+        <div class="chart-row">
+          <div class="chart-label" style="width:110px; text-transform:capitalize;">${d.name}</div>
+          <div class="chart-track">
+            <div class="chart-fill" data-pct="${pct}">${(d.value / 1000000).toFixed(1)}M</div>
+          </div>
+          <div class="chart-value">${(d.value / 1000000).toFixed(1)}M đ</div>
+        </div>`;
+      }).join('');
+      setTimeout(() => {
+        catEl.querySelectorAll('.chart-fill').forEach(b => b.style.width = b.dataset.pct + '%');
+      }, 100);
+    }
   }
+
+  // 3. Top Products by Sales Volume
+  const prodSales = {};
+  completedOrders.forEach(o => {
+    (o.items || []).forEach(item => {
+      if (!prodSales[item.id]) {
+        prodSales[item.id] = { qty: 0, revenue: 0 };
+      }
+      prodSales[item.id].qty += item.qty;
+      
+      const p = Store.products.find(x => x.id === item.id);
+      if (p) prodSales[item.id].revenue += (p.price * item.qty);
+    });
+  });
+
   const topEl = document.getElementById('top-products-report');
   if (topEl) {
-    const sorted = [...Store.products].sort((a,b) => b.reviews - a.reviews).slice(0,5);
-    topEl.innerHTML = sorted.map((p,i) => `
-      <div class="top-product-row">
-        <div class="top-product-rank rank-${i+1}">${String(i+1).padStart(2,'0')}</div>
-        <div style="flex:1; min-width:0;">
-          <div style="font-size:0.845rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-100);">${p.name}</div>
-          <div style="font-size:0.72rem; color:var(--text-400);">${p.reviews} đơn</div>
-        </div>
-        <div style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--gold-400); font-size:0.875rem;">${formatPrice(p.price * Math.floor(p.reviews / 10))}</div>
-      </div>`).join('');
+    const sortedIds = Object.keys(prodSales).sort((a,b) => prodSales[b].qty - prodSales[a].qty).slice(0,5);
+    
+    if (sortedIds.length === 0) {
+      topEl.innerHTML = '<div style="color:var(--text-400); padding:20px 0;">Chưa có dữ liệu</div>';
+    } else {
+      topEl.innerHTML = sortedIds.map((id, i) => {
+        const p = Store.products.find(x => x.id === parseInt(id));
+        if(!p) return '';
+        const sales = prodSales[id];
+        return `
+        <div class="top-product-row">
+          <div class="top-product-rank rank-${i+1}">${String(i+1).padStart(2,'0')}</div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:0.845rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-100);">${p.name}</div>
+            <div style="font-size:0.72rem; color:var(--text-400);">${sales.qty} đã bán</div>
+          </div>
+          <div style="font-family:'Outfit',sans-serif; font-weight:700; color:var(--gold-400); font-size:0.875rem;">${formatPrice(sales.revenue)}</div>
+        </div>`;
+      }).join('');
+    }
   }
 }
 
@@ -1583,10 +1748,18 @@ function viewOrder(id) {
   if (!o) return;
   const statusMap = { pending:'status-pending', confirmed:'status-confirmed', processing:'status-processing', shipping:'status-shipping', completed:'status-completed', cancelled:'status-cancelled' };
   const labelMap  = { pending:'Chờ xác nhận', confirmed:'Đã xác nhận', processing:'Đang xử lý', shipping:'Đang giao', completed:'Hoàn tất', cancelled:'Đã hủy' };
+  
+  const phoneHtml = (o.address && o.address.phone) ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Số điện thoại</span><span>${o.address.phone}</span></div>` : '';
+  const addressHtml = (o.address && o.address.address) ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Địa chỉ</span><span style="text-align:right; max-width:65%;">${o.address.address}</span></div>` : '';
+  const noteHtml = (o.address && o.address.note) ? `<div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Ghi chú</span><span style="text-align:right; max-width:65%; font-style:italic;">${o.address.note}</span></div>` : '';
+
   document.getElementById('order-modal-content').innerHTML = `
     <div style="display:flex; flex-direction:column; gap:11px; font-size:0.875rem;">
       <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Mã đơn</span><strong style="color:var(--gold-400);">${o.id}</strong></div>
       <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Khách hàng</span><span>${o.customer}</span></div>
+      ${phoneHtml}
+      ${addressHtml}
+      ${noteHtml}
       <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Sản phẩm</span><span>${o.product}</span></div>
       <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Ngày đặt</span><span>${o.date}</span></div>
       <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-400);">Thanh toán</span><span>${o.payment}</span></div>
@@ -1622,8 +1795,405 @@ async function updateOrderStatus(id, status) {
   if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'flex' : 'none'; }
 }
 
-function approveReview(i) { pendingReviews.splice(i, 1); showToast('Đã duyệt đánh giá', 'success'); renderReviews(); }
-function rejectReview(i)  { pendingReviews.splice(i, 1); showToast('Đã ẩn đánh giá', 'info');    renderReviews(); }
+async function approveReview(id) {
+  const res = await window.SupabaseDB.updateReviewStatus(id, 'approved');
+  if (res) { showToast('Đã duyệt đánh giá', 'success'); renderReviews(); }
+}
+async function rejectReview(id) {
+  const res = await window.SupabaseDB.updateReviewStatus(id, 'rejected');
+  if (res) { showToast('Đã ẩn đánh giá', 'info'); renderReviews(); }
+}
+
+/* -------- Promotions (Coupons) -------- */
+function renderCoupons() {
+  const tbody = document.getElementById('promotions-body');
+  if (!tbody) return;
+  const coupons = Store.coupons || [];
+  
+  // Tính toán số liệu thống kê
+  const activeCount = coupons.length;
+  const totalUses = coupons.reduce((sum, c) => sum + (c.uses || 0), 0);
+  const totalSaved = (Store.orders || []).reduce((sum, o) => sum + (o.discountAmount || 0), 0);
+  
+  const elActive = document.getElementById('stat-active-coupons');
+  const elUses = document.getElementById('stat-coupon-uses');
+  const elSaved = document.getElementById('stat-coupon-saved');
+  if (elActive) elActive.textContent = activeCount;
+  if (elUses) elUses.textContent = totalUses;
+  if (elSaved) elSaved.textContent = totalSaved > 0 ? (totalSaved / 1000000).toFixed(1) + 'M' : '0';
+
+  tbody.innerHTML = coupons.map((c, i) => {
+    let expiresHtml = 'Không thời hạn';
+    if (c.expires_at) {
+      const expDate = new Date(c.expires_at);
+      const isExpired = expDate < new Date();
+      expiresHtml = `<span style="color:${isExpired ? 'var(--red-400)' : 'var(--text-300)'}">${expDate.toLocaleDateString('vi-VN')}</span>`;
+    }
+    
+    let usesHtml = c.uses;
+    if (c.max_uses > 0) {
+      const isFull = c.uses >= c.max_uses;
+      usesHtml = `<span style="color:${isFull ? 'var(--red-400)' : 'var(--text-300)'}">${c.uses} / ${c.max_uses}</span>`;
+    }
+
+    let statusHtml = '<span class="order-status status-completed">Hoạt động</span>';
+    if (c.max_uses > 0 && c.uses >= c.max_uses) {
+      statusHtml = '<span class="order-status status-cancelled">Hết lượt</span>';
+    } else if (c.expires_at && new Date(c.expires_at) < new Date()) {
+      statusHtml = '<span class="order-status status-cancelled">Hết hạn</span>';
+    }
+
+    return `
+    <tr>
+      <td><span class="coupon-code">${c.code}</span></td>
+      <td style="font-weight:700; color:var(--red-400);">${c.discount_pct}%</td>
+      <td>${c.description}</td>
+      <td>${expiresHtml}</td>
+      <td>${usesHtml}</td>
+      <td>
+        <div style="display:flex; gap:8px;">
+          ${statusHtml}
+          <button class="btn btn-secondary btn-sm" style="color:var(--danger); border-color:transparent; padding:2px 6px;" onclick="deleteCoupon('${c.id}')">Xóa</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function addCouponPrompt() {
+  openModal('add-coupon-modal');
+}
+
+async function submitNewCoupon(e) {
+  e.preventDefault();
+  
+  const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+  const pct = parseInt(document.getElementById('coupon-pct-input').value);
+  const condStr = document.getElementById('coupon-cond-input').value;
+  const cond = parseInt(condStr) || 0;
+  
+  const maxUsesStr = document.getElementById('coupon-max-uses-input').value;
+  const maxUses = parseInt(maxUsesStr) || 0;
+  
+  const expStr = document.getElementById('coupon-exp-input').value;
+  const expiresAt = expStr ? new Date(expStr).toISOString() : null;
+
+  const isFirstOrder = document.getElementById('coupon-first-order').checked;
+  
+  if (!code) return;
+  if (isNaN(pct) || pct <= 0 || pct > 100) { 
+    showToast('Phần trăm giảm không hợp lệ', 'error'); 
+    return; 
+  }
+  
+  if (Store.coupons.find(c => c.code.toUpperCase() === code.toUpperCase())) {
+    showToast('Mã này đã tồn tại', 'error'); 
+    return;
+  }
+  
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldText = btn.textContent;
+  btn.textContent = 'Đang tạo...';
+  btn.disabled = true;
+
+  const couponData = {
+    code: code,
+    discount_pct: pct,
+    condition_min: cond,
+    description: (cond > 0 ? `Đơn từ ${(cond/1000000).toFixed(1)} triệu` : 'Không giới hạn') + (isFirstOrder ? ' (Chỉ đơn đầu)' : ''),
+    uses: 0,
+    max_uses: maxUses,
+    expires_at: expiresAt,
+    is_first_order: isFirstOrder
+  };
+  
+  const res = await window.SupabaseDB.addCoupon(couponData);
+  if (res) {
+    Store.coupons.push(res);
+    showToast('Đã thêm mã giảm giá mới', 'success');
+    renderCoupons();
+    closeModal('add-coupon-modal');
+    e.target.reset();
+  } else {
+    showToast('Lỗi khi thêm mã giảm giá', 'error');
+  }
+  
+  btn.textContent = oldText;
+  btn.disabled = false;
+}
+
+async function deleteCoupon(id) {
+  if (!confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) return;
+  
+  const res = await window.SupabaseDB.deleteCoupon(id);
+  if (res) {
+    Store.coupons = Store.coupons.filter(c => c.id !== id);
+    showToast('Đã xóa mã giảm giá', 'info');
+    renderCoupons();
+  } else {
+    showToast('Lỗi khi xóa mã giảm giá', 'error');
+  }
+}
+</script>
+
+<!-- Add Coupon Modal -->
+<div class="modal-overlay" id="add-coupon-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+      <h2 class="modal-title">Tạo mã giảm giá mới</h2>
+      <button class="modal-close" onclick="closeModal('add-coupon-modal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="submitNewCoupon(event)">
+        <div class="form-group">
+          <label class="form-label">Mã giảm giá (Ví dụ: TET2027)</label>
+          <input type="text" id="coupon-code-input" class="form-input" style="text-transform:uppercase;" placeholder="TET2027" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phần trăm giảm (%)</label>
+          <input type="number" id="coupon-pct-input" class="form-input" placeholder="15" min="1" max="100" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Điều kiện áp dụng (Giá trị đơn hàng tối thiểu)</label>
+          <input type="number" id="coupon-cond-input" class="form-input" placeholder="0" min="0">
+          <div style="font-size:0.75rem; color:var(--text-400); margin-top:6px;">Nhập 0 nếu mã áp dụng cho mọi đơn hàng không giới hạn giá trị. (Ví dụ: 30000000 cho đơn từ 30 triệu).</div>
+        </div>
+        <div style="display:flex; gap:16px;">
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Số lần sử dụng tối đa</label>
+            <input type="number" id="coupon-max-uses-input" class="form-input" placeholder="Để trống = Không giới hạn" min="0">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label class="form-label">Ngày hết hạn</label>
+            <input type="date" id="coupon-exp-input" class="form-input">
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="coupon-first-order" style="width:16px; height:16px; cursor:pointer;">
+            <span style="font-size:0.9rem; color:var(--text-200);">Chỉ áp dụng cho đơn hàng đầu tiên của khách (Khách mới)</span>
+          </label>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('add-coupon-modal')">Hủy</button>
+          <button type="submit" class="btn btn-primary">Tạo mã</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Export Report Modal -->
+<div class="modal-overlay" id="export-report-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+      <h2 class="modal-title">Tùy chọn xuất báo cáo</h2>
+      <button class="modal-close" onclick="closeModal('export-report-modal')"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Chọn định dạng xuất</label>
+        <select class="form-input" id="export-format">
+          <option value="excel">Excel (.xlsx)</option>
+          <option value="csv">CSV (.csv)</option>
+          <option value="pdf">PDF (.pdf)</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label" style="margin-bottom:8px;">Phạm vi thời gian</label>
+        <div style="display:flex; align-items:center; background:var(--bg-primary); border:1px solid var(--border-1); border-radius:var(--r-sm); overflow:hidden; box-shadow:0 1px 2px rgba(0,0,0,0.05); height:36px; transition:border-color 0.2s;">
+          <div style="padding:0 12px; color:var(--text-400); font-size:0.85rem; font-weight:500; background:var(--bg-secondary); border-right:1px solid var(--border-1); height:100%; display:flex; align-items:center;">
+            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;margin-right:6px;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Thời gian
+          </div>
+          <input type="text" id="export-date-range" placeholder="Toàn thời gian (Tùy chọn)" style="border:none; background:transparent; padding:0 12px; font-size:0.9rem; color:var(--text-200); outline:none; font-family:inherit; cursor:pointer; flex:1;">
+          <button class="btn" style="background:transparent; border:none; color:var(--text-400); padding:0 12px; cursor:pointer;" onclick="document.getElementById('export-date-range')._flatpickr.clear();" title="Xóa bộ lọc">
+            <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-400); margin-top:8px; display:flex; align-items:center; gap:4px;">
+          <svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Mẹo: Hãy để trống để xuất toàn bộ dữ liệu (All-time).
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+        <button class="btn btn-secondary" onclick="closeModal('export-report-modal')">Hủy</button>
+        <button class="btn btn-primary" onclick="executeExport()">Xuất file</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+  function executeExport() {
+    const format = document.getElementById('export-format').value;
+    const rangeStr = document.getElementById('export-date-range').value;
+    
+    let data = Store.orders || [];
+    
+    if (rangeStr) {
+      const parts = rangeStr.split(' to ');
+      const from = new Date(parts[0]);
+      from.setHours(0,0,0,0);
+      const to = parts[1] ? new Date(parts[1]) : new Date(parts[0]);
+      to.setHours(23,59,59,999);
+      data = data.filter(o => new Date(o.date) >= from && new Date(o.date) <= to);
+    }
+    
+    if (data.length === 0) {
+      showToast('Không có dữ liệu trong khoảng thời gian này', 'error');
+      return;
+    }
+    
+    // Flatten data: 1 row = 1 product in an order (to join multiple tables)
+    const exportData = [];
+    data.forEach(o => {
+      const items = o.items || [];
+      const orderEmail = (o.address && o.address.email) || "";
+      
+      if (items.length === 0) {
+        // Fallback for orders without item details
+        exportData.push({
+          "Mã Đơn": o.id,
+          "Ngày Đặt": o.date ? new Date(o.date).toLocaleDateString('vi-VN') : '',
+          "Khách Hàng": o.customer || "Khách vãng lai",
+          "Email": orderEmail,
+          "Số Điện Thoại": (o.address && o.address.phone) || "",
+          "Địa Chỉ Giao Hàng": (o.address && o.address.address) || "",
+          "Ghi Chú": (o.address && o.address.note) || "",
+          "Trạng Thái Đơn": o.status === 'completed' ? 'Hoàn tất' : (o.status === 'cancelled' ? 'Đã hủy' : 'Đang xử lý'),
+          "PT Thanh Toán": o.payment || "COD",
+          "Mã Sản Phẩm": "",
+          "Tên Sản Phẩm": o.product || "",
+          "Danh Mục": "",
+          "Hãng": "",
+          "Đơn Giá": 0,
+          "Số Lượng": 0,
+          "Tổng Tiền Món": 0,
+          "Giảm Giá Của Đơn": o.discountAmount || 0,
+          "Thành Tiền Đơn": o.total
+        });
+        return;
+      }
+
+      items.forEach(item => {
+        const p = (Store.products || []).find(prod => prod.id === item.id) || {};
+        
+        exportData.push({
+          "Mã Đơn": o.id,
+          "Ngày Đặt": o.date ? new Date(o.date).toLocaleDateString('vi-VN') : '',
+          "Khách Hàng": o.customer || "Khách vãng lai",
+          "Email": orderEmail,
+          "Số Điện Thoại": (o.address && o.address.phone) || "",
+          "Địa Chỉ Giao Hàng": (o.address && o.address.address) || "",
+          "Ghi Chú": (o.address && o.address.note) || "",
+          "Trạng Thái Đơn": o.status === 'completed' ? 'Hoàn tất' : (o.status === 'cancelled' ? 'Đã hủy' : 'Đang xử lý'),
+          "PT Thanh Toán": o.payment || "COD",
+          "Mã Sản Phẩm": p.id || item.id || "",
+          "Tên Sản Phẩm": p.name || item.name || "",
+          "Danh Mục": p.category || "",
+          "Hãng": p.brand || "",
+          "Đơn Giá": p.price || item.price || 0,
+          "Số Lượng": item.qty || 1,
+          "Tổng Tiền Món": (p.price || item.price || 0) * (item.qty || 1),
+          "Giảm Giá Của Đơn": o.discountAmount || 0,
+          "Thành Tiền Đơn": o.total
+        });
+      });
+    });
+    
+    if (format === 'csv' || format === 'excel') {
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      
+      // Auto-width for columns
+      const colWidths = [
+        {wch: 12}, {wch: 12}, {wch: 20}, {wch: 25}, {wch: 15}, 
+        {wch: 35}, {wch: 20}, {wch: 15}, {wch: 15}, {wch: 15}, 
+        {wch: 40}, {wch: 15}, {wch: 15}, {wch: 15}, {wch: 10}, 
+        {wch: 15}, {wch: 18}, {wch: 18}
+      ];
+      ws['!cols'] = colWidths;
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "ChiTietBanHang");
+      
+      const fileName = "BaoCao_PixelVault_" + Date.now() + (format === 'csv' ? ".csv" : ".xlsx");
+      XLSX.writeFile(wb, fileName);
+      showToast('Đã tải xuống file ' + format.toUpperCase(), 'success');
+    } else if (format === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      
+      const removeVietnameseTones = (str) => {
+        if (!str) return "";
+        str = String(str);
+        str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g,"a");
+        str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g,"e");
+        str = str.replace(/ì|í|ị|ỉ|ĩ/g,"i");
+        str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g,"o");
+        str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g,"u");
+        str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g,"y");
+        str = str.replace(/đ/g,"d");
+        str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+        str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+        str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+        str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+        str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+        str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+        str = str.replace(/Đ/g, "D");
+        return str;
+      };
+
+      // Use landscape for wide tables
+      const doc = new jsPDF('landscape');
+      doc.text("Bao Cao Chi Tiet Ban Hang - PixelVault", 14, 15);
+      
+      const headers = [["Ma don", "Ngay", "Khach Hang", "Email", "Trang Thai", "San pham", "SL", "Thanh tien"]];
+      const rows = exportData.map(r => [
+        removeVietnameseTones(r["Mã Đơn"]), 
+        removeVietnameseTones(r["Ngày Đặt"]), 
+        removeVietnameseTones(r["Khách Hàng"]), 
+        removeVietnameseTones(r["Email"]),
+        removeVietnameseTones(r["Trạng Thái Đơn"]), 
+        removeVietnameseTones(r["Tên Sản Phẩm"].substring(0, 45) + (r["Tên Sản Phẩm"].length > 45 ? "..." : "")),
+        r["Số Lượng"],
+        formatPrice(r["Tổng Tiền Món"])
+      ]);
+      
+      doc.autoTable({
+        head: headers,
+        body: rows,
+        startY: 25,
+        styles: { font: "helvetica", fontSize: 8 },
+        columnStyles: {
+          4: { cellWidth: 80 }
+        }
+      });
+      
+      doc.save("BaoCao_PixelVault_" + Date.now() + ".pdf");
+      showToast('Đã tải xuống file PDF', 'success');
+    }
+    closeModal('export-report-modal');
+  }
+
+  flatpickr("#report-date-range", {
+    mode: "range",
+    dateFormat: "Y-m-d",
+    onChange: function(selectedDates) {
+      if (selectedDates.length === 2 || selectedDates.length === 0) {
+        renderReports();
+      }
+    }
+  });
+  flatpickr("#export-date-range", {
+    mode: "range",
+    dateFormat: "Y-m-d"
+  });
 </script>
 </body>
 </html>

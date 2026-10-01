@@ -57,6 +57,7 @@ const Store = {
   wishlist:    [],
   compareList: [],
   currentUser: null,
+  coupons:     [],
 };
 
 // supabaseClient is set by data.js (loaded before main.js)
@@ -65,12 +66,14 @@ const supabaseClient = window.supabaseClient;
 /* ---- Load Store data từ Supabase ---- */
 async function initStore() {
   try {
-    const [products, orders] = await Promise.all([
+    const [products, orders, coupons] = await Promise.all([
       window.SupabaseDB.getProducts(),
       window.SupabaseDB.getOrders().catch(() => []),
+      window.SupabaseDB.getCoupons().catch(() => []),
     ]);
     Store.products = products;
     Store.orders   = orders;
+    Store.coupons  = coupons;
   } catch (err) {
     console.error('[Store] initStore failed:', err);
   }

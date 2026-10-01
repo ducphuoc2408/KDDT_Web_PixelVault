@@ -10,13 +10,81 @@
 <body>
 
 <nav class="navbar" id="main-navbar">
-  <div class="nav-container" style="justify-content:center;">
-    <a href="../index.html" class="nav-logo">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="../index.html" class="nav-logo" id="nav-logo">
       <div class="logo-mark">
-        <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <svg class="logo-icon-svg" viewBox="0 0 24 24">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
       </div>
-      <span class="logo-text">PixelVault Thanh Toán An Toàn</span>
+      <span class="logo-text">PixelVault</span>
     </a>
+
+    <!-- Links -->
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html" class="nav-link" id="nl-home">Trang chủ</a>
+      <div class="nav-dropdown">
+        <a href="products.html" class="nav-link" id="nl-products">Sản phẩm</a>
+        <div class="nav-dropdown-menu">
+          <a href="products.html?cat=mirrorless" class="nav-dropdown-item" id="nddi-mirrorless">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Mirrorless
+          </a>
+          <a href="products.html?cat=dslr" class="nav-dropdown-item" id="nddi-dslr">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="3"/></svg>
+            DSLR
+          </a>
+          <a href="products.html?cat=lens" class="nav-dropdown-item" id="nddi-lens">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Ống kính
+          </a>
+          <a href="products.html?cat=compact" class="nav-dropdown-item" id="nddi-compact">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
+            Compact
+          </a>
+        </div>
+      </div>
+      <a href="compare.html" class="nav-link" id="nl-compare">So sánh</a>
+      <a href="contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
+    </div>
+
+    <!-- Actions -->
+        <div class="nav-actions">
+      <div class="nav-search" id="nav-search-bar">
+        <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
+          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+        <button class="nav-search-btn" id="btn-nav-search"
+          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <button class="nav-icon-btn" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <button class="nav-icon-btn" id="btn-cart" onclick="cartOpen()" title="Giỏ hàng" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cart-badge-nav" style="display:none;">0</span>
+      </button>
+      
+      <div style="position:relative;" id="user-menu-container">
+        <button class="nav-icon-btn" id="btn-user" style="display:none;" title="Tài khoản" onclick="toggleUserDropdown()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown" style="display:none; position:absolute; top:50px; right:0; background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:var(--r-md); padding:8px 0; min-width:180px; flex-direction:column; box-shadow:var(--shadow-lg); z-index:100;">
+          <a href="account.html" id="user-dropdown-name" style="padding:10px 16px; color:var(--text-200); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Tài khoản của tôi</a>
+          <div style="height:1px; background:var(--border-1); margin:4px 0;"></div>
+          <a href="#" onclick="logout()" style="padding:10px 16px; color:var(--danger); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Đăng xuất</a>
+        </div>
+      </div>
+
+      <button class="btn btn-nav-login" id="btn-login" onclick="openModal('auth-modal')">Đăng nhập</button>
+    </div>
   </div>
 </nav>
 
@@ -135,10 +203,78 @@
   </div>
 </div>
 
-<footer class="footer">
+<footer class="footer" id="main-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-logo" style="margin-bottom:14px; display:inline-flex;">
+          <div class="logo-mark">
+            <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <span class="logo-text">PixelVault</span>
+        </a>
+        <p>Cửa hàng máy ảnh kỹ thuật số hàng đầu Việt Nam. Hàng chính hãng, bảo hành dài hạn, dịch vụ tư vấn chuyên nghiệp.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" id="social-fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-ig" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-yt" aria-label="YouTube">
+            <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div>
+        <div class="footer-heading">Sản phẩm</div>
+        <div class="footer-links">
+          <a href="products.html?cat=mirrorless" id="fl-mirrorless">Máy ảnh Mirrorless</a>
+          <a href="products.html?cat=dslr" id="fl-dslr">Máy ảnh DSLR</a>
+          <a href="products.html?cat=lens" id="fl-lens">Ống kính</a>
+          <a href="products.html?cat=compact" id="fl-compact">Máy ảnh Compact</a>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <div class="footer-heading">Thông tin</div>
+        <div class="footer-links">
+          <a href="contact.html" id="fl-contact">Liên hệ</a>
+          <a href="#" id="fl-about">Về chúng tôi</a>
+          <a href="#" id="fl-policy">Chính sách bảo hành</a>
+          <a href="#" id="fl-return">Chính sách đổi trả</a>
+          <a href="admin/index.html" id="fl-admin">Quản trị</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <div class="footer-heading">Liên hệ</div>
+        <div class="footer-links">
+          <a href="tel:19001234" id="fl-phone">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>
+            1900 1234
+          </a>
+          <a href="mailto:support@pixelvault.vn" id="fl-email">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            support@pixelvault.vn
+          </a>
+          <a href="#" id="fl-address">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            123 Nguyễn Huệ, Q.1, TP.HCM
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="footer-bottom">
-    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; font-size:0.79rem; color:var(--text-500);">
-      <span>© 2026 PixelVault. Đề án môn học.</span>
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <span>© 2026 PixelVault. Đề án môn học – Nhóm 4 sinh viên CNTT.</span>
+      <span>Xây dựng với HTML · CSS · JavaScript</span>
     </div>
   </div>
 </footer>
@@ -230,27 +366,50 @@ function applyCoupon() {
   const code = document.getElementById('coupon-input').value.trim().toUpperCase();
   if (!code) return;
 
-  if (code === 'PIXEL10') {
-    discountPct = 0.1;
-    appliedCode = code;
-    showToast('Áp dụng mã giảm giá 10% thành công', 'success');
-  } else if (code === 'CAMERA20') {
-    const sub = Store.cart.reduce((s, item) => {
-      const p = Store.products.find(x => x.id === item.id);
-      return s + (p ? p.price * item.qty : 0);
-    }, 0);
-    if (sub >= 30000000) {
-      discountPct = 0.2;
-      appliedCode = code;
-      showToast('Áp dụng mã giảm giá 20% thành công', 'success');
-    } else {
-      showToast('Mã CAMERA20 áp dụng cho đơn từ 30 triệu', 'error');
-      return;
-    }
-  } else {
+  const coupons = Store.coupons || [];
+  const coupon = coupons.find(c => c.code === code);
+  
+  if (!coupon) {
     showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn', 'error');
     return;
   }
+
+  if (coupon.max_uses > 0 && coupon.uses >= coupon.max_uses) {
+    showToast('Mã giảm giá đã hết lượt sử dụng', 'error');
+    return;
+  }
+  
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+    showToast('Mã giảm giá đã hết hạn', 'error');
+    return;
+  }
+  
+  if (coupon.is_first_order) {
+    if (!Store.currentUser) {
+      showToast('Vui lòng đăng nhập để sử dụng mã dành cho khách hàng mới', 'error');
+      return;
+    }
+    const hasPreviousOrders = Store.orders.some(o => o.userId === Store.currentUser.id && o.status !== 'cancelled');
+    if (hasPreviousOrders) {
+      showToast('Mã giảm giá này chỉ dành cho khách hàng mua lần đầu tiên', 'error');
+      return;
+    }
+  }
+
+  const sub = Store.cart.reduce((s, item) => {
+    const p = Store.products.find(x => x.id === item.id);
+    return s + (p ? p.price * item.qty : 0);
+  }, 0);
+
+  if (coupon.condition_min > 0 && sub < coupon.condition_min) {
+    showToast(`Mã ${code} áp dụng cho đơn từ ${formatPrice(coupon.condition_min)}`, 'error');
+    return;
+  }
+
+  discountPct = coupon.discount_pct / 100;
+  appliedCode = code;
+  showToast(`Áp dụng mã giảm giá ${coupon.discount_pct}% thành công`, 'success');
+  
   renderCheckoutItems();
 }
 
@@ -278,36 +437,127 @@ async function processCheckout() {
     userId:   Store.currentUser?.id || null,
     product:  productNames,
     total:    total,
+    discountAmount: discountAmt,
     payment:  payment,
     items:    Store.cart.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
     address: {
       address: document.getElementById('co-address')?.value || '',
       phone:   document.getElementById('co-phone')?.value   || '',
+      email:   document.getElementById('co-email')?.value   || '',
       note:    document.getElementById('co-note')?.value    || '',
     },
   });
 
+  // Tăng lượt sử dụng mã giảm giá trên Supabase nếu có
+  if (appliedCode && Store.coupons) {
+    const c = Store.coupons.find(x => x.code === appliedCode);
+    if (c) {
+      await window.SupabaseDB.incrementCouponUsage(c.id, c.uses || 0);
+    }
+  }
+
   Store.cart = [];
   cartPersist();
 
-  const orderId = newOrder?.id || ('PV-' + Math.floor(Math.random()*10000+1000));
+  const orderId = newOrder?.id || ('PV' + Math.floor(Math.random()*10000+1000));
+  let successHtml = '';
 
-  document.getElementById('checkout-grid').innerHTML = `
-    <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
-      <svg style="width:64px;height:64px;stroke:var(--gold-400);fill:none;stroke-width:2;margin:0 auto 20px;display:block;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-      <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đặt Hàng Thành Công!</h2>
-      <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
-        Cảm ơn <b>${customerName}</b> đã mua sắm tại PixelVault.<br>
-        Mã đơn hàng của bạn là <b style="color:var(--gold-400);">${orderId}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng.
-      </p>
-      <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
-    </div>
-  `;
+  if (payment === 'banking') {
+    // Generate VietQR URL for BIDV
+    const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact2.png?amount=${total}&addInfo=Thanh toan don ${orderId}&accountName=NGUYEN DUC PHUOC`;
+    
+    successHtml = `
+      <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
+        <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đơn hàng đã được ghi nhận!</h2>
+        <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:24px;">Mã đơn hàng: <b style="color:var(--gold-400);">${orderId}</b></p>
+        
+        <div style="background:var(--bg-elevated); border:1px solid var(--border-2); border-radius:var(--r-md); padding:24px; max-width:480px; margin:0 auto 30px;">
+          <h3 style="color:var(--gold-400); margin-bottom:12px; font-size:1.1rem;">Thanh Toán Chuyển Khoản</h3>
+          <p style="color:var(--text-400); font-size:0.85rem; margin-bottom:20px;">Quét mã QR dưới đây bằng ứng dụng ngân hàng để thanh toán tự động, hoặc chuyển khoản thủ công theo thông tin bên dưới.</p>
+          
+          <img src="${qrUrl}" alt="Mã QR Thanh Toán BIDV" style="width:240px; height:240px; border-radius:var(--r-sm); margin-bottom:24px; background:white; padding:10px; border:4px solid white;">
+          
+          <div style="text-align:left; background:var(--bg-card); padding:16px; border-radius:var(--r-sm); border:1px dashed var(--border-3);">
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
+              <span style="color:var(--text-400); font-size:0.9rem;">Ngân hàng:</span>
+              <strong style="color:var(--text-100);">BIDV</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
+              <span style="color:var(--text-400); font-size:0.9rem;">Số tài khoản (VA):</span>
+              <strong style="color:var(--text-100);">96247HH125</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
+              <span style="color:var(--text-400); font-size:0.9rem;">Chủ tài khoản:</span>
+              <strong style="color:var(--text-100);">NGUYỄN ĐỨC PHƯỚC</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
+              <span style="color:var(--text-400); font-size:0.9rem;">Số tiền:</span>
+              <strong style="color:var(--gold-400); font-size:1.1rem;">${formatPrice(total)}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:var(--text-400); font-size:0.9rem;">Nội dung CK:</span>
+              <strong style="color:var(--text-100); background:rgba(212,168,67,0.1); padding:4px 8px; border-radius:4px; font-family:monospace;">Thanh toan don ${orderId}</strong>
+            </div>
+          </div>
+          <p style="font-size:0.8rem; color:var(--text-400); margin-top:20px; font-style:italic;">* Đơn hàng sẽ được xử lý ngay sau khi chúng tôi nhận được thanh toán.</p>
+        </div>
+        
+        <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
+      </div>
+    `;
+  } else {
+    successHtml = `
+      <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
+        <svg style="width:64px;height:64px;stroke:var(--gold-400);fill:none;stroke-width:2;margin:0 auto 20px;display:block;" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đặt Hàng Thành Công!</h2>
+        <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+          Cảm ơn <b>${customerName}</b> đã mua sắm tại PixelVault.<br>
+          Mã đơn hàng của bạn là <b style="color:var(--gold-400);">${orderId}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng và giao hàng (COD).
+        </p>
+        <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
+      </div>
+    `;
+  }
+
+  document.getElementById('checkout-grid').innerHTML = successHtml;
+
+  // Listen for realtime payment confirmation
+  if (payment === 'banking' && window._pvSupabase) {
+    const channel = window._pvSupabase.channel('payment-success-channel')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
+        (payload) => {
+          if (payload.new && (payload.new.status === 'confirmed' || payload.new.status === 'paid')) {
+            document.getElementById('checkout-grid').innerHTML = `
+              <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+                <div style="width:80px;height:80px;border-radius:50%;background:rgba(212,168,67,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                  <svg style="width:40px;height:40px;stroke:var(--gold-400);fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h2 style="font-family:'Outfit',sans-serif; font-size:2rem; font-weight:700; color:var(--gold-400); margin-bottom:12px;">Đã Nhận Được Tiền!</h2>
+                <p style="font-size:1.05rem; color:var(--text-300); margin-bottom:32px; max-width:400px; margin-left:auto; margin-right:auto; line-height:1.6;">
+                  Hệ thống đã tự động xác nhận thanh toán thành công cho đơn hàng <b>${orderId}</b>.<br>Cảm ơn bạn đã tin tưởng PixelVault!
+                </p>
+                <a href="../index.html" class="btn btn-primary">Tiếp tục mua sắm</a>
+              </div>
+            `;
+            window._pvSupabase.removeChannel(channel);
+          }
+        }
+      )
+      .subscribe();
+  }
 
   // update cart badge
   document.querySelectorAll('.cart-badge').forEach(b => b.style.display = 'none');
 }
 </script>
+<style>
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
 </body>
 </html>
 
