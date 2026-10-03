@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar" id="main-navbar">
   <div class="nav-container">
@@ -54,9 +54,9 @@
         <div class="nav-actions">
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
-          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+          onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
         <button class="nav-search-btn" id="btn-nav-search"
-          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          onclick="window.location.href='pages/products.html?q='+document.getElementById('nav-q').value">
           <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -173,13 +173,17 @@
               <span style="color:var(--text-300);">Tạm tính</span>
               <span id="co-subtotal" style="font-weight:600; color:var(--text-100);">0đ</span>
             </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.875rem;">
+            <div id="co-ship-row" style="display:flex; justify-content:space-between; margin-bottom:12px; font-size:0.875rem;">
               <span style="color:var(--text-300);">Phí vận chuyển</span>
-              <span style="color:var(--green-400); font-weight:600;">Miễn phí</span>
+              <span style="color:var(--green-400); font-weight:600;">30.000đ</span>
             </div>
             <div style="display:flex; justify-content:space-between; font-size:0.875rem; display:none;" id="co-discount-row">
               <span style="color:var(--text-300);">Mã giảm giá <span id="co-discount-code" style="color:var(--gold-400); font-family:monospace; margin-left:4px;"></span></span>
               <span id="co-discount-amt" style="color:var(--red-400); font-weight:600;">-0đ</span>
+            </div>
+            <div id="co-member-row" style="display:none; justify-content:space-between; font-size:0.875rem;">
+              <span style="color:var(--gold-400);">Thành viên</span>
+              <span style="color:var(--gold-400); font-weight:600;"></span>
             </div>
           </div>
           
@@ -279,6 +283,101 @@
   </div>
 </footer>
 
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
+<div class="cart-overlay" id="cart-overlay">
+  <div class="cart-drawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng</h3>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div id="cart-total"></div>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Compare Bar -->
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
+    </div>
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast-container" id="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -287,8 +386,16 @@
 <script>
 let discountPct = 0;
 let appliedCode = '';
+try {
+  const savedC = sessionStorage.getItem('pv_coupon');
+  if (savedC) {
+    const parsed = JSON.parse(savedC);
+    discountPct = parsed.pct || 0;
+    appliedCode = parsed.code || '';
+  }
+} catch(e) {}
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('store:ready', () => {
   if (Store.cart.length === 0) {
     document.getElementById('checkout-grid').innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
@@ -301,10 +408,20 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // Pre-fill user data
+  // Pre-fill user data including address
   if (Store.currentUser) {
-    document.getElementById('co-name').value = Store.currentUser.name;
-    document.getElementById('co-email').value = Store.currentUser.email;
+    const u = Store.currentUser;
+    document.getElementById('co-name').value = u.name || '';
+    document.getElementById('co-email').value = u.email || '';
+    // Load saved phone/address from profile
+    if (u.id) {
+      window.SupabaseDB.getProfile(u.id).then(profile => {
+        if (profile) {
+          if (profile.phone) document.getElementById('co-phone').value = profile.phone;
+          if (profile.address) document.getElementById('co-address').value = profile.address;
+        }
+      });
+    }
   }
 
   // Handle radio styles
@@ -347,10 +464,27 @@ function renderCheckoutItems() {
   container.innerHTML = html;
   
   const discountAmt = subtotal * discountPct;
-  const total = subtotal - discountAmt;
+  // Membership discount
+  const u = Store.currentUser;
+  let memberPct = 0, memberLabel = '';
+  if (u && u._totalSpent !== undefined) {
+    if (u._totalSpent >= 1000000000) { memberPct = 0.10; memberLabel = 'Thành viên Kim cương (-10%)'; }
+    else if (u._totalSpent >= 500000000) { memberPct = 0.05; memberLabel = 'Thành viên Vàng (-5%)'; }
+    else if (u._totalSpent >= 100000000) { memberPct = 0.02; memberLabel = 'Thành viên Bạc (-2%)'; }
+  }
+  const memberDiscountAmt = subtotal * memberPct;
+  const shipping = subtotal >= 50000000 ? 0 : 30000;
+  const total = subtotal - discountAmt - memberDiscountAmt + shipping;
 
   document.getElementById('co-subtotal').textContent = formatPrice(subtotal);
+  // Update or create shipping row
+  const shipRow = document.getElementById('co-ship-row');
+  if (shipRow) shipRow.querySelector('span:last-child').textContent = shipping > 0 ? formatPrice(shipping) : 'Miễn phí';
   document.getElementById('co-total').textContent = formatPrice(total);
+  if (appliedCode) {
+    const cInput = document.getElementById('coupon-input');
+    if (cInput && !cInput.value) cInput.value = appliedCode;
+  }
   
   const dRow = document.getElementById('co-discount-row');
   if (discountAmt > 0) {
@@ -359,6 +493,12 @@ function renderCheckoutItems() {
     document.getElementById('co-discount-amt').textContent = '-' + formatPrice(discountAmt);
   } else {
     dRow.style.display = 'none';
+  }
+  // Member discount row
+  const mRow = document.getElementById('co-member-row');
+  if (mRow) {
+    if (memberDiscountAmt > 0) { mRow.style.display = 'flex'; mRow.querySelector('span:first-child').textContent = memberLabel; mRow.querySelector('span:last-child').textContent = '-' + formatPrice(memberDiscountAmt); }
+    else { mRow.style.display = 'none'; }
   }
 }
 
@@ -408,6 +548,7 @@ function applyCoupon() {
 
   discountPct = coupon.discount_pct / 100;
   appliedCode = code;
+  sessionStorage.setItem('pv_coupon', JSON.stringify({ code: appliedCode, pct: discountPct }));
   showToast(`Áp dụng mã giảm giá ${coupon.discount_pct}% thành công`, 'success');
   
   renderCheckoutItems();
@@ -429,8 +570,23 @@ async function processCheckout() {
   const payment = document.querySelector('input[name="payment"]:checked')?.value || 'COD';
   const subtotal = Store.cart.reduce((s, item) => s + item.price * item.qty, 0);
   const discountAmt = subtotal * discountPct;
-  const total = subtotal - discountAmt;
+  const u2 = Store.currentUser;
+  let memberPct2 = 0;
+  if (u2 && u2._totalSpent !== undefined) {
+    if (u2._totalSpent >= 1000000000) memberPct2 = 0.10;
+    else if (u2._totalSpent >= 500000000) memberPct2 = 0.05;
+    else if (u2._totalSpent >= 100000000) memberPct2 = 0.02;
+  }
+  const memberDiscountAmt = subtotal * memberPct2;
+  const shipping = subtotal >= 50000000 ? 0 : 30000;
+  const total = subtotal - discountAmt - memberDiscountAmt + shipping;
   const productNames = Store.cart.map(i => i.name).join(', ');
+
+  let appliedCouponId = null;
+  if (appliedCode && Store.coupons) {
+    const c = Store.coupons.find(x => x.code === appliedCode);
+    if (c) appliedCouponId = c.id;
+  }
 
   const newOrder = await window.SupabaseDB.createOrder({
     customer: customerName,
@@ -438,6 +594,7 @@ async function processCheckout() {
     product:  productNames,
     total:    total,
     discountAmount: discountAmt,
+    couponId: appliedCouponId,
     payment:  payment,
     items:    Store.cart.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
     address: {
@@ -447,6 +604,71 @@ async function processCheckout() {
       note:    document.getElementById('co-note')?.value    || '',
     },
   });
+
+  if (!newOrder) {
+    showToast('Lỗi đặt hàng: Vui lòng đăng nhập để tiếp tục.', 'error');
+    btn.textContent = 'Hoàn tất Đặt hàng';
+    btn.disabled = false;
+    return;
+  }
+
+  // Track member discount as coupon usage if they exist in DB
+  if (memberDiscountAmt > 0 && window.supabaseClient) {
+    let mCode = '';
+    if (memberPct2 === 0.10) mCode = 'TVKIMCUONG';
+    else if (memberPct2 === 0.05) mCode = 'TVVANG';
+    else if (memberPct2 === 0.02) mCode = 'TVBAC';
+
+    if (mCode) {
+      const { data: mCoupon } = await window.supabaseClient.from('coupons').select('uses, total_saved').eq('code', mCode).single();
+      if (mCoupon) {
+        await window.supabaseClient.from('coupons').update({
+          uses: (mCoupon.uses || 0) + 1,
+          total_saved: (mCoupon.total_saved || 0) + memberDiscountAmt
+        }).eq('code', mCode);
+      }
+    }
+  }
+
+  // Track normal coupon usage if applied
+  if (discountAmt > 0 && appliedCode && window.supabaseClient) {
+    const { data: cCoupon } = await window.supabaseClient.from('coupons').select('uses, total_saved').eq('code', appliedCode).single();
+    if (cCoupon) {
+      await window.supabaseClient.from('coupons').update({
+        uses: (cCoupon.uses || 0) + 1,
+        total_saved: (cCoupon.total_saved || 0) + discountAmt
+      }).eq('code', appliedCode);
+    }
+  }
+
+  if (newOrder && Store.currentUser && Store.currentUser.id) {
+    const cPhone = document.getElementById('co-phone')?.value;
+    const cAddress = document.getElementById('co-address')?.value;
+    const updates = {};
+    let needsUpdate = false;
+
+    if (!Store.currentUser.phone && cPhone) {
+      updates.phone = cPhone;
+      Store.currentUser.phone = cPhone;
+      needsUpdate = true;
+    }
+    if (!Store.currentUser.address && cAddress) {
+      updates.address = cAddress;
+      Store.currentUser.address = cAddress;
+      needsUpdate = true;
+    }
+
+    // Removed eager total_spent update since it should only happen when order is completed
+
+    if (needsUpdate) {
+      localStorage.setItem('pv_user', JSON.stringify(Store.currentUser));
+      if (window.SupabaseDB && window.SupabaseDB.updateProfile) {
+        window.SupabaseDB.updateProfile(Store.currentUser.id, updates);
+      } else if (window.supabaseClient) {
+        window.supabaseClient.from('profiles').update(updates).eq('id', Store.currentUser.id);
+      }
+    }
+  }
 
   // Tăng lượt sử dụng mã giảm giá trên Supabase nếu có
   if (appliedCode && Store.coupons) {
@@ -459,47 +681,34 @@ async function processCheckout() {
   Store.cart = [];
   cartPersist();
 
-  const orderId = newOrder?.id || ('PV' + Math.floor(Math.random()*10000+1000));
+  const orderId = newOrder.id;
   let successHtml = '';
 
   if (payment === 'banking') {
     // Generate VietQR URL for BIDV
-    const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact2.png?amount=${total}&addInfo=Thanh toan don ${orderId}&accountName=NGUYEN DUC PHUOC`;
+    const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact.png?amount=${Math.round(total)}&addInfo=Thanh%20toan%20don%20${orderId}&accountName=NGUYEN%20DUC%20PHUOC`;
     
     successHtml = `
       <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
         <h2 style="font-family:'Outfit',sans-serif; font-size:1.8rem; font-weight:700; color:var(--text-100); margin-bottom:12px;">Đơn hàng đã được ghi nhận!</h2>
         <p style="font-size:0.95rem; color:var(--text-300); margin-bottom:24px;">Mã đơn hàng: <b style="color:var(--gold-400);">${orderId}</b></p>
         
-        <div style="background:var(--bg-elevated); border:1px solid var(--border-2); border-radius:var(--r-md); padding:24px; max-width:480px; margin:0 auto 30px;">
-          <h3 style="color:var(--gold-400); margin-bottom:12px; font-size:1.1rem;">Thanh Toán Chuyển Khoản</h3>
-          <p style="color:var(--text-400); font-size:0.85rem; margin-bottom:20px;">Quét mã QR dưới đây bằng ứng dụng ngân hàng để thanh toán tự động, hoặc chuyển khoản thủ công theo thông tin bên dưới.</p>
+        <div style="background:var(--bg-elevated); border:1px solid var(--border-2); border-radius:var(--r-md); padding:24px; max-width:420px; margin:0 auto 30px;">
+          <h3 style="color:var(--gold-400); margin-bottom:16px; font-size:1.1rem;">Thanh Toán Chuyển Khoản</h3>
+          <p style="color:var(--text-400); font-size:0.85rem; margin-bottom:20px;">Quét mã QR dưới đây bằng ứng dụng ngân hàng để thanh toán tự động.</p>
           
-          <img src="${qrUrl}" alt="Mã QR Thanh Toán BIDV" style="width:240px; height:240px; border-radius:var(--r-sm); margin-bottom:24px; background:white; padding:10px; border:4px solid white;">
-          
-          <div style="text-align:left; background:var(--bg-card); padding:16px; border-radius:var(--r-sm); border:1px dashed var(--border-3);">
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
-              <span style="color:var(--text-400); font-size:0.9rem;">Ngân hàng:</span>
-              <strong style="color:var(--text-100);">BIDV</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
-              <span style="color:var(--text-400); font-size:0.9rem;">Số tài khoản (VA):</span>
-              <strong style="color:var(--text-100);">96247HH125</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
-              <span style="color:var(--text-400); font-size:0.9rem;">Chủ tài khoản:</span>
-              <strong style="color:var(--text-100);">NGUYỄN ĐỨC PHƯỚC</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid var(--border-1); padding-bottom:12px;">
-              <span style="color:var(--text-400); font-size:0.9rem;">Số tiền:</span>
-              <strong style="color:var(--gold-400); font-size:1.1rem;">${formatPrice(total)}</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <span style="color:var(--text-400); font-size:0.9rem;">Nội dung CK:</span>
-              <strong style="color:var(--text-100); background:rgba(212,168,67,0.1); padding:4px 8px; border-radius:4px; font-family:monospace;">Thanh toan don ${orderId}</strong>
-            </div>
+          <div style="display:flex; justify-content:center; margin-bottom:20px;">
+            <img src="${qrUrl}" alt="Mã QR Thanh Toán" style="width:220px; height:220px; border-radius:var(--r-sm); background:white; padding:10px; border:4px solid white; display:block;" onerror="this.alt='Lỗi tải QR'">
           </div>
-          <p style="font-size:0.8rem; color:var(--text-400); margin-top:20px; font-style:italic;">* Đơn hàng sẽ được xử lý ngay sau khi chúng tôi nhận được thanh toán.</p>
+          
+          <div style="text-align:left; background:var(--bg-card); padding:16px; border-radius:var(--r-sm); border:1px dashed var(--border-3); font-size:0.875rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Ngân hàng:</span><strong>BIDV</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Số tài khoản:</span><strong>96247HH125</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Chủ tài khoản:</span><strong>NGUYỄN ĐỨC PHƯỚC</strong></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Số tiền:</span><strong style="color:var(--gold-400); font-size:1.05rem;">${formatPrice(total)}</strong></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Nội dung CK:</span><code style="background:rgba(212,168,67,0.1); padding:2px 8px; border-radius:4px; font-size:0.8rem;">Thanh toan don ${orderId}</code></div>
+          </div>
+          <p style="font-size:0.78rem; color:var(--text-400); margin-top:16px; font-style:italic;">* Đơn hàng sẽ được xử lý ngay sau khi chúng tôi nhận được thanh toán.</p>
         </div>
         
         <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>

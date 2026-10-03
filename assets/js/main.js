@@ -60,6 +60,10 @@ const Store = {
   coupons:     [],
 };
 
+// Persist & restore compareList from localStorage
+const _savedCompare = localStorage.getItem('pv_compare');
+if (_savedCompare) { try { Store.compareList = JSON.parse(_savedCompare); } catch {} }
+
 // supabaseClient is set by data.js (loaded before main.js)
 const supabaseClient = window.supabaseClient;
 
@@ -119,7 +123,32 @@ async function initStore() {
     // Fetch data from Supabase
     initStore();
   });
+
+  // Tự động đồng bộ trạng thái giữa các tab (Login, Cart, Wishlist, Compare)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'pv_user') {
+      try { Store.currentUser = e.newValue ? JSON.parse(e.newValue) : null; } catch {}
+      updateAuthUI();
+    } else if (e.key === 'pv_cart') {
+      try { Store.cart = e.newValue ? JSON.parse(e.newValue) : []; } catch {}
+      cartUpdate();
+    } else if (e.key === 'pv_wishlist') {
+      try { Store.wishlist = e.newValue ? JSON.parse(e.newValue) : []; } catch {}
+      document.dispatchEvent(new CustomEvent('wishlist:updated'));
+    } else if (e.key === 'pv_compare') {
+      try { Store.compareList = e.newValue ? JSON.parse(e.newValue) : []; } catch {}
+    }
+  });
 })();
+
+/* Hàm mua ngay – thêm vào giỏ rồi chuyển sang checkout */
+function buyNow(productId, qty = 1) {
+  cartAdd(productId, qty);
+  const inPages = window.location.pathname.includes('/pages/');
+  setTimeout(() => {
+    window.location.href = inPages ? 'checkout.html' : 'pages/checkout.html';
+  }, 300);
+}
 
 /* ============================================================
    NAVBAR
@@ -211,8 +240,25 @@ function cartPersist() {
   localStorage.setItem('pv_cart', JSON.stringify(Store.cart));
 }
 
+// Cart coupon state
+let _cartCouponPct = 0;
+let _cartCouponCode = '';
+try {
+  const savedC = sessionStorage.getItem('pv_coupon');
+  if (savedC) {
+    const parsed = JSON.parse(savedC);
+    _cartCouponPct = parsed.pct || 0;
+    _cartCouponCode = parsed.code || '';
+  }
+} catch(e) {}
+
 function cartUpdate() {
   const count = Store.cart.reduce((s, i) => s + i.qty, 0);
+  if (count === 0) {
+    _cartCouponPct = 0;
+    _cartCouponCode = '';
+    sessionStorage.removeItem('pv_coupon');
+  }
 
   // Update all badge elements
   document.querySelectorAll('.cart-badge').forEach(el => {
@@ -251,15 +297,50 @@ function cartUpdate() {
     ).join('');
   }
 
-  // Footer totals
+  // Footer totals with coupon section
   const totalEl = document.getElementById('cart-total');
   if (totalEl) {
-    const total = cartGetTotal();
+    const subtotal = cartGetTotal();
+    const ship = subtotal >= 50000000 ? 0 : 30000;
+    // Membership discount
+    const u = Store.currentUser;
+    let memberPct = 0;
+    let memberLabel = '';
+    if (u && u._totalSpent !== undefined) {
+      if (u._totalSpent >= 1000000000) { memberPct = 0.10; memberLabel = 'Kim cương (-10%)'; }
+      else if (u._totalSpent >= 500000000) { memberPct = 0.05; memberLabel = 'Vàng (-5%)'; }
+      else if (u._totalSpent >= 100000000) { memberPct = 0.02; memberLabel = 'Bạc (-2%)'; }
+    }
+    const memberDiscount = subtotal * memberPct;
+    const couponDiscount = subtotal * _cartCouponPct;
+    const total = subtotal - memberDiscount - couponDiscount + ship;
+    
     totalEl.innerHTML = `
-      <div class="cart-summary-row"><span>Tạm tính (${count} SP)</span><span>${formatPrice(total)}</span></div>
-      <div class="cart-summary-row"><span>Phí vận chuyển</span><span>${total >= 50000000 ? 'Miễn phí' : '30.000đ'}</span></div>
-      <div class="cart-summary-row total"><span>Tổng cộng</span><span class="price">${formatPrice(total >= 50000000 ? total : total + 30000)}</span></div>`;
+      <div class="cart-summary-row"><span>Tạm tính (${count} SP)</span><span>${formatPrice(subtotal)}</span></div>
+      <div class="cart-summary-row"><span>Phí vận chuyển</span><span>${ship > 0 ? formatPrice(ship) : '<span style="color:var(--green-400)">Miễn phí</span>'}</span></div>
+      ${memberDiscount > 0 ? `<div class="cart-summary-row" style="color:var(--gold-400);"><span>Ưu đãi ${memberLabel}</span><span>-${formatPrice(memberDiscount)}</span></div>` : ''}
+      ${couponDiscount > 0 ? `<div class="cart-summary-row" style="color:var(--danger);"><span>Mã giảm giá (${_cartCouponCode})</span><span>-${formatPrice(couponDiscount)}</span></div>` : ''}
+      <div style="display:flex;gap:6px;margin:10px 0;">
+        <input type="text" id="cart-coupon-input" class="form-input" placeholder="Nhập mã giảm giá" style="flex:1;height:36px;font-size:0.8rem;" value="${_cartCouponCode}">
+        <button class="btn btn-secondary btn-sm" style="height:36px;" onclick="applyCartCoupon()">Áp dụng</button>
+      </div>
+      <div class="cart-summary-row total"><span>Tổng cộng</span><span class="price">${formatPrice(total)}</span></div>`;
   }
+}
+
+function applyCartCoupon() {
+  const code = (document.getElementById('cart-coupon-input')?.value || '').trim().toUpperCase();
+  if (!code) return;
+  const coupons = Store.coupons || [];
+  const coupon = coupons.find(c => c.code === code && c.type !== 'member');
+  if (!coupon) { showToast('Mã giảm giá không hợp lệ', 'error'); return; }
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) { showToast('Mã đã hết hạn', 'error'); return; }
+  if (coupon.max_uses > 0 && coupon.uses >= coupon.max_uses) { showToast('Mã đã hết lượt sử dụng', 'error'); return; }
+  _cartCouponPct = coupon.discount_pct / 100;
+  _cartCouponCode = code;
+  sessionStorage.setItem('pv_coupon', JSON.stringify({ code: _cartCouponCode, pct: _cartCouponPct }));
+  showToast(`Áp dụng mã ${coupon.discount_pct}% thành công!`, 'success');
+  cartUpdate();
 }
 
 function cartOpen() {
@@ -298,10 +379,17 @@ document.addEventListener('submit', async (e) => {
     const userRecord = data.user;
     const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', userRecord.id).single();
     
-    const name = profile?.name || userRecord.user_metadata?.name || userRecord.email.split('@')[0];
-    const role = profile?.role || 'customer';
+    const userObj = {
+      id: userRecord.id,
+      name: profile?.name || userRecord.user_metadata?.name || userRecord.email.split('@')[0],
+      email: userRecord.email,
+      role: profile?.role || 'customer',
+      phone: profile?.phone || '',
+      address: profile?.address || '',
+      _totalSpent: profile?.total_spent || 0
+    };
     
-    handleLoginSuccess({ id: userRecord.id, name, email: userRecord.email, role });
+    handleLoginSuccess(userObj);
   } else if (e.target.id === 'register-form') {
     e.preventDefault();
     const name = document.getElementById('reg-name')?.value;
@@ -319,11 +407,9 @@ document.addEventListener('submit', async (e) => {
 });
 
 async function handleSession(userRecord) {
-  // Đọc thông tin từ bảng profiles
   let { data: profile, error } = await supabaseClient.from('profiles').select('*').eq('id', userRecord.id).maybeSingle();
   
   if (!profile) {
-    // Nếu chưa có profile trong bảng (do thiếu trigger), frontend tự tạo luôn!
     const newProfile = {
       id: userRecord.id,
       name: userRecord.user_metadata?.name || userRecord.email.split('@')[0],
@@ -334,14 +420,21 @@ async function handleSession(userRecord) {
     profile = newProfile;
   }
   
-  const name = profile.name;
-  const role = profile.role;
-  
-  const user = { id: userRecord.id, name, email: userRecord.email, role };
+  const user = { 
+    id: userRecord.id, 
+    name: profile.name, 
+    email: userRecord.email, 
+    role: profile.role,
+    phone: profile.phone || '',
+    address: profile.address || '',
+    _totalSpent: profile.total_spent || 0
+  };
+
   Store.currentUser = user;
   localStorage.setItem('pv_user', JSON.stringify(user));
   
   updateAuthUI();
+  cartUpdate(); // Update cart with member discount!
 }
 
 function handleLoginSuccess(user) {
@@ -349,13 +442,8 @@ function handleLoginSuccess(user) {
   localStorage.setItem('pv_user', JSON.stringify(user));
   updateAuthUI();
   showToast(`Chào mừng, ${user.name}!`, 'success');
-  
-  setTimeout(() => {
-    const inPages = window.location.pathname.includes('/pages/');
-    const inAdmin = window.location.pathname.includes('/admin/');
-    if (inPages || inAdmin) window.location.href = '../index.html';
-    else window.location.href = 'index.html';
-  }, 800);
+  // Không redirect – giữ nguyên trang hiện tại
+  cartUpdate(); // refresh cart to show member discount
 }
 
 window.socialLogin = async function(provider) {
@@ -449,6 +537,7 @@ function compareToggle(productId) {
     Store.compareList.push(productId);
     showToast('Đã thêm vào danh sách so sánh', 'success');
   }
+  localStorage.setItem('pv_compare', JSON.stringify(Store.compareList));
   updateCompareBar();
 }
 
@@ -459,10 +548,12 @@ function updateCompareBar() {
   const slots = document.getElementById('compare-slots');
   if (!slots) return;
   const items = Store.compareList.map(id => Store.products.find(p => p.id === id)).filter(Boolean);
-  slots.innerHTML = items.map(p => `
-    <div class="compare-slot">
-      <img src="${p.images[0].startsWith('assets') ? '../' : ''}${p.images[0]}" alt="${p.name}" onerror="this.style.opacity='.3'">
-    </div>`).join('');
+  slots.innerHTML = items.map(p => {
+    const imgSrc = getProductImageSrc(p.images, !window.location.pathname.includes('/pages/'));
+    return `<div class="compare-slot" title="${p.name}">
+      <img src="${imgSrc}" alt="${p.name}" onerror="this.style.opacity='.3'">
+    </div>`;
+  }).join('');
   for (let i = items.length; i < 3; i++) {
     slots.innerHTML += `<div class="compare-slot">+</div>`;
   }
@@ -470,7 +561,9 @@ function updateCompareBar() {
 
 function goCompare() {
   if (Store.compareList.length < 2) { showToast('Chọn ít nhất 2 sản phẩm để so sánh', 'error'); return; }
-  window.location.href = `compare.html?ids=${Store.compareList.join(',')}`;
+  const inPages = window.location.pathname.includes('/pages/');
+  const url = inPages ? `compare.html?ids=${Store.compareList.join(',')}` : `pages/compare.html?ids=${Store.compareList.join(',')}`;
+  window.location.href = url;
 }
 
 /* ============================================================
@@ -486,6 +579,14 @@ function wishlistToggle(productId) {
     showToast('Đã thêm vào danh sách yêu thích', 'success');
   }
   localStorage.setItem('pv_wishlist', JSON.stringify(Store.wishlist));
+  // Update heart icon in current product card if visible
+  const btn = document.querySelector(`#pcard-${productId} .quick-action-btn`);
+  if (btn) {
+    const isNowWishlisted = Store.wishlist.includes(productId);
+    btn.innerHTML = isNowWishlisted ? SVG.heartFill : SVG.heart;
+    
+    btn.classList.toggle('wishlisted', isNowWishlisted);
+  }
 }
 
 /* ============================================================
@@ -575,24 +676,35 @@ function renderProductCard(p, fromRoot = null) {
   const discount = p.originalPrice > p.price ? getDiscountPct(p.price, p.originalPrice) : '';
   const imgSrc   = getProductImageSrc(p.images, fromRoot);
   const detailUrl = fromRoot ? `pages/product-detail.html?id=${p.id}` : `product-detail.html?id=${p.id}`;
+  const isWishlisted = Store.wishlist.includes(p.id);
+  const isCompared = Store.compareList.includes(p.id);
+
+  // Rating display: only show stars if rating > 0
+  const ratingHtml = `<div class="product-rating" style="display:flex; align-items:center; gap:4px; min-height:18px;">
+    ${p.rating ? `<span style="font-weight:700; color:var(--text-100); font-size:0.85rem;">${p.rating.toFixed(1)}</span>` : '<span style="font-weight:700; color:var(--text-400); font-size:0.85rem;">0</span>'}
+    <div class="stars" style="display:flex; margin-top:-2px;">${getStarsHTML(p.rating || 0)}</div>
+    <span class="rating-count" style="font-size:0.75rem; color:var(--text-400); margin-left:2px;">(${p.reviews || 0})</span>
+  </div>`;
+
   return `
     <div class="product-card" id="pcard-${p.id}" onclick="window.location.href='${detailUrl}'">
       <div class="product-image-wrap">
         <img src="${imgSrc}" alt="${p.name}" loading="lazy" onerror="this.style.opacity='.2'">
         <div class="product-badges">${getBadgeHTML(p.badge)}</div>
         <div class="product-quick-actions">
-          <button class="quick-action-btn" onclick="event.stopPropagation(); wishlistToggle(${p.id})" title="Yêu thích">${SVG.heart}</button>
-          <button class="quick-action-btn" onclick="event.stopPropagation(); compareToggle(${p.id})" title="So sánh">${SVG.compare}</button>
+          <button class="quick-action-btn${isWishlisted ? ' wishlisted' : ''}" onclick="event.stopPropagation(); wishlistToggle(${p.id})" title="Yêu thích">
+            ${isWishlisted ? SVG.heartFill : SVG.heart}
+          </button>
+          <button class="quick-action-btn${isCompared ? ' compared' : ''}" onclick="event.stopPropagation(); compareToggle(${p.id})" title="So sánh" style="${isCompared ? 'color:var(--gold-400);' : ''}">
+            ${SVG.compare}
+          </button>
         </div>
       </div>
       <div class="product-info">
         <div class="product-brand">${p.brand}</div>
         <h3 class="product-name">${p.name}</h3>
         <div class="product-specs">${(Array.isArray(p.tags) ? p.tags : []).map(t => `<span class="spec-tag">${t}</span>`).join('')}</div>
-        <div class="product-rating">
-          <div class="stars">${getStarsHTML(p.rating)}</div>
-          <span class="rating-count">(${p.reviews})</span>
-        </div>
+        ${ratingHtml}
         <div class="product-price">
           <div>
             <div class="price-current">${formatPrice(p.price)}</div>
@@ -600,11 +712,20 @@ function renderProductCard(p, fromRoot = null) {
           </div>
           ${discount ? `<span class="price-discount">${discount}</span>` : ''}
         </div>
-        <button class="product-add-cart ${p.stock === 0 ? 'out-of-stock' : ''}"
-          onclick="event.stopPropagation(); ${p.stock > 0 ? `cartAdd(${p.id})` : ''}">
-          ${SVG.cart}
-          ${p.stock > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}
-        </button>
+        <div class="product-action-buttons">
+          ${p.stock > 0 ? `
+          <button class="btn-add-cart" onclick="event.stopPropagation(); cartAdd(${p.id})" title="Thêm vào giỏ">
+            ${SVG.cart}
+          </button>
+          <button class="btn-buy-now" onclick="event.stopPropagation(); buyNow(${p.id})">
+            Mua ngay
+          </button>
+          ` : `
+          <button class="btn-buy-now out-of-stock" disabled>
+            Hết hàng
+          </button>
+          `}
+        </div>
       </div>
     </div>`;
 }
@@ -622,7 +743,7 @@ function toggleTheme() {
     localStorage.setItem('theme', 'dark');
   }
 }
-if (localStorage.getItem('theme') === 'light') {
+if (localStorage.getItem('theme') !== 'dark') {
   document.body.setAttribute('data-theme', 'light');
   window.addEventListener('DOMContentLoaded', () => {
     const tIcon = document.getElementById('theme-icon');

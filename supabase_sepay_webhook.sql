@@ -1,8 +1,10 @@
--- 1. Xóa hàm cũ (nếu có)
+-- 1. Xóa tất cả các hàm cũ để tránh lỗi trùng lặp (PGRST203)
+DROP FUNCTION IF EXISTS sepay_webhook(bigint, text, text, text, text, text, text, text, numeric, numeric, text, text);
+DROP FUNCTION IF EXISTS sepay_webhook(bigint, text, text, text, text, text, text, text, numeric, numeric, text, text, text, text, text);
 DROP FUNCTION IF EXISTS sepay_webhook(json);
 DROP FUNCTION IF EXISTS sepay_webhook();
 
--- 2. Tạo hàm mới hỗ trợ trực tiếp chuẩn dữ liệu của SePay (không cần Header phức tạp)
+-- 2. Tạo hàm mới hỗ trợ trực tiếp chuẩn dữ liệu của SePay
 CREATE OR REPLACE FUNCTION sepay_webhook(
     id bigint DEFAULT NULL,
     gateway text DEFAULT NULL,
@@ -49,9 +51,21 @@ BEGIN
 
     UPDATE orders 
     SET status = 'confirmed'
-    WHERE replace(orders.id, '-', '') = replace(v_order_id, '-', '');
+    WHERE orders.id = v_order.id;
 
-    RETURN json_build_object('success', true, 'message', 'Order ' || v_order_id || ' paid successfully!');
+    -- Lưu lại thông tin giao dịch vào bảng transactions
+    INSERT INTO transactions (
+      order_id, transaction_id, amount, content, payment_time, gateway
+    ) VALUES (
+      v_order.id, 
+      sepay_webhook.id::text, 
+      sepay_webhook."transferAmount"::numeric::int8, 
+      sepay_webhook.content, 
+      sepay_webhook."transactionDate"::timestamptz, 
+      sepay_webhook.gateway
+    ) ON CONFLICT (transaction_id) DO NOTHING;
+
+    RETURN json_build_object('success', true, 'message', 'Order ' || v_order.id || ' paid successfully!');
 END;
 $$;
 

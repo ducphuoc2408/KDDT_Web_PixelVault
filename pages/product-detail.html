@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar" id="main-navbar">
   <div class="nav-container">
@@ -54,9 +54,9 @@
         <div class="nav-actions">
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
-          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+          onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
         <button class="nav-search-btn" id="btn-nav-search"
-          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          onclick="window.location.href='pages/products.html?q='+document.getElementById('nav-q').value">
           <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -172,43 +172,101 @@
   </div>
 </footer>
 
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
 <div class="cart-overlay" id="cart-overlay">
   <div class="cart-drawer">
     <div class="cart-header">
       <h3>Giỏ hàng</h3>
-      <button class="cart-close" onclick="cartClose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
       <div id="cart-total"></div>
-      <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;">Thanh toán</a>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
   </div>
 </div>
 
+<!-- Compare Bar -->
 <div class="compare-bar" id="compare-bar">
   <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
   <div class="compare-items" id="compare-slots"></div>
-  <button class="btn btn-primary btn-sm" onclick="goCompare()">So sánh ngay</button>
-  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();">Xóa</button>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
 </div>
 
+<!-- Auth Modal -->
 <div class="modal-overlay" id="auth-modal">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-header">
-      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <h2 class="modal-title">Đăng nhập</h2>
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
       <form id="login-form">
-        <div class="form-group"><input type="email" id="login-email" class="form-input" placeholder="Email"></div>
-        <div class="form-group"><input type="password" id="login-password" class="form-input" placeholder="Mật khẩu"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Đăng nhập</button>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
       </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Toast -->
 <div class="toast-container" id="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -276,15 +334,19 @@ function renderProductDetails() {
     </div>`;
 
   // Info
-  const specsList = Object.entries(p.specs).slice(0, 4).map(([k,v]) => `<div style="font-size:0.8rem; color:var(--text-300); margin-bottom:6px;">• <b>${k}:</b> ${v}</div>`).join('');
-  
+  const safeSpecs = p.specs || {};
+  const specsList = Object.entries(safeSpecs).slice(0, 4).map(([k,v]) => `<div style="font-size:0.8rem; color:var(--text-300); margin-bottom:6px;">• <b>${k}:</b> ${v}</div>`).join('');
+  const isWishlisted = Store.wishlist && Store.wishlist.includes(p.id);
+
   const infoHtml = `
     <div class="product-detail-info">
       <div class="product-detail-brand">${p.brand}</div>
       <h1 class="product-detail-name">${p.name}</h1>
       <div class="product-rating" style="margin-bottom:20px;">
-        <div class="stars">${getStarsHTML(p.rating)}</div>
-        <span class="rating-count">(${p.rating} / 5 từ ${p.reviews} đánh giá)</span>
+        ${p.rating > 0 ? `
+          <div class="stars">${getStarsHTML(p.rating)}</div>
+          <span class="rating-count">${p.rating.toFixed(1)} ★ &nbsp; ${p.reviews > 0 ? `(${p.reviews} đánh giá)` : ''}</span>
+        ` : `<span style="color:var(--text-400); font-size:0.85rem;">Chưa có đánh giá</span>`}
       </div>
       
       <div style="display:flex; align-items:flex-end; gap:16px; margin-bottom:24px;">
@@ -304,34 +366,46 @@ function renderProductDetails() {
         ${specsList}
       </div>
 
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
-        <div class="qty-control" style="border-color:var(--border-2); height:48px;">
-          <button class="qty-btn" style="width:40px;" onclick="changeLocalQty(-1)"><svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          <span class="qty-value" id="detail-qty" style="width:40px; font-size:1rem;">1</span>
-          <button class="qty-btn" style="width:40px;" onclick="changeLocalQty(1)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        </div>
-        <div style="flex:1;">
-          <button class="btn btn-primary btn-lg" style="width:100%; justify-content:center;" 
-            onclick="${p.stock > 0 ? `cartAdd(${p.id}, currentQty)` : ''}" ${p.stock === 0 ? 'disabled' : ''}>
-            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-            ${p.stock > 0 ? 'Thêm vào giỏ hàng' : 'Đã hết hàng'}
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+        <div class="qty-control" style="border:1px solid var(--border-2); height:44px; border-radius:var(--r-sm); background:var(--bg-card);">
+          <button class="qty-btn" style="width:40px; color:var(--text-100); background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="changeLocalQty(-1)">
+            <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="qty-value" id="detail-qty" style="width:44px; font-size:1rem; color:var(--text-100); text-align:center;">1</span>
+          <button class="qty-btn" style="width:40px; color:var(--text-100); background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="changeLocalQty(1)">
+            <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
+        <div style="font-size:0.85rem; color:var(--text-400);">Tồn kho: <strong style="color:var(--text-200);">${p.stock}</strong></div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;">
+        <button class="btn btn-primary btn-lg" style="flex:1; min-width:160px; justify-content:center;" 
+          onclick="${p.stock > 0 ? `cartAdd(${p.id}, currentQty)` : ''}" ${p.stock === 0 ? 'disabled' : ''}>
+          <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          ${p.stock > 0 ? 'Thêm vào giỏ' : 'Đã hết hàng'}
+        </button>
+        ${p.stock > 0 ? `<button class="btn btn-secondary btn-lg" style="flex:1; min-width:160px; justify-content:center;" onclick="buyNow(${p.id}, currentQty)">
+          <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          Mua ngay
+        </button>` : ''}
       </div>
 
       <div style="display:flex; gap:20px; border-top:1px solid var(--border-1); padding-top:24px;">
-        <button class="btn btn-ghost" onclick="wishlistToggle(${p.id})">
-          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> Yêu thích
+        <button class="btn btn-ghost" id="detail-wishlist-btn" onclick="toggleDetailWishlist(${p.id})">
+          <svg style="width:16px;height:16px;fill:${isWishlisted ? 'currentColor' : 'none'};stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Yêu thích
         </button>
         <button class="btn btn-ghost" onclick="compareToggle(${p.id})">
-          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> So sánh
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          So sánh
         </button>
       </div>
 
       <div style="margin-top:24px; padding:16px; background:rgba(212,168,67,0.06); border:1px solid var(--border-gold); border-radius:var(--r-md); display:flex; gap:12px; align-items:center;">
         <svg style="width:24px;height:24px;stroke:var(--gold-500);fill:none;flex-shrink:0;" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         <div style="font-size:0.8rem; color:var(--gold-400);">
-          <strong style="display:block; margin-bottom:2px;">Bảo hành chính hãng ${p.specs['Bảo hành'] || '12 tháng'}</strong>
+          <strong style="display:block; margin-bottom:2px;">Bảo hành chính hãng ${p.specs['Ảo hành'] || '12 tháng'}</strong>
           Giao hàng tận nơi miễn phí. Lỗi 1 đổi 1 trong 30 ngày.
         </div>
       </div>
@@ -371,7 +445,7 @@ function changeLocalQty(delta) {
 }
 
 function renderSpecsAndReviews(p) {
-  const specsHtml = Object.entries(p.specs).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+  const specsHtml = Object.entries(p.specs || {}).map(([k,v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
   
   const reviewsHtml = (p.reviewsData || []).map(r => `
     <div style="padding-bottom:20px; border-bottom:1px solid var(--border-1);">
@@ -379,8 +453,9 @@ function renderSpecsAndReviews(p) {
         <div style="font-weight:700; color:var(--text-100);">${r.user_name}</div>
         <span style="font-size:0.75rem; color:var(--text-400);">${r.created_at.split('T')[0]}</span>
       </div>
-      <div style="color:var(--gold-400); margin-bottom:10px; display:flex; gap:2px;">
-        ${'<svg style="width:14px;height:14px;fill:currentColor;stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'.repeat(r.rating)}
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+        <div style="color:var(--gold-400); display:flex; gap:2px;">${getStarsHTML(r.rating)}</div>
+        <span style="font-size:0.8rem; color:var(--text-400);">${r.rating}/5</span>
       </div>
       <p style="font-size:0.875rem; color:var(--text-300);">${r.content}</p>
     </div>
@@ -436,6 +511,19 @@ function setRating(r) {
   });
 }
 
+function toggleDetailWishlist(productId) {
+  wishlistToggle(productId);
+  const btn = document.getElementById('detail-wishlist-btn');
+  if (btn) {
+    const isNow = Store.wishlist.includes(productId);
+    
+    const svg = btn.querySelector('svg');
+    if (svg) svg.setAttribute('fill', isNow ? 'currentColor' : 'none');
+    const txt = btn.querySelector('svg + *') || btn.childNodes[btn.childNodes.length - 1];
+    btn.innerHTML = btn.innerHTML.replace(/(Đã )?Yêu thích/, isNow ? 'Đã yêu thích' : 'Yêu thích');
+  }
+}
+
 async function submitReview(e) {
   e.preventDefault();
   if (!Store.currentUser) {
@@ -474,15 +562,3 @@ async function submitReview(e) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

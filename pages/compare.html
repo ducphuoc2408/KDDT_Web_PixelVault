@@ -72,7 +72,7 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar" id="main-navbar">
   <div class="nav-container">
@@ -119,9 +119,9 @@
         <div class="nav-actions">
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
-          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+          onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
         <button class="nav-search-btn" id="btn-nav-search"
-          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          onclick="window.location.href='pages/products.html?q='+document.getElementById('nav-q').value">
           <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -155,9 +155,29 @@
 
 <div class="section" style="margin-top: var(--nav-h); min-height: 60vh;">
   <div class="container">
-    <div class="section-header" style="text-align:left; margin-bottom:32px;">
+    <div class="section-header" style="text-align:left; margin-bottom:24px;">
       <h1 class="section-title">So Sánh Sản Phẩm</h1>
       <p class="section-desc" style="margin:0;">Đối chiếu chi tiết thông số kỹ thuật để tìm ra thiết bị phù hợp nhất.</p>
+    </div>
+
+    <!-- Product search panel -->
+    <div id="compare-search-panel" style="background:var(--bg-card); border:1px solid var(--border-1); border-radius:var(--r-lg); padding:20px; margin-bottom:28px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+        <svg style="width:18px;height:18px;fill:none;stroke:var(--gold-400);stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <strong style="color:var(--text-100); font-family:'Outfit',sans-serif;">Tìm sản phẩm để so sánh</strong>
+        <span style="font-size:0.8rem; color:var(--text-400);">(Tối đa 3 sản phẩm)</span>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:12px;">
+        <input type="text" id="compare-search-input" class="form-input" placeholder="Nhập tên máy ảnh, hãng..." style="flex:1;" oninput="compareSearchProducts(this.value)">
+        <select id="compare-search-cat" class="form-input" style="width:180px;" onchange="compareSearchProducts(document.getElementById('compare-search-input').value)">
+          <option value="">Tất cả danh mục</option>
+          <option value="mirrorless">Mirrorless</option>
+          <option value="dslr">DSLR</option>
+          <option value="lens">Ống kính</option>
+          <option value="compact">Compact</option>
+        </select>
+      </div>
+      <div id="compare-search-results" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; max-height:320px; overflow-y:auto;"></div>
     </div>
 
     <div id="compare-content"></div>
@@ -240,36 +260,101 @@
   </div>
 </footer>
 
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
 <div class="cart-overlay" id="cart-overlay">
   <div class="cart-drawer">
     <div class="cart-header">
       <h3>Giỏ hàng</h3>
-      <button class="cart-close" onclick="cartClose()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
     <div class="cart-items" id="cart-items"></div>
     <div class="cart-footer">
       <div id="cart-total"></div>
-      <a href="checkout.html" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px;">Thanh toán</a>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
   </div>
 </div>
 
+<!-- Compare Bar -->
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
+</div>
+
+<!-- Auth Modal -->
 <div class="modal-overlay" id="auth-modal">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-header">
-      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <h2 class="modal-title">Đăng nhập</h2>
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
       <form id="login-form">
-        <div class="form-group"><input type="email" id="login-email" class="form-input" placeholder="Email"></div>
-        <div class="form-group"><input type="password" id="login-password" class="form-input" placeholder="Mật khẩu"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Đăng nhập</button>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
       </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Toast -->
 <div class="toast-container" id="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -277,8 +362,43 @@
 <script src="../assets/js/main.js"></script>
 <script>
 document.addEventListener('store:ready', () => {
+  compareSearchProducts('');
   renderCompareTable();
 });
+
+function compareSearchProducts(query) {
+  const cat = document.getElementById('compare-search-cat')?.value || '';
+  const resultsEl = document.getElementById('compare-search-results');
+  if (!resultsEl) return;
+  
+  let results = Store.products;
+  if (cat) results = results.filter(p => p.category === cat);
+  if (query.trim()) results = results.filter(p => p.name.toLowerCase().includes(query.toLowerCase()) || p.brand.toLowerCase().includes(query.toLowerCase()));
+  
+  if (results.length === 0) {
+    resultsEl.innerHTML = '<p style="color:var(--text-400); font-size:0.85rem; grid-column:1/-1; text-align:center;">Không tìm thấy sản phẩm</p>';
+    return;
+  }
+  
+  resultsEl.innerHTML = results.slice(0, 12).map(p => {
+    const inList = Store.compareList.includes(p.id);
+    const imgSrc = getProductImageSrc(p.images, false);
+    return `<div style="background:var(--bg-elevated); border:1px solid ${inList ? 'var(--border-gold)' : 'var(--border-1)'}; border-radius:var(--r-md); padding:10px; cursor:pointer; transition:all 0.2s;" onclick="compareSearchToggle(${p.id})">
+      <img src="${imgSrc}" style="width:100%; height:100px; object-fit:cover; border-radius:var(--r-sm); margin-bottom:8px;" onerror="this.style.opacity='.2'">
+      <div style="font-size:0.75rem; color:var(--text-400);">${p.brand}</div>
+      <div style="font-size:0.8rem; font-weight:600; color:var(--text-100); line-height:1.3; margin-bottom:6px;">${p.name}</div>
+      <button class="btn btn-sm" style="width:100%; justify-content:center; background:${inList ? 'rgba(244,67,54,0.1)' : 'var(--bg-card)'}; color:${inList ? 'var(--danger)' : 'var(--text-200)'}; border:1px solid ${inList ? 'var(--danger)' : 'var(--border-2)'}; font-size:0.75rem;">
+        ${inList ? 'Xóa khỏi so sánh' : '+ Thêm so sánh'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function compareSearchToggle(productId) {
+  compareToggle(productId);
+  compareSearchProducts(document.getElementById('compare-search-input')?.value || '');
+  renderCompareTable();
+}
 
 function renderCompareTable() {
   const container = document.getElementById('compare-content');
@@ -286,11 +406,10 @@ function renderCompareTable() {
 
   if (ids.length === 0) {
     container.innerHTML = `
-      <div style="text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
-        <svg style="width:64px;height:64px;stroke:var(--text-400);fill:none;stroke-width:1;margin:0 auto 16px;display:block;" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        <h3 style="font-family:'Outfit',sans-serif; font-size:1.25rem; font-weight:700; color:var(--text-100); margin-bottom:8px;">Chưa có sản phẩm nào</h3>
-        <p style="font-size:0.875rem; color:var(--text-400); margin-bottom:20px;">Vui lòng thêm ít nhất một sản phẩm vào danh sách so sánh.</p>
-        <a href="products.html" class="btn btn-primary">Chọn sản phẩm</a>
+      <div style="text-align:center; padding:60px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
+        <svg style="width:56px;height:56px;stroke:var(--text-400);fill:none;stroke-width:1;margin:0 auto 16px;display:block;" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        <h3 style="font-family:'Outfit',sans-serif; font-size:1.1rem; font-weight:700; color:var(--text-100); margin-bottom:8px;">Chưa chọn sản phẩm nào</h3>
+        <p style="font-size:0.875rem; color:var(--text-400);">Hãy tìm và thêm sản phẩm bên trên để bắt đầu so sánh.</p>
       </div>
     `;
     return;
@@ -300,10 +419,7 @@ function renderCompareTable() {
   
   // Extract all unique specs keys
   const allSpecs = new Set();
-  products.forEach(p => {
-    Object.keys(p.specs).forEach(k => allSpecs.add(k));
-  });
-
+  products.forEach(p => { Object.keys(p.specs).forEach(k => allSpecs.add(k)); });
   const specKeys = Array.from(allSpecs);
 
   let html = `
@@ -312,26 +428,31 @@ function renderCompareTable() {
         <tbody>
           <tr>
             <th>Sản phẩm</th>
-            ${products.map(p => `
+            ${products.map(p => {
+              const imgSrc = getProductImageSrc(p.images, false);
+              return `
               <td>
                 <div style="position:relative;">
-                  <button class="btn btn-sm" style="position:absolute; top:8px; right:8px; background:rgba(6,6,13,0.6); backdrop-filter:blur(4px); padding:4px; border:1px solid rgba(255,255,255,0.1);" onclick="removeCompare(${p.id})">
-                    <svg style="width:14px;height:14px;stroke:#fff;fill:none;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  <button class="btn btn-sm" style="position:absolute; top:8px; right:8px; background:rgba(6,6,13,0.7); backdrop-filter:blur(4px); padding:5px; border:1px solid rgba(255,255,255,0.1); border-radius:var(--r-sm);" onclick="removeCompare(${p.id})">
+                    <svg style="width:12px;height:12px;stroke:#fff;fill:none;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
-                  <img src="${p.images[0].startsWith('assets') ? '../' + p.images[0] : p.images[0]}" class="c-prod-img" alt="${p.name}">
+                  <img src="${imgSrc}" class="c-prod-img" alt="${p.name}" onerror="this.style.opacity='.2'">
                 </div>
                 <div class="c-prod-name">${p.name}</div>
                 <div class="c-prod-price">${formatPrice(p.price)}</div>
-                <button class="btn btn-primary btn-sm" style="width:100%; justify-content:center;" onclick="cartAdd(${p.id}, 1)">Thêm vào giỏ</button>
-                <a href="product-detail.html?id=${p.id}" class="btn btn-secondary btn-sm" style="width:100%; justify-content:center; margin-top:8px;">Chi tiết</a>
+                <div style="display:flex; gap:6px;">
+                  <button class="btn btn-primary btn-sm" style="flex:1; justify-content:center;" onclick="cartAdd(${p.id}, 1)">Thêm giỏ</button>
+                  <button class="btn btn-secondary btn-sm" style="flex:1; justify-content:center;" onclick="buyNow(${p.id})">Mua ngay</button>
+                </div>
+                <a href="product-detail.html?id=${p.id}" class="btn btn-ghost btn-sm" style="width:100%; justify-content:center; margin-top:6px;">Xem chi tiết</a>
               </td>
-            `).join('')}
+            `}).join('')}
             ${products.length < 3 ? `
               <td style="vertical-align:middle; text-align:center;">
-                <a href="products.html" class="btn btn-ghost" style="border:1px dashed var(--border-2); width:100%; height:100%; min-height:200px; display:flex; flex-direction:column; justify-content:center; align-items:center; color:var(--text-400);">
-                  <svg style="width:24px;height:24px;margin-bottom:8px;" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  Thêm sản phẩm
-                </a>
+                <div style="border:2px dashed var(--border-2); border-radius:var(--r-md); min-height:200px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:12px; cursor:pointer; padding:20px;" onclick="document.getElementById('compare-search-input').focus(); document.getElementById('compare-search-input').scrollIntoView({behavior:'smooth'})">
+                  <svg style="width:32px;height:32px;fill:none;stroke:var(--text-400);stroke-width:1.5;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span style="color:var(--text-400); font-size:0.85rem;">Thêm sản phẩm</span>
+                </div>
               </td>
             ` : ''}
           </tr>
@@ -346,15 +467,21 @@ function renderCompareTable() {
             ${products.length < 3 ? `<td></td>` : ''}
           </tr>
           <tr>
+            <th>Giá</th>
+            ${products.map(p => `<td><span style="font-weight:700; color:var(--gold-400);">${formatPrice(p.price)}</span>${p.originalPrice > p.price ? `<br><span style="font-size:0.8rem; color:var(--text-400); text-decoration:line-through;">${formatPrice(p.originalPrice)}</span>` : ''}</td>`).join('')}
+            ${products.length < 3 ? `<td></td>` : ''}
+          </tr>
+          <tr>
             <th>Đánh giá</th>
             ${products.map(p => `
               <td>
-                <div style="display:flex; align-items:center; gap:4px; color:var(--gold-400);">
-                  ${'<svg style="width:14px;height:14px;fill:currentColor;stroke:none;" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'.repeat(Math.round(p.rating))}
-                  <span style="color:var(--text-400); font-size:0.8rem; margin-left:4px;">(${p.reviews})</span>
-                </div>
-              </td>
-            `).join('')}
+                ${p.rating > 0 ? `<div style="display:flex; align-items:center; gap:4px;">${getStarsHTML(p.rating)}<span style="color:var(--text-400); font-size:0.8rem; margin-left:4px;">${p.rating.toFixed(1)} (${p.reviews})</span></div>` : '<span style="color:var(--text-400); font-size:0.8rem;">Chưa có</span>'}
+              </td>`).join('')}
+            ${products.length < 3 ? `<td></td>` : ''}
+          </tr>
+          <tr>
+            <th>Tồn kho</th>
+            ${products.map(p => `<td>${p.stock > 0 ? `<span style="color:var(--green-400);">Còn hàng (${p.stock})</span>` : '<span style="color:var(--danger);">Hết hàng</span>'}</td>`).join('')}
             ${products.length < 3 ? `<td></td>` : ''}
           </tr>
           ${specKeys.map(key => `
@@ -374,7 +501,8 @@ function renderCompareTable() {
 
 function removeCompare(id) {
   Store.compareList = Store.compareList.filter(x => x !== id);
-  saveStore();
+  localStorage.setItem('pv_compare', JSON.stringify(Store.compareList));
+  compareSearchProducts(document.getElementById('compare-search-input')?.value || '');
   renderCompareTable();
   updateCompareBar();
 }

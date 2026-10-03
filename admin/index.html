@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin – PixelVault</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css?v=2">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
@@ -164,7 +164,7 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="admin-layout">
   <!-- ============ SIDEBAR ============ -->
@@ -197,6 +197,10 @@
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Đơn hàng
         <span class="admin-nav-badge" id="pending-badge">3</span>
+      </div>
+      <div class="admin-nav-item" id="nav-transactions" onclick="showSection('transactions', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Giao dịch
       </div>
       <div class="admin-nav-item" id="nav-customers" onclick="showSection('customers', this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -255,7 +259,7 @@
       <div class="stats-grid" id="stats-grid">
         <div class="stat-card gold">
           <div class="stat-header">
-            <span class="stat-label">Doanh thu tháng 9</span>
+            <span class="stat-label">Doanh thu hôm nay</span>
             <div class="stat-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
@@ -312,12 +316,11 @@
         <!-- Revenue Chart -->
         <div class="data-table-wrap" style="padding:24px;">
           <div class="data-table-header" style="padding:0 0 18px;">
-            <div class="data-table-title">Doanh thu theo tháng (triệu đồng)</div>
+            <div class="data-table-title">Doanh thu theo ngày (triệu đồng)</div>
             <select id="revenue-time-filter" class="sort-select" style="font-size:0.8rem; padding:4px 8px; min-width:auto;" onchange="renderRevenueChart()">
-              <option value="3">3 tháng gần nhất</option>
-              <option value="6" selected>6 tháng gần nhất</option>
-              <option value="12">1 năm qua</option>
-              <option value="100">Tất cả thời gian</option>
+              <option value="3">3 ngày gần nhất</option>
+              <option value="7" selected>1 tuần qua</option>
+              <option value="30">1 tháng qua</option>
             </select>
           </div>
           <div class="chart-bar" id="revenue-chart"></div>
@@ -424,6 +427,33 @@
       </div>
     </div>
 
+    <!-- ====== TRANSACTIONS ====== -->
+    <div id="section-transactions" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-sub">Quản lý</div>
+          <h1 class="admin-title">Giao dịch Sepay</h1>
+        </div>
+      </div>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Mã GD (Ngân hàng)</th>
+              <th>Số tiền</th>
+              <th>Nội dung</th>
+              <th>Cổng</th>
+              <th>Thời gian</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body">
+            <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ====== ORDERS ====== -->
     <div id="section-orders" style="display:none;">
       <div class="admin-topbar">
@@ -455,10 +485,17 @@
     <div id="section-customers" style="display:none;">
       <div class="admin-topbar">
         <div><div class="admin-page-sub">Quản lý</div><h1 class="admin-title">Khách hàng</h1></div>
+        <select class="sort-select" id="customer-tier-filter" onchange="renderCustomers()">
+          <option value="">Tất cả hạng</option>
+          <option value="Thành viên">Thành viên</option>
+          <option value="Bạc">Bạc</option>
+          <option value="Vàng">Vàng</option>
+          <option value="Kim cương">Kim cương</option>
+        </select>
       </div>
       <div class="data-table-wrap">
         <table class="data-table">
-          <thead><tr><th>ID</th><th>Khách hàng</th><th>Số điện thoại</th><th>Tổng chi tiêu</th><th>Hạng thành viên</th><th>Số đơn</th></tr></thead>
+          <thead><tr><th>ID</th><th>Khách hàng</th><th>Email</th><th>Số điện thoại</th><th>Tổng chi tiêu</th><th>Hạng thành viên</th><th>Số đơn</th></tr></thead>
           <tbody id="customers-body"></tbody>
         </table>
       </div>
@@ -490,7 +527,7 @@
       </div>
       <div class="data-table-wrap">
         <table class="data-table">
-          <thead><tr><th>Mã giảm giá</th><th>Giảm</th><th>Điều kiện</th><th>Hết hạn</th><th>Lượt dùng</th><th>Trạng thái</th></tr></thead>
+          <thead><tr><th>Mã giảm giá</th><th>Giảm</th><th>Điều kiện</th><th>Hết hạn</th><th>Lượt dùng</th><th>Tổng giảm</th><th>Trạng thái & Thao tác</th></tr></thead>
           <tbody id="promotions-body">
             <!-- Dynamic coupons rendered here -->
           </tbody>
@@ -569,7 +606,7 @@
 #product-modal .modal { max-width: 780px; max-height: 90vh; overflow-y: auto; }
 #product-modal .modal-body { padding-top: 0; }
 .pm-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border-1); margin-bottom: 20px; }
-.pm-tab { padding: 10px 18px; font-size: 0.82rem; font-weight: 600; color: var(--text-400); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; letter-spacing: .3px; }
+.pm-tab { display: flex; align-items: center; gap: 6px; padding: 10px 18px; font-size: 0.82rem; font-weight: 600; color: var(--text-400); cursor: pointer; border-bottom: 2px solid transparent; transition: all .2s; letter-spacing: .3px; }
 .pm-tab.active { color: var(--gold-400); border-bottom-color: var(--gold-400); }
 .pm-panel { display: none; } .pm-panel.active { display: block; }
 .pm-img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-bottom: 12px; }
@@ -608,10 +645,22 @@
     <div class="modal-body">
       <!-- Tabs -->
       <div class="pm-tabs">
-        <div class="pm-tab active" onclick="pmSwitchTab('basic', this)">📋 Thông tin cơ bản</div>
-        <div class="pm-tab" onclick="pmSwitchTab('images', this)">🖼️ Hình ảnh</div>
-        <div class="pm-tab" onclick="pmSwitchTab('specs', this)">🔧 Thông số kỹ thuật</div>
-        <div class="pm-tab" onclick="pmSwitchTab('meta', this)">🏷️ Tags & Badge</div>
+        <div class="pm-tab active" onclick="pmSwitchTab('basic', this)">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Thông tin cơ bản
+        </div>
+        <div class="pm-tab" onclick="pmSwitchTab('images', this)">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Hình ảnh
+        </div>
+        <div class="pm-tab" onclick="pmSwitchTab('specs', this)">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          Thông số kỹ thuật
+        </div>
+        <div class="pm-tab" onclick="pmSwitchTab('meta', this)">
+          <svg style="width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Tags & Badge
+        </div>
       </div>
 
       <!-- Panel 1: Basic -->
@@ -880,14 +929,29 @@ function updateAdminStats() {
   }).length;
   const orderDiff = todayOrders - yesterdayOrders;
 
-  // Calculate unique customers
-  const uniqueCustomers = new Set(Store.orders.map(o => o.customer || o.userId)).size;
-  const custThisMonth = new Set(thisMonthOrders.map(o => o.customer || o.userId)).size;
-  const custLastMonth = new Set(lastMonthOrders.map(o => o.customer || o.userId)).size;
+  // Calculate new customers (first order was in the given month)
+  const firstOrderMap = {};
+  Store.orders.forEach(o => {
+    if(!o.date) return;
+    const cid = o.customer || o.userId;
+    const d = new Date(o.date);
+    if (!firstOrderMap[cid] || d < firstOrderMap[cid]) {
+      firstOrderMap[cid] = d;
+    }
+  });
+  
+  let newCustThisMonth = 0;
+  let newCustLastMonth = 0;
+  
+  Object.values(firstOrderMap).forEach(d => {
+    if (d.getMonth() + 1 === currentMonth && d.getFullYear() === currentYear) newCustThisMonth++;
+    if (d.getMonth() + 1 === lastMonth && d.getFullYear() === lastMonthYear) newCustLastMonth++;
+  });
+
   let custDiffPct = 0;
-  if (custLastMonth > 0) {
-    custDiffPct = ((custThisMonth - custLastMonth) / custLastMonth * 100).toFixed(1);
-  } else if (custThisMonth > 0) {
+  if (newCustLastMonth > 0) {
+    custDiffPct = ((newCustThisMonth - newCustLastMonth) / newCustLastMonth * 100).toFixed(1);
+  } else if (newCustThisMonth > 0) {
     custDiffPct = 100;
   }
 
@@ -896,11 +960,46 @@ function updateAdminStats() {
 
   const revenueStat = document.querySelector('.stat-card.gold .stat-value');
   if (revenueStat) {
-    revenueStat.textContent = (totalRevenueThisMonth / 1000000).toFixed(1) + 'M đ';
+    // TÍNH DOANH THU HÔM NAY
+    const todayStr = new Date().toISOString().split('T')[0];
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+
+    let todayRev = 0;
+    let todayGross = 0;
+    let yesterdayRev = 0;
+
+    Store.orders.forEach(o => {
+      if (!o.date || o.status === 'cancelled') return;
+      const dStr = o.date.split('T')[0];
+      const net = Number(o.total || 0);
+      const gross = net + Number(o.discountAmount || 0);
+
+      if (dStr === todayStr) {
+        todayRev += net;
+        todayGross += gross;
+      } else if (dStr === yesterdayStr) {
+        yesterdayRev += net;
+      }
+    });
+
+    revenueStat.innerHTML = `
+      <div style="font-size:1.6rem; color:var(--text-100); line-height:1.2; margin-bottom:4px;">${(todayRev / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; color:var(--text-300); font-weight:normal;">(Net)</span></div>
+      <div style="font-size:1.1rem; color:var(--text-300); line-height:1.2;">${(todayGross / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; font-weight:normal;">(Gross)</span></div>
+    `;
+    
+    let revDiffPctDaily = 0;
+    if (yesterdayRev > 0) {
+      revDiffPctDaily = ((todayRev - yesterdayRev) / yesterdayRev * 100).toFixed(1);
+    } else if (todayRev > 0) {
+      revDiffPctDaily = 100;
+    }
+
     const diffEl = revenueStat.nextElementSibling;
     if (diffEl) {
-      diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${revDiffPct >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(revDiffPct)}% so với tháng trước`;
-      diffEl.className = `stat-change ${revDiffPct >= 0 ? 'up' : 'down'}`;
+      diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${revDiffPctDaily >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(revDiffPctDaily)}% so với hôm qua`;
+      diffEl.className = `stat-change ${revDiffPctDaily >= 0 ? 'up' : 'down'}`;
     }
   }
 
@@ -916,7 +1015,7 @@ function updateAdminStats() {
 
   const customersStat = document.querySelector('.stat-card.purple .stat-value');
   if (customersStat) {
-    customersStat.textContent = uniqueCustomers;
+    customersStat.textContent = newCustThisMonth;
     const diffEl = customersStat.nextElementSibling;
     if (diffEl) {
       diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${custDiffPct >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(custDiffPct)}% so với tháng trước`;
@@ -975,7 +1074,7 @@ function showSection(section, navEl) {
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById(`section-${section}`).style.display = 'block';
   if (navEl) navEl.classList.add('active');
-  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons };
+  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons, transactions: renderTransactions };
   if (renders[section]) renders[section]();
 }
 
@@ -989,40 +1088,46 @@ function renderDashboard() {
 function renderRevenueChart() {
   const el = document.getElementById('revenue-chart');
   if (!el) return;
-  const filterVal = parseInt(document.getElementById('revenue-time-filter')?.value || 6);
+  const filterVal = parseInt(document.getElementById('revenue-time-filter')?.value || 7);
   
-  const months = {};
+  const daily = {};
   Store.orders.forEach(o => {
     if (!o.date) return;
     const d = new Date(o.date);
-    const key = `T${d.getMonth() + 1}/${d.getFullYear()}`;
-    if (!months[key]) months[key] = 0;
-    months[key] += Number(o.total || 0);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const key = yyyy + '-' + mm + '-' + dd;
+    if (!daily[key]) daily[key] = 0;
+    if (o.status !== 'cancelled') {
+        daily[key] += Number(o.total || 0);
+    }
   });
   
-  const sortedKeys = Object.keys(months).sort((a,b) => {
-    const [ma, ya] = a.substring(1).split('/').map(Number);
-    const [mb, yb] = b.substring(1).split('/').map(Number);
-    return (ya - yb) || (ma - mb);
-  }).slice(-filterVal);
-  
-  if (sortedKeys.length === 0) {
-    el.innerHTML = '<div style="padding:40px 0; text-align:center; color:var(--text-400);">Chưa có dữ liệu doanh thu (tháng này chưa có đơn hàng nào)</div>';
-    return;
+  const sortedKeys = [];
+  const today = new Date();
+  for (let i = filterVal - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    sortedKeys.push(yyyy + '-' + mm + '-' + dd);
   }
   
-  const maxVal = Math.max(...sortedKeys.map(k => months[k]));
+  const maxVal = Math.max(...sortedKeys.map(k => daily[k] || 0));
   const chartData = sortedKeys.map(k => {
-    const val = months[k] / 1000000;
-    const pct = maxVal > 0 ? (months[k] / maxVal) * 100 : 0;
-    return { month: k.split('/')[0], value: val.toFixed(1), pct: Math.min(Math.max(pct, 5), 100) };
+    const val = (daily[k] || 0) / 1000000;
+    const pct = maxVal > 0 ? ((daily[k] || 0) / maxVal) * 100 : 0;
+    const [y, m, d] = k.split('-');
+    return { label: d + '/' + m, value: val.toFixed(1), pct: Math.min(Math.max(pct, 5), 100) };
   });
 
   el.innerHTML = chartData.map(d => `
     <div class="chart-row">
-      <div class="chart-label">${d.month}</div>
+      <div class="chart-label">${d.label}</div>
       <div class="chart-track">
-        <div class="chart-fill" data-pct="${d.pct}">${d.value >= 50 ? d.value + 'M' : ''}</div>
+        <div class="chart-fill" data-pct="${d.pct}">${d.value >= 0.1 ? d.value + 'M' : ''}</div>
       </div>
       <div class="chart-value">${d.value}M đ</div>
     </div>`).join('');
@@ -1100,6 +1205,20 @@ function renderTopProducts() {
     </div>`).join('');
 }
 
+function getPaymentHtml(o) {
+  const isBanking = (o.payment || '').toLowerCase().includes('banking') || (o.payment || '').toLowerCase().includes('chuyển khoản');
+  const methodStr = isBanking ? 'Chuyển khoản' : 'COD';
+  let html = `<div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-weight:600; font-size:0.8rem; color:var(--text-200);">${methodStr}</span>`;
+  if (isBanking) {
+    // Only show payment status for banking orders
+    const isPaid = isBanking || o.status === 'completed';
+    html += `<span style="font-size:0.7rem; color:${isPaid ? 'var(--green-400)' : 'var(--gold-400)'}">${isPaid ? 'Đã TT' : 'Chưa TT'}</span>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
 function renderRecentOrders() {
   const tbody = document.getElementById('recent-orders-body');
   if (!tbody) return;
@@ -1118,7 +1237,7 @@ function renderRecentOrders() {
       <td style="font-weight:500;">${o.customer}</td>
       <td style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${o.product}</td>
       <td style="font-weight:700;">${formatPrice(o.total)}</td>
-      <td>${o.payment}</td>
+      <td>${getPaymentHtml(o)}</td>
       <td><span class="order-status ${cls}">${label}</span></td>
       <td>
         <div style="display:flex; gap:6px;">
@@ -1168,6 +1287,28 @@ function filterAdminProducts() {
     </tr>`).join('');
 }
 
+/* -------- Transactions -------- */
+async function renderTransactions() {
+  const tbody = document.getElementById('transactions-body');
+  if (!tbody) return;
+  const transactions = await window.SupabaseDB.getTransactions();
+  if (!transactions || transactions.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-400);">Chưa có giao dịch nào</td></tr>';
+    return;
+  }
+  tbody.innerHTML = transactions.map(t => {
+    const dateStr = t.payment_time ? new Date(t.payment_time).toLocaleString('vi-VN') : '';
+    return `<tr>
+      <td style="font-weight:700; color:var(--gold-400); font-size:0.82rem;">${t.order_id || 'N/A'}</td>
+      <td style="font-weight:500;">${t.transaction_id || 'N/A'}</td>
+      <td style="font-weight:700; color:var(--green-400);">+${formatPrice(t.amount)}</td>
+      <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.content || ''}</td>
+      <td><span class="order-status status-completed">${t.gateway || 'sepay'}</span></td>
+      <td style="color:var(--text-400); font-size:0.82rem;">${dateStr}</td>
+    </tr>`;
+  }).join('');
+}
+
 /* -------- Orders -------- */
 function renderOrders() { filterOrders(); }
 
@@ -1196,7 +1337,7 @@ function filterOrders() {
       <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${o.product}</td>
       <td style="font-weight:700;">${formatPrice(o.total)}</td>
       <td style="color:var(--text-400); font-size:0.82rem;">${o.date}</td>
-      <td>${o.payment}</td>
+      <td>${getPaymentHtml(o)}</td>
       <td><span class="order-status ${cls}">${label}</span></td>
       <td>
         <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -1210,42 +1351,37 @@ function filterOrders() {
 }
 
 /* -------- Customers -------- */
-function renderCustomers() {
-  const customerMap = {};
-  Store.orders.forEach(o => {
-    // We group by phone if available, else by customer name
-    const key = (o.address && o.address.phone) ? o.address.phone : o.customer;
-    if (!customerMap[key]) {
-      customerMap[key] = {
-        name: o.customer,
-        phone: (o.address && o.address.phone) ? o.address.phone : 'N/A',
-        totalSpent: 0,
-        orderCount: 0
-      };
-    }
-    if (o.status !== 'cancelled') {
-       customerMap[key].totalSpent += o.total;
-    }
-    customerMap[key].orderCount += 1;
-  });
+async function renderCustomers() {
+  if (!window.supabaseClient) return;
+  const { data: profiles, error } = await window.supabaseClient.from('profiles').select('*').order('total_spent', { ascending: false, nullsFirst: false });
+  if (error) { console.error('Error fetching customers:', error); return; }
 
-  const customers = Object.values(customerMap).sort((a,b) => b.totalSpent - a.totalSpent);
+  const filterVal = document.getElementById('customer-tier-filter') ? document.getElementById('customer-tier-filter').value : '';
 
-  document.getElementById('customers-body').innerHTML = customers.map((c, idx) => {
+  let customersToRender = profiles.map((c, idx) => {
     let tier = 'Thành viên';
     let tierClass = 'status-confirmed'; // default (greenish)
-    if (c.totalSpent >= 1000000000) { tier = 'Kim cương'; tierClass = 'status-processing'; }
-    else if (c.totalSpent >= 500000000) { tier = 'Vàng'; tierClass = 'status-pending'; }
-    else if (c.totalSpent >= 100000000) { tier = 'Bạc'; tierClass = 'status-completed'; }
+    const spent = c.total_spent || 0;
+    if (spent >= 1000000000) { tier = 'Kim cương'; tierClass = 'status-processing'; }
+    else if (spent >= 500000000) { tier = 'Vàng'; tierClass = 'status-pending'; }
+    else if (spent >= 100000000) { tier = 'Bạc'; tierClass = 'status-completed'; }
+    return { ...c, tier, tierClass, originalIdx: idx };
+  });
 
+  if (filterVal) {
+    customersToRender = customersToRender.filter(c => c.tier === filterVal);
+  }
+
+  document.getElementById('customers-body').innerHTML = customersToRender.map((c) => {
     return `
     <tr>
-      <td style="color:var(--text-400);">CUS-${String(idx + 1).padStart(4,'0')}</td>
-      <td style="font-weight:600; color:var(--text-100);">${c.name}</td>
-      <td>${c.phone}</td>
-      <td style="font-weight:700; color:var(--gold-400);">${formatPrice(c.totalSpent)}</td>
-      <td><span class="order-status ${tierClass}">${tier}</span></td>
-      <td>${c.orderCount} đơn</td>
+      <td style="color:var(--text-400);">CUS-${String(c.originalIdx + 1).padStart(4,'0')}</td>
+      <td style="font-weight:600; color:var(--text-100);">${c.name || 'N/A'}</td>
+      <td>${c.email || 'N/A'}</td>
+      <td>${c.phone || 'N/A'}</td>
+      <td style="font-weight:700; color:var(--gold-400);">${formatPrice(c.total_spent || 0)}</td>
+      <td><span class="order-status ${c.tierClass}">${c.tier}</span></td>
+      <td>${c.order_count || 0} đơn</td>
     </tr>`;
   }).join('');
 }
@@ -1311,7 +1447,8 @@ function renderReports() {
   const cancelledOrders = allOrders.filter(o => o.status === 'cancelled');
   
   // 1. Calculate Top Stats
-  const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalRevenue = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const totalGross = completedOrders.reduce((sum, o) => sum + Number(o.total || 0) + Number(o.discountAmount || 0), 0);
   const totalOrders = completedOrders.length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
   const returnRate = allOrders.length > 0 ? (cancelledOrders.length / allOrders.length * 100).toFixed(1) : 0;
@@ -1322,7 +1459,10 @@ function renderReports() {
   const avgEl = document.querySelector('#section-reports .stat-card.purple .stat-value');
   const retEl = document.querySelector('#section-reports .stat-card.red .stat-value');
   
-  if (revEl) revEl.textContent = formatPrice(totalRevenue);
+  if (revEl) revEl.innerHTML = `
+    <div style="font-size:1.4rem; color:var(--text-100); line-height:1.2; margin-bottom:4px;">${formatPrice(totalRevenue)} <span style="font-size:0.8rem; color:var(--text-300); font-weight:normal;">(Net)</span></div>
+    <div style="font-size:1rem; color:var(--text-300); line-height:1.2;">${formatPrice(totalGross)} <span style="font-size:0.8rem; font-weight:normal;">(Gross)</span></div>
+  `;
   if (ordEl) ordEl.textContent = totalOrders.toLocaleString('vi-VN');
   if (avgEl) avgEl.textContent = formatPrice(avgOrderValue);
   if (retEl) retEl.textContent = returnRate + '%';
@@ -1776,11 +1916,33 @@ function viewOrder(id) {
 
 async function updateOrderStatus(id, status) {
   const labels = { pending:'Chờ xác nhận', confirmed:'Đã xác nhận', processing:'Đang xử lý', shipping:'Đang giao', completed:'Hoàn tất', cancelled:'Đã hủy' };
+  
+  const oldOrder = Store.orders.find(x => x.id === id);
+  const oldStatus = oldOrder ? oldOrder.status : '';
+
   const updated = await window.SupabaseDB.updateOrderStatus(id, status);
   if (updated) {
     const idx = Store.orders.findIndex(x => x.id === id);
     if (idx >= 0) Store.orders[idx] = updated;
     showToast(`Đơn ${id}: ${labels[status]}`, 'success');
+    
+    if (updated.userId && window.supabaseClient) {
+      if (status === 'completed' && oldStatus !== 'completed') {
+        const { data: profile } = await window.supabaseClient.from('profiles').select('total_spent').eq('id', updated.userId).single();
+        if (profile) {
+          const newTotal = (profile.total_spent || 0) + updated.total;
+          const newCount = (profile.order_count || 0) + 1;
+          await window.supabaseClient.from('profiles').update({ total_spent: newTotal, order_count: newCount }).eq('id', updated.userId);
+        }
+      } else if (oldStatus === 'completed' && status !== 'completed') {
+        const { data: profile } = await window.supabaseClient.from('profiles').select('total_spent, order_count').eq('id', updated.userId).single();
+        if (profile) {
+          const newTotal = Math.max(0, (profile.total_spent || 0) - updated.total);
+          const newCount = Math.max(0, (profile.order_count || 0) - 1);
+          await window.supabaseClient.from('profiles').update({ total_spent: newTotal, order_count: newCount }).eq('id', updated.userId);
+        }
+      }
+    }
   } else {
     // Cập nhật local nếu Supabase lỗi (admin đang test offline)
     const o = Store.orders.find(x => x.id === id);
@@ -1850,6 +2012,7 @@ function renderCoupons() {
       <td>${c.description}</td>
       <td>${expiresHtml}</td>
       <td>${usesHtml}</td>
+      <td style="color:var(--gold-400); font-weight:600;">${c.total_saved ? formatPrice(c.total_saved) : '0đ'}</td>
       <td>
         <div style="display:flex; gap:8px;">
           ${statusHtml}

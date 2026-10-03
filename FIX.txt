@@ -1,0 +1,29 @@
+***FIX
+- Thay ảnh cho đúng từng sản phẩm
+- phần login ch được đồng bộ giữa các page
+- Page Sản phẩm: 1) Sản phẩm yêu thích rồi, thì phải hiện thị tim đó lên, đánh dấu lại
+                 2) Tính năng so sánh sản phẩm fix lại
+		3) Phần hiện thị lượt đánh giá thay đổi lại thành hiện thị số sao, nên kh có thì hiện thị không, bên cạnh số sao là lượt đánh giá
+		4) Có thêm nút đặt hàng đượcc luôn, kh cần thêm giỏ hàng, đặt nút này bên cạnh nút thêm vào giỏ
+		5) Trang chi tiết sản phẩm, lượt đánh giá cũng hiện thị tương tự như vậy, thêm nút mua ngay tương tự, fix lỗi giao diện ở nút số lượng sp, + - chị chìm so vs bg
+- Page so sánh: ngoài chọn sản phẩm ở page sản phẩm, chọn sản phẩm ở page so sánh luôn cũng được, có nút tìm sản phẩm ở đó, tinh chỉnh giao diện lại, phần chi tiết sản phẩm ấn so sánh thì chuyển qua trang so sánh
+- page liên hệ tối ưu lại giao diện, hạn chế sử dụng quá nhiều icon màu sắc nhiều, kiểu basic lại th, giỏ hàng kh mở ra được ở page liên hệ
+- tối ưu lại giao diện giỏ hàng, nên hiện thị phần ưu đãi, nhập mã giảm giá ở đây, giảm giá theo thành viên ở đây luôn, giảm giá theo thành viên cũng được lưu lại số liệu, tạo các mã riêng cho thành viên.
+- Phần thanh toán, thông tin giao hàng, nên có địa chỉ mặc định, lưu vào thông tin khách hàng, tôi muốn kiểm soát các nội dung này, phần tiền phải trả để thanh toán đang bị lỗi, nhớ đối chiếu phải trùng khớp với số tiền trong giỏ hàng bao gồm giảm giá + các số khác.
+- Phần hiện QR để thanh toán đang bị lỗi, tôi muốn QR hiện thị ở giữa, kh bị lệch qua một bên, kh cần hiện thị thông tin trong ảnh QR vì bên dưới đã có
+- Phần đơn hàng, hiện thị các tiến trình theo dõi đơn hàng, ứng với các tiến trình trong trang admin, theo dõi đơn hàng kĩ hơn, có các bộ lọc theo trạng thái ở đó
+
+
+dash khách hàng
+- Phần admin, dashboard tôi thấy chỉ nên báo cáo theo ngày, còn theo tháng hay gì đã có ở phần báo cáo, khách hàng mới là dựa trên có khách hàng mới tạo tk ngày hôm nay kh, giao diện phần chỉnh sửa và thêm sản phẩm, thay đổi sao cho ít màu mè lại, phần đơn hàng nên làm rõ, đối với đơn banking nên làm rõ đơn nào đã thanh toán, đơn nào chưa, phần quản lí khách hàng nên hiện thị thêm thông tin sdt và địa chỉ khách hàng, hoặc hiện thị chính vài cái và có phần ấn vào hiện thị chi tiết, phần khuyến mãi, thì tính xem một mã đã giảm được bao nhiêu, tính cả các mã giảm cho hạng thành viên, cho nó có mã luôn, còn sản phẩm bán chạy ở dash và báo cáo nên đồng bộ với nhau, sắp xếp theo lượt bán, sau đó mới đến số tiền từ sp đó thu được
+
+
+
+
+***Phát triển thêm:
+- login: tính năng cấp lại mk khi quên, mở rộng đăng nhập bằng GG, FB
+- Phân quyền, admin
+- Tính năng phải login mới đặt hàng được
+- Tính năng gửi mail xác nhận khi đặt hàng, gửi theo từng bước của đơn hàng.
+- AI chat bot hỗ trợ khách hàng, tư vấn
+- APP moblie

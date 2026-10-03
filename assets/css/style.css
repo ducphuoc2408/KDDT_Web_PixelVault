@@ -1,4 +1,4 @@
-﻿/* ============================================
+/* ============================================
    PIXELVAULT – PREMIUM DESIGN SYSTEM v2
    Professional · Modern · Animated
    ============================================ */
@@ -822,6 +822,8 @@ body::before {
 .products-grid.list-view { grid-template-columns: 1fr; }
 
 .product-card {
+  display: flex;
+  flex-direction: column;
   background: var(--bg-card);
   border: 1px solid var(--border-1);
   border-radius: var(--r-lg);
@@ -897,12 +899,7 @@ body::before {
   flex-direction: column;
   gap: 5px;
   z-index: 3;
-  opacity: 0;
-  transform: translateX(8px);
-  transition: opacity var(--dur-mid), transform var(--dur-mid) var(--ease-1);
 }
-
-.product-card:hover .product-quick-actions { opacity: 1; transform: translateX(0); }
 
 .quick-action-btn {
   width: 34px; height: 34px;
@@ -913,7 +910,23 @@ body::before {
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   color: var(--text-300);
-  transition: all var(--dur-fast) var(--ease-1);
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity var(--dur-mid), transform var(--dur-mid) var(--ease-1), background var(--dur-fast), color var(--dur-fast), border-color var(--dur-fast), scale var(--dur-fast);
+}
+
+.product-card:hover .quick-action-btn,
+.quick-action-btn.wishlisted {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.quick-action-btn.wishlisted {
+  color: var(--red-500) !important;
+}
+
+[data-theme="light"] .quick-action-btn.wishlisted {
+  color: var(--gold-500) !important;
 }
 
 .quick-action-btn svg {
@@ -933,7 +946,7 @@ body::before {
 }
 
 /* Product Info */
-.product-info { padding: 16px; }
+.product-info { padding: 16px; display: flex; flex-direction: column; flex-grow: 1; }
 
 .product-brand {
   font-size: 0.7rem;
@@ -980,6 +993,19 @@ body::before {
   gap: 1px;
   color: var(--gold-400);
   font-size: 0.75rem;
+}
+
+.stars svg {
+  width: 11px;
+  height: 11px;
+}
+
+.star-filled {
+  fill: var(--gold-400);
+}
+
+.star-empty {
+  fill: var(--border-3);
 }
 
 .product-rating {
@@ -1951,17 +1977,29 @@ body::before {
 
 /* Sort / View controls */
 .sort-select {
-  padding: 8px 12px;
-  background: var(--bg-card);
+  padding: 8px 32px 8px 14px;
+  background: var(--bg-card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a8f98' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat right 10px center;
   border: 1px solid var(--border-2);
   border-radius: var(--r-sm);
   color: var(--text-200);
   font-size: 0.845rem;
+  font-family: inherit;
+  font-weight: 500;
   outline: none;
   cursor: pointer;
-  transition: border-color var(--dur-fast);
+  transition: all var(--dur-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
-.sort-select:focus { border-color: var(--border-gold); }
+.sort-select:hover {
+  border-color: var(--border-1);
+}
+.sort-select:focus { 
+  border-color: var(--border-gold); 
+  box-shadow: 0 0 0 2px rgba(212,168,67,0.15);
+}
 
 .view-toggle { display: flex; gap: 4px; }
 .view-btn {
@@ -2362,3 +2400,62 @@ body::before {
   to { opacity: 1; transform: scale(1); }
 }
 
+
+.product-action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+.btn-buy-now {
+  flex: 1;
+  background: var(--gold-400);
+  color: #000;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
+.btn-buy-now:hover:not(.out-of-stock) {
+  background: var(--gold-300);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(212,168,67,0.3);
+}
+.btn-buy-now.out-of-stock {
+  background: var(--bg-surface);
+  color: var(--text-400);
+  cursor: not-allowed;
+}
+.btn-add-cart {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--text-200);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+.btn-add-cart svg {
+  width: 18px;
+  height: 18px;
+}
+.btn-add-cart:hover:not(.out-of-stock) {
+  border-color: var(--gold-400);
+  color: var(--gold-400);
+  background: rgba(212,168,67,0.05);
+}
+.btn-add-cart.out-of-stock {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

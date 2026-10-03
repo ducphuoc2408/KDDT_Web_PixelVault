@@ -129,7 +129,7 @@
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
 
 <!-- ============ NAVIGATION ============ -->
 <nav class="navbar" id="main-navbar">
@@ -681,7 +681,8 @@
 <script>
 // Render sau khi Supabase data đã tải xong
 document.addEventListener('store:ready', () => {
-  const sorted = [...Store.products].sort((a,b) => b.reviews - a.reviews).slice(0, 4);
+  const sorted = [...Store.products].sort((a,b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 4);
+
   const grid = document.getElementById('featured-grid');
   if (grid) {
     grid.innerHTML = sorted.map(p => renderProductCard(p)).join('');

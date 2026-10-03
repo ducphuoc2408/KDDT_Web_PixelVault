@@ -36,15 +36,27 @@ function mapProduct(row) {
 }
 
 function mapOrder(row) {
+  let items = row.items || [];
+  if (row.order_items && Array.isArray(row.order_items) && row.order_items.length > 0) {
+    items = row.order_items.map(oi => ({
+      id: oi.product_id,
+      quantity: oi.quantity,
+      qty: oi.quantity,
+      price: oi.price_at_purchase,
+      name: oi.products ? oi.products.name : '',
+      product: oi.products ? oi.products.name : ''
+    }));
+  }
+
   return {
     id:       row.id,
-    customer: row.customer,
-    product:  row.product,
+    customer: row.recipient_name || row.customer,
+    product:  row.product || (items.length > 0 ? items[0].name : ''),
     total:    row.total,
     status:   row.status,
-    payment:  row.payment,
+    payment:  row.payment_method || row.payment,
     date:     row.created_at ? row.created_at.split('T')[0] : '',
-    items:          row.items   || [],
+    items:          items,
     address:        row.address || {},
     userId:         row.user_id || null,
     discountAmount: row.discount_amount || 0,
@@ -137,40 +149,78 @@ const SupabaseDB = {
     return true;
   },
 
+  /* ---------- TRANSACTIONS ---------- */
+  async getTransactions() {
+    if (!window.supabaseClient) return [];
+    try {
+      const { data, error } = await window.supabaseClient.from('transactions').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    } catch (e) {
+      console.error('Lỗi khi lấy giao dịch:', e);
+      return [];
+    }
+  },
+
   /* ---------- ORDERS ---------- */
 
   /** Lấy tất cả đơn hàng (admin) */
   async getOrders() {
-    const { data, error } = await _db.from('orders').select('*').order('created_at', { ascending: false });
+    const { data, error } = await _db.from('orders').select('*, order_items(*, products(name, images))').order('created_at', { ascending: false });
     if (error) { console.error('[SupabaseDB] getOrders:', error.message); return []; }
     return data.map(mapOrder);
   },
 
   /** Lấy đơn hàng của user hiện tại */
   async getMyOrders(userId) {
-    const { data, error } = await _db.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+    const { data, error } = await _db.from('orders').select('*, order_items(*, products(name, images))').eq('user_id', userId).order('created_at', { ascending: false });
     if (error) { console.error('[SupabaseDB] getMyOrders:', error.message); return []; }
     return data.map(mapOrder);
   },
 
   /** Tạo đơn hàng mới */
   async createOrder(orderData) {
+    if (!orderData.userId) {
+      console.error('[SupabaseDB] createOrder: userId is missing.');
+      return null;
+    }
     const orderId = 'PV' + Date.now();
     const row = {
-      id:       orderId,
-      customer: orderData.customer,
-      user_id:  orderData.userId   || null,
-      product:  orderData.product  || '',
-      total:    orderData.total,
-      status:          orderData.status   || 'pending',
-      payment:         orderData.payment  || 'COD',
-      items:           orderData.items    || [],
+      id:              orderId,
+      user_id:         orderData.userId,
+      recipient_name:  orderData.customer || (orderData.address && orderData.address.name) || 'Khách hàng',
       address:         orderData.address  || {},
+      total:           orderData.total,
       discount_amount: orderData.discountAmount || 0,
+      coupon_id:       orderData.couponId || null,
+      payment_method:  orderData.payment  || 'COD',
+      status:          orderData.status   || 'pending',
     };
     const { data, error } = await _db.from('orders').insert([row]).select().single();
     if (error) { console.error('[SupabaseDB] createOrder:', error.message); return null; }
-    return mapOrder(data);
+    
+    let orderItems = [];
+    if (orderData.items && orderData.items.length > 0) {
+      orderItems = orderData.items.map(item => ({
+        order_id: orderId,
+        product_id: item.id,
+        quantity: item.qty || item.quantity || 1,
+        price_at_purchase: item.price || 0
+      }));
+      const { error: itemsError } = await _db.from('order_items').insert(orderItems);
+      if (itemsError) {
+         console.error('[SupabaseDB] createOrder (order_items):', itemsError.message);
+      }
+    }
+    
+    const joinedData = { 
+      ...data, 
+      order_items: orderItems.map((oi, i) => ({
+        ...oi,
+        products: { name: orderData.items[i].name || orderData.items[i].product }
+      })) 
+    };
+    return mapOrder(joinedData);
   },
 
   /** Admin: Cập nhật trạng thái đơn hàng */

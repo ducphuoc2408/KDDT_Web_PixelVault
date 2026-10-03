@@ -1,0 +1,41 @@
+t = coupons.length;
+  const totalUses = coupons.reduce((sum, c) => sum + (c.uses || 0), 0);
+  const totalSaved = (Store.orders || []).reduce((sum, o) => sum + (o.discountAmount || 0), 0);
+  
+  const elActive = document.getElementById('stat-active-coupons');
+  const elUses = document.getElementById('stat-coupon-uses');
+  const elSaved = document.getElementById('stat-coupon-saved');
+  if (elActive) elActive.textContent = activeCount;
+  if (elUses) elUses.textContent = totalUses;
+  if (elSaved) elSaved.textContent = totalSaved > 0 ? (totalSaved / 1000000).toFixed(1) + 'M' : '0';
+
+  tbody.innerHTML = coupons.map((c, i) => {
+    let expiresHtml = 'Không thời hạn';
+    if (c.expires_at) {
+      const expDate = new Date(c.expires_at);
+      const isExpired = expDate < new Date();
+      expiresHtml = `<span style="color:${isExpired ? 'var(--red-400)' : 'var(--text-300)'}">${expDate.toLocaleDateString('vi-VN')}</span>`;
+    }
+    
+    let usesHtml = c.uses;
+    if (c.max_uses > 0) {
+      const isFull = c.uses >= c.max_uses;
+      usesHtml = `<span style="color:${isFull ? 'var(--red-400)' : 'var(--text-300)'}">${c.uses} / ${c.max_uses}</span>`;
+    }
+
+    let statusHtml = '<span class="order-status status-completed">Hoạt động</span>';
+    if (c.max_uses > 0 && c.uses >= c.max_uses) {
+      statusHtml = '<span class="order-status status-cancelled">Hết lượt</span>';
+    } else if (c.expires_at && new Date(c.expires_at) < new Date()) {
+      statusHtml = '<span class="order-status status-cancelled">Hết hạn</span>';
+    }
+
+    return `
+    <tr>
+      <td><span class="coupon-code">${c.code}</span></td>
+      <td style="font-weight:700; color:var(--red-400);">${c.discount_pct}%</td>
+      <td>${c.description}</td>
+      <td>${expiresHtml}</td>
+      <td>${usesHtml}</td>
+      <td>
+   

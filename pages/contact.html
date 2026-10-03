@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
 </head>
-<body>
+<body data-theme="light">
 
 <nav class="navbar" id="main-navbar">
   <div class="nav-container">
@@ -54,9 +54,9 @@
         <div class="nav-actions">
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
-          onkeypress="if(event.key==='Enter') window.location.href='products.html?q='+this.value">
+          onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
         <button class="nav-search-btn" id="btn-nav-search"
-          onclick="window.location.href='products.html?q='+document.getElementById('nav-q').value">
+          onclick="window.location.href='pages/products.html?q='+document.getElementById('nav-q').value">
           <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
@@ -100,47 +100,35 @@
       <!-- Contact Info -->
       <div style="display:flex; flex-direction:column; gap:20px;">
         <div style="background:var(--bg-card); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg);">
-          <div style="display:flex; align-items:flex-start; gap:16px;">
-            <div style="width:48px; height:48px; background:rgba(212,168,67,0.1); border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <svg style="width:24px;height:24px;stroke:var(--gold-400);fill:none;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </div>
-            <div>
-              <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:8px;">Địa chỉ Showroom</h3>
-              <p style="font-size:0.875rem; color:var(--text-300); line-height:1.6;">
-                123 Nguyễn Huệ, Phường Bến Nghé<br>Quận 1, TP. Hồ Chí Minh
-              </p>
-            </div>
-          </div>
+          <h3 style="font-size:1.1rem; color:var(--gold-400); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Địa chỉ Showroom
+          </h3>
+          <p style="font-size:0.95rem; color:var(--text-300); line-height:1.6;">
+            123 Nguyễn Huệ, Phường Bến Nghé<br>Quận 1, TP. Hồ Chí Minh
+          </p>
         </div>
 
         <div style="background:var(--bg-card); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg);">
-          <div style="display:flex; align-items:flex-start; gap:16px;">
-            <div style="width:48px; height:48px; background:rgba(59,130,246,0.1); border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <svg style="width:24px;height:24px;stroke:var(--blue-400);fill:none;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>
-            </div>
-            <div>
-              <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:8px;">Điện thoại</h3>
-              <p style="font-size:0.875rem; color:var(--text-300); line-height:1.6;">
-                Hotline CSKH: <a href="tel:19001234" style="color:var(--blue-400); font-weight:700;">1900 1234</a><br>
-                Bảo hành: <a href="tel:19001235" style="color:var(--text-300);">1900 1235</a>
-              </p>
-            </div>
-          </div>
+          <h3 style="font-size:1.1rem; color:var(--gold-400); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>
+            Điện thoại
+          </h3>
+          <p style="font-size:0.95rem; color:var(--text-300); line-height:1.6;">
+            Hotline CSKH: <a href="tel:19001234" style="color:var(--text-100); font-weight:700;">1900 1234</a><br>
+            Bảo hành: <a href="tel:19001235" style="color:var(--text-100);">1900 1235</a>
+          </p>
         </div>
 
         <div style="background:var(--bg-card); border:1px solid var(--border-1); padding:24px; border-radius:var(--r-lg);">
-          <div style="display:flex; align-items:flex-start; gap:16px;">
-            <div style="width:48px; height:48px; background:rgba(34,197,94,0.1); border-radius:var(--r-md); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-              <svg style="width:24px;height:24px;stroke:var(--green-400);fill:none;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </div>
-            <div>
-              <h3 style="font-size:1.1rem; color:var(--text-100); margin-bottom:8px;">Email</h3>
-              <p style="font-size:0.875rem; color:var(--text-300); line-height:1.6;">
-                Hỗ trợ chung: support@pixelvault.vn<br>
-                Hợp tác KD: b2b@pixelvault.vn
-              </p>
-            </div>
-          </div>
+          <h3 style="font-size:1.1rem; color:var(--gold-400); margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Email
+          </h3>
+          <p style="font-size:0.95rem; color:var(--text-300); line-height:1.6;">
+            Hỗ trợ chung: support@pixelvault.vn<br>
+            Hợp tác KD: b2b@pixelvault.vn
+          </p>
         </div>
       </div>
 
@@ -151,25 +139,25 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Họ và tên *</label>
-              <input type="text" class="form-input" required placeholder="Nguyễn Văn A">
+              <input type="text" id="ct-name" class="form-input" required placeholder="Nguyễn Văn A">
             </div>
             <div class="form-group">
               <label class="form-label">Email *</label>
-              <input type="email" class="form-input" required placeholder="email@example.com">
+              <input type="email" id="ct-email" class="form-input" required placeholder="email@example.com">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Chủ đề</label>
-            <select class="form-input">
-              <option>Tư vấn mua hàng</option>
-              <option>Hỗ trợ kỹ thuật</option>
-              <option>Bảo hành / Đổi trả</option>
-              <option>Khác</option>
+            <select id="ct-subject" class="form-input">
+              <option value="Tư vấn mua hàng">Tư vấn mua hàng</option>
+              <option value="Hỗ trợ kỹ thuật">Hỗ trợ kỹ thuật</option>
+              <option value="Bảo hành / Đổi trả">Bảo hành / Đổi trả</option>
+              <option value="Khác">Khác</option>
             </select>
           </div>
           <div class="form-group">
             <label class="form-label">Nội dung tin nhắn *</label>
-            <textarea class="form-input" rows="5" required style="resize:vertical;" placeholder="Vui lòng mô tả chi tiết yêu cầu của bạn..."></textarea>
+            <textarea id="ct-message" class="form-input" rows="5" required style="resize:vertical;" placeholder="Vui lòng mô tả chi tiết yêu cầu của bạn..."></textarea>
           </div>
           <button type="submit" class="btn btn-primary btn-lg" style="width:100%; justify-content:center; margin-top:8px;" id="btn-submit">
             Gửi tin nhắn
@@ -258,23 +246,103 @@
   </div>
 </footer>
 
-<div class="modal-overlay" id="auth-modal">
-  <div class="modal" style="max-width:400px;">
-    <div class="modal-header">
-      <div class="modal-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <h2 class="modal-title">Đăng nhập</h2>
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
+<div class="cart-overlay" id="cart-overlay">
+  <div class="cart-drawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng</h3>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <div class="modal-body">
-      <form id="login-form">
-        <div class="form-group"><input type="email" id="login-email" class="form-input" placeholder="Email"></div>
-        <div class="form-group"><input type="password" id="login-password" class="form-input" placeholder="Mật khẩu"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Đăng nhập</button>
-      </form>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div id="cart-total"></div>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
     </div>
   </div>
 </div>
 
+<!-- Compare Bar -->
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
+    </div>
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast-container" id="toast-container"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>

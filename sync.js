@@ -24,6 +24,20 @@ let pageFooterHtml = footerHtml
   .replace(/href="pages\//g, 'href="')
   .replace(/src="assets\//g, 'src="../assets/');
 
+// Extract overlays from index.html
+const overlayStartIdx = indexHtml.indexOf('<!-- ============ OVERLAYS ============ -->');
+const supabaseScriptTag = '<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>';
+const scriptStartIdx = indexHtml.indexOf(supabaseScriptTag);
+let overlaysHtml = '';
+if (overlayStartIdx !== -1 && scriptStartIdx !== -1) {
+  overlaysHtml = indexHtml.substring(overlayStartIdx, scriptStartIdx);
+}
+
+let pageOverlaysHtml = overlaysHtml
+  .replace(/href="index.html"/g, 'href="../index.html"')
+  .replace(/href="pages\//g, 'href="')
+  .replace(/src="assets\//g, 'src="../assets/');
+
 const pagesDir = path.join(__dirname, 'pages');
 const files = fs.readdirSync(pagesDir).filter(f => f.endsWith('.html'));
 
@@ -36,9 +50,7 @@ files.forEach(file => {
   if (fileNavStart !== -1) {
     const fileNavEnd = content.indexOf('</nav>', fileNavStart) + 6;
     
-    // adjust active state in pageNavHtml for this specific file
     let localNav = pageNavHtml.replace('class="nav-link active"', 'class="nav-link"');
-    // very basic active state mapping
     if (file === 'products.html') localNav = localNav.replace('id="nl-products"', 'id="nl-products" class="nav-link active"');
     if (file === 'compare.html') localNav = localNav.replace('id="nl-compare"', 'id="nl-compare" class="nav-link active"');
     if (file === 'contact.html') localNav = localNav.replace('id="nl-contact"', 'id="nl-contact" class="nav-link active"');
@@ -52,10 +64,19 @@ files.forEach(file => {
     const fileFooterEnd = content.indexOf('</footer>', fileFooterStart) + 9;
     content = content.substring(0, fileFooterStart) + pageFooterHtml + content.substring(fileFooterEnd);
   } else {
-    // If no footer, append it before </body>
     content = content.replace('</body>', pageFooterHtml + '\n</body>');
+  }
+
+  // Replace overlays
+  if (pageOverlaysHtml) {
+    const fileFooterEnd2 = content.indexOf('</footer>') + 9;
+    const fileScriptStart2 = content.indexOf(supabaseScriptTag);
+    if (fileFooterEnd2 !== 8 && fileScriptStart2 !== -1 && fileFooterEnd2 < fileScriptStart2) {
+      content = content.substring(0, fileFooterEnd2) + '\n\n' + pageOverlaysHtml + content.substring(fileScriptStart2);
+    }
   }
 
   fs.writeFileSync(filePath, content, 'utf8');
   console.log(`Updated ${file}`);
 });
+
