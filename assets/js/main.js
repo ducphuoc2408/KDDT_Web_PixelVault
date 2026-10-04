@@ -122,6 +122,19 @@ async function initStore() {
     initScrollAnimations();
     // Fetch data from Supabase
     initStore();
+
+    // Check login for checkout button
+    const checkoutBtn = document.getElementById('btn-checkout');
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener('click', (e) => {
+        if (!Store.currentUser) {
+          e.preventDefault();
+          if (typeof cartClose === 'function') cartClose();
+          showToast('Vui lòng đăng nhập để tiến hành thanh toán', 'error');
+          openModal('auth-modal');
+        }
+      });
+    }
   });
 
   // Tự động đồng bộ trạng thái giữa các tab (Login, Cart, Wishlist, Compare)
@@ -143,6 +156,11 @@ async function initStore() {
 
 /* Hàm mua ngay – thêm vào giỏ rồi chuyển sang checkout */
 function buyNow(productId, qty = 1) {
+  if (!Store.currentUser) {
+    showToast('Vui lòng đăng nhập để mua hàng', 'error');
+    openModal('auth-modal');
+    return;
+  }
   cartAdd(productId, qty);
   const inPages = window.location.pathname.includes('/pages/');
   setTimeout(() => {

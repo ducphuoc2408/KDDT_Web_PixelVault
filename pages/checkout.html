@@ -381,6 +381,7 @@
 <div class="toast-container" id="toast-container"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
 <script>
@@ -396,6 +397,12 @@ try {
 } catch(e) {}
 
 document.addEventListener('store:ready', () => {
+  if (!Store.currentUser) {
+    alert('Vui lòng đăng nhập để tiến hành thanh toán!');
+    window.location.href = '../index.html';
+    return;
+  }
+
   if (Store.cart.length === 0) {
     document.getElementById('checkout-grid').innerHTML = `
       <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-1);">
@@ -682,6 +689,49 @@ async function processCheckout() {
   cartPersist();
 
   const orderId = newOrder.id;
+  const customerEmail = document.getElementById('co-email')?.value;
+
+  // --- BẮT ĐẦU: CODE GỬI EMAIL TỰ ĐỘNG BẰNG EMAILJS ---
+  // Bạn cần thay thế 3 thông số dưới đây bằng ID của bạn trên EmailJS
+  const EMAILJS_SERVICE_ID = "service_b5j30gc"; 
+  const EMAILJS_TEMPLATE_ID = "template_0fozwai";
+  const EMAILJS_PUBLIC_KEY = "MHGLd65a5pGdSQFmb";
+
+  if (customerEmail && EMAILJS_SERVICE_ID !== "YOUR_SERVICE_ID") {
+    // Build HTML string for order items
+    let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">';
+    itemsHtml += '<tr style="border-bottom: 1px solid #2a2a3c; text-align: left; color: #94a3b8; font-size: 13px;"><th style="padding: 8px 0;">Sản phẩm</th><th style="padding: 8px 0; text-align: center;">SL</th><th style="padding: 8px 0; text-align: right;">Giá</th></tr>';
+    Store.cart.forEach(item => {
+      itemsHtml += `
+        <tr style="border-bottom: 1px dashed #2a2a3c;">
+          <td style="padding: 10px 0; font-size: 14px;">${item.name}</td>
+          <td style="padding: 10px 0; text-align: center; font-size: 14px;">${item.qty}</td>
+          <td style="padding: 10px 0; text-align: right; font-size: 14px; color: #d4a843;">${formatPrice(item.price * item.qty)}</td>
+        </tr>
+      `;
+    });
+    itemsHtml += '</table>';
+
+    try {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        to_name: customerName,
+        to_email: customerEmail,
+        order_id: orderId,
+        order_total: formatPrice(total),
+        payment_method: payment === 'banking' ? 'Chuyển khoản ngân hàng' : 'Thanh toán khi nhận hàng (COD)',
+        order_items: itemsHtml
+      }).then(() => {
+        console.log('Email xác nhận đã được gửi đi!');
+      }).catch((err) => {
+        console.error('Lỗi khi gửi email:', err);
+      });
+    } catch(err) {
+      console.error('Lỗi khởi tạo EmailJS:', err);
+    }
+  }
+  // --- KẾT THÚC: CODE GỬI EMAIL ---
+
   let successHtml = '';
 
   if (payment === 'banking') {

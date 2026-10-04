@@ -875,6 +875,14 @@ let reviewsList = [];
 
 document.addEventListener('DOMContentLoaded', () => {
   const u = Store.currentUser;
+  
+  // Authorization Check
+  if (!u || u.role !== 'admin') {
+    alert('Bạn không có quyền truy cập trang quản trị!');
+    window.location.href = '../index.html';
+    return;
+  }
+
   if (u) {
     document.getElementById('admin-username').textContent = u.name;
     document.getElementById('admin-avatar').textContent = u.name[0].toUpperCase();
