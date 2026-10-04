@@ -449,6 +449,9 @@ function handleLoginSuccess(user) {
 window.socialLogin = async function(provider) {
   const { data, error } = await supabaseClient.auth.signInWithOAuth({
     provider: provider.toLowerCase(),
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
   });
   if (error) showToast('Lỗi đăng nhập: ' + error.message, 'error');
 }
