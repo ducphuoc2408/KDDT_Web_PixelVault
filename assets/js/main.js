@@ -59,6 +59,7 @@ const Store = {
   currentUser: null,
   coupons:     [],
 };
+window.Store = Store;
 
 // Persist & restore compareList from localStorage
 const _savedCompare = localStorage.getItem('pv_compare');
@@ -776,6 +777,47 @@ if (localStorage.getItem('theme') !== 'dark') {
   window.addEventListener('DOMContentLoaded', () => {
     const tIcon = document.getElementById('theme-icon');
     if(tIcon) tIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  });
+}
+
+// Khởi tạo Chatbot toàn cục trên mọi trang
+window.addEventListener('DOMContentLoaded', () => {
+  if (!document.querySelector('script[src*="ai-chatbot.js"]')) {
+    const isSubFolder = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
+    const chatbotPath = isSubFolder ? '../assets/js/ai-chatbot.js' : 'assets/js/ai-chatbot.js';
+    const script = document.createElement('script');
+    script.src = chatbotPath;
+    document.body.appendChild(script);
+  }
+
+  // --- CẤU HÌNH PWA (Tạo App Mobile) ---
+  const isSub = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
+  
+  // 1. Chèn file manifest.json
+  if (!document.querySelector('link[rel="manifest"]')) {
+    const manifestLink = document.createElement('link');
+    manifestLink.rel = 'manifest';
+    manifestLink.href = isSub ? '../manifest.json' : 'manifest.json';
+    document.head.appendChild(manifestLink);
+  }
+
+  // 2. Chèn thẻ meta theme-color
+  if (!document.querySelector('meta[name="theme-color"]')) {
+    const metaTheme = document.createElement('meta');
+    metaTheme.name = 'theme-color';
+    metaTheme.content = '#d4af37';
+    document.head.appendChild(metaTheme);
+  }
+});
+
+// 3. Đăng ký Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    const isSub = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
+    const swPath = isSub ? '../sw.js' : 'sw.js';
+    navigator.serviceWorker.register(swPath)
+      .then(reg => console.log('PWA ServiceWorker đăng ký thành công:', reg.scope))
+      .catch(err => console.log('PWA ServiceWorker lỗi:', err));
   });
 }
 
