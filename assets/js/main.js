@@ -808,6 +808,104 @@ window.addEventListener('DOMContentLoaded', () => {
     metaTheme.content = '#d4af37';
     document.head.appendChild(metaTheme);
   }
+  
+  // --- TẠO MENU HAMBURGER CHO MOBILE ---
+  const navContainer = document.querySelector('.nav-container');
+  if (navContainer && !document.querySelector('.hamburger')) {
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Thêm CSS fix giao diện header mobile
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @media (max-width: 768px) {
+        .nav-actions > button[onclick="toggleTheme()"],
+        .nav-actions > #btn-cart { display: none !important; }
+        .nav-actions { margin-left: auto !important; gap: 4px !important; }
+        .btn-nav-login { padding: 6px 12px !important; font-size: 0.85rem !important; }
+        .hamburger { margin-left: 8px; }
+        .logo-text { font-size: 1.1rem !important; }
+        
+        .mobile-icons-group {
+          display: flex; justify-content: center; gap: 24px; 
+          margin-top: 24px; padding-top: 24px; 
+          border-top: 1px solid var(--border-1);
+        }
+        .mobile-icons-group .nav-icon-btn {
+          display: flex !important; width: 44px; height: 44px;
+          background: var(--bg-secondary); border-radius: 50%;
+          border: 1px solid var(--border-2); align-items: center; justify-content: center;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Thêm chức năng bật/tắt menu
+    hamburger.onclick = () => {
+      const navLinks = document.querySelector('.nav-links');
+      
+      // Chèn 2 nút giao diện và giỏ hàng vào trong menu (nếu chưa có)
+      if (!document.getElementById('mobile-icons-group')) {
+        const iconsGroup = document.createElement('div');
+        iconsGroup.id = 'mobile-icons-group';
+        iconsGroup.className = 'mobile-icons-group';
+        iconsGroup.innerHTML = `
+          <button class="nav-icon-btn" onclick="toggleTheme(); setTimeout(() => { const isDark = document.body.getAttribute('data-theme') !== 'light'; document.getElementById('m-theme-icon').innerHTML = isDark ? '<circle cx=\\'12\\' cy=\\'12\\' r=\\'5\\'/><line x1=\\'12\\' y1=\\'1\\' x2=\\'12\\' y2=\\'3\\'/><line x1=\\'12\\' y1=\\'21\\' x2=\\'12\\' y2=\\'23\\'/><line x1=\\'4.22\\' y1=\\'4.22\\' x2=\\'5.64\\' y2=\\'5.64\\'/><line x1=\\'18.36\\' y1=\\'18.36\\' x2=\\'19.78\\' y2=\\'19.78\\'/><line x1=\\'1\\' y1=\\'12\\' x2=\\'3\\' y2=\\'12\\'/><line x1=\\'21\\' y1=\\'12\\' x2=\\'23\\' y2=\\'12\\'/><line x1=\\'4.22\\' y1=\\'19.78\\' x2=\\'5.64\\' y2=\\'18.36\\'/><line x1=\\'18.36\\' y1=\\'5.64\\' x2=\\'19.78\\' y2=\\'4.22\\'/>' : '<path d=\\'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\\'/>'; }, 50);">
+            <svg id="m-theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+          <button class="nav-icon-btn" onclick="cartOpen()" style="position:relative;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span class="cart-badge" id="m-cart-badge" style="display:none; position:absolute; top:-6px; right:-6px; font-size:10px; width:18px; height:18px; background:var(--red-500); color:#fff; border-radius:50%; align-items:center; justify-content:center;">0</span>
+          </button>
+        `;
+        navLinks.appendChild(iconsGroup);
+      }
+      
+      // Đồng bộ số lượng giỏ hàng bằng hàm gốc của hệ thống
+      if (typeof cartUpdate === 'function') {
+        cartUpdate();
+      }
+
+      if (navLinks.style.display === 'flex' && navLinks.style.position === 'absolute') {
+        // Đóng menu
+        navLinks.style.display = '';
+        navLinks.style.position = '';
+        navLinks.style.flexDirection = '';
+        navLinks.style.top = '';
+        navLinks.style.left = '';
+        navLinks.style.right = '';
+        navLinks.style.background = '';
+        navLinks.style.padding = '';
+        navLinks.style.borderBottom = '';
+        navLinks.style.zIndex = '';
+        navLinks.style.boxShadow = '';
+      } else {
+        // Mở menu
+        navLinks.style.display = 'flex';
+        navLinks.style.flexDirection = 'column';
+        navLinks.style.position = 'absolute';
+        navLinks.style.top = '100%'; // Ngay dưới header
+        navLinks.style.left = '0';
+        navLinks.style.right = '0';
+        navLinks.style.background = 'var(--bg-card)';
+        navLinks.style.padding = '20px';
+        navLinks.style.borderBottom = '1px solid var(--border-1)';
+        navLinks.style.zIndex = '999';
+        navLinks.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+      }
+    };
+    
+    // Đặt nút hamburger ở vị trí trong cùng bên phải của header
+    const navActions = document.querySelector('.nav-actions');
+    if (navActions) {
+      navActions.appendChild(hamburger);
+    } else {
+      navContainer.appendChild(hamburger);
+    }
+  }
 });
 
 // 3. Đăng ký Service Worker

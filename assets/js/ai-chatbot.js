@@ -214,6 +214,24 @@
       0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
       40% { transform: scale(1); opacity: 1; }
     }
+    
+    /* Responsive cho Điện thoại Mobile */
+    @media (max-width: 480px) {
+      .pv-chatbot-window {
+        width: 100vw;
+        height: 100vh;
+        bottom: 0;
+        right: 0;
+        border-radius: 0;
+        border: none;
+      }
+      .pv-chatbot-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 50px;
+        height: 50px;
+      }
+    }
   `;
   document.head.appendChild(style);
 

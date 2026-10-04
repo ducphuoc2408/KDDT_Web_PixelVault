@@ -95,7 +95,13 @@
       <p class="section-desc">Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7</p>
     </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: start;">
+    <style>
+      .contact-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; align-items: start; }
+      @media (max-width: 768px) {
+        .contact-grid { grid-template-columns: 1fr; gap: 24px; }
+      }
+    </style>
+    <div class="contact-grid">
       
       <!-- Contact Info -->
       <div style="display:flex; flex-direction:column; gap:20px;">
