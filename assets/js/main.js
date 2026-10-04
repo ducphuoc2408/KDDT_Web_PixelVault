@@ -597,7 +597,14 @@ function openModal(id) {
   if (!el) return;
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
-  if (id === 'auth-modal') setTimeout(() => switchAuthTab('login'), 10);
+  if (id === 'auth-modal') {
+    setTimeout(() => {
+      const tabs = document.getElementById('auth-modal-tabs');
+      if (!tabs || tabs.style.display !== 'none') {
+        switchAuthTab('login');
+      }
+    }, 10);
+  }
   el.addEventListener('click', (e) => { if (e.target === el) closeModal(id); }, { once: true });
 }
 

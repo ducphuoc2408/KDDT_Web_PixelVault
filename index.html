@@ -615,10 +615,13 @@
       <div class="modal-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </div>
-      <div style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+      <div id="auth-modal-tabs" style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
         <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
         <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
         <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
+      <div id="auth-modal-alt-header" style="display:none; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%; padding-bottom:12px; text-align:center;">
+        <h3 id="auth-modal-alt-title" style="margin:0; font-size:1.2rem; color:var(--text-100); font-weight:600;">Cập nhật mật khẩu</h3>
       </div>
     </div>
     <div class="modal-body" style="padding-top:16px;">
@@ -631,6 +634,9 @@
         <div class="form-group">
           <label class="form-label">Mật khẩu</label>
           <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <div style="text-align: right; margin-bottom: 15px;">
+          <a href="javascript:void(0)" onclick="showForgotPasswordForm()" style="font-size: 0.85rem; color: var(--gold-500); text-decoration: none;">Quên mật khẩu?</a>
         </div>
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
       </form>
@@ -652,6 +658,30 @@
         <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
       </form>
 
+      <!-- Forgot Password Form -->
+      <form id="forgot-password-form" style="display:none;" onsubmit="sendResetEmail(event)">
+        <p style="font-size:0.9rem; color:var(--text-300); margin-bottom:16px;">Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reset-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Gửi link khôi phục</button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="javascript:void(0)" onclick="showLoginForm()" style="font-size: 0.85rem; color: var(--text-400); text-decoration: none;">Quay lại đăng nhập</a>
+        </div>
+      </form>
+
+      <!-- Update Password Form -->
+      <form id="update-password-form" style="display:none;" onsubmit="updatePassword(event)">
+        <p style="font-size:0.9rem; color:var(--text-300); margin-bottom:16px;">Vui lòng nhập mật khẩu mới của bạn.</p>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu mới</label>
+          <input type="password" id="new-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Cập nhật mật khẩu</button>
+      </form>
+
+      <div id="auth-social-options">
       <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
         <div style="flex:1; height:1px; background:var(--border-1);"></div>
         Hoặc tiếp tục với
@@ -667,6 +697,7 @@
           <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
           Facebook
         </button>
+      </div>
       </div>
     </div>
   </div>
@@ -696,6 +727,117 @@ function subscribeNewsletter(e) {
   showToast(`Đăng ký thành công với ${email}!`, 'success');
   document.getElementById('newsletter-form').reset();
 }
+
+function showForgotPasswordForm() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-password-form').style.display = 'block';
+  document.getElementById('update-password-form').style.display = 'none';
+  const socialOpts = document.getElementById('auth-social-options');
+  if(socialOpts) socialOpts.style.display = 'none';
+
+  const tabs = document.getElementById('auth-modal-tabs');
+  if(tabs) tabs.style.display = 'none';
+  const altHeader = document.getElementById('auth-modal-alt-header');
+  if(altHeader) {
+    altHeader.style.display = 'block';
+    document.getElementById('auth-modal-alt-title').innerText = 'Khôi phục mật khẩu';
+  }
+}
+
+function showLoginForm() {
+  document.getElementById('login-form').style.display = 'block';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-password-form').style.display = 'none';
+  document.getElementById('update-password-form').style.display = 'none';
+  const socialOpts = document.getElementById('auth-social-options');
+  if(socialOpts) socialOpts.style.display = 'block';
+  if (typeof switchAuthTab === 'function') switchAuthTab('login');
+
+  const tabs = document.getElementById('auth-modal-tabs');
+  if(tabs) tabs.style.display = 'flex';
+  const altHeader = document.getElementById('auth-modal-alt-header');
+  if(altHeader) altHeader.style.display = 'none';
+}
+
+async function sendResetEmail(e) {
+  e.preventDefault();
+  const email = document.getElementById('reset-email').value;
+  const btn = e.target.querySelector('button');
+  btn.innerText = "Đang gửi...";
+  btn.disabled = true;
+
+  const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+
+  btn.disabled = false;
+  btn.innerText = "Gửi link khôi phục";
+
+  if (error) {
+    if (typeof showToast === 'function') showToast(error.message, 'error');
+    else alert("Lỗi: " + error.message);
+  } else {
+    if (typeof showToast === 'function') showToast('Đã gửi link khôi phục! Vui lòng kiểm tra email.', 'success');
+    else alert("Đã gửi link khôi phục! Vui lòng kiểm tra email.");
+    showLoginForm();
+  }
+}
+
+async function updatePassword(e) {
+  e.preventDefault();
+  const newPassword = document.getElementById('new-password').value;
+  const btn = e.target.querySelector('button');
+  
+  if (newPassword.length < 6) {
+    if (typeof showToast === 'function') showToast("Mật khẩu phải có ít nhất 6 ký tự.", 'error');
+    else alert("Mật khẩu phải có ít nhất 6 ký tự.");
+    return;
+  }
+
+  btn.innerText = "Đang cập nhật...";
+  btn.disabled = true;
+
+  const { data, error } = await supabaseClient.auth.updateUser({
+    password: newPassword
+  });
+
+  btn.disabled = false;
+  btn.innerText = "Cập nhật mật khẩu";
+
+  if (error) {
+    if (typeof showToast === 'function') showToast(error.message, 'error');
+    else alert("Lỗi: " + error.message);
+  } else {
+    if (typeof showToast === 'function') showToast('Cập nhật mật khẩu thành công!', 'success');
+    else alert("Cập nhật mật khẩu thành công!");
+    
+    showLoginForm();
+    window.location.hash = '';
+    if (typeof closeModal === 'function') closeModal('auth-modal');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hash.includes('type=recovery')) {
+    if (typeof openModal === 'function') openModal('auth-modal');
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('forgot-password-form').style.display = 'none';
+    document.getElementById('update-password-form').style.display = 'block';
+    
+    const socialOpts = document.getElementById('auth-social-options');
+    if(socialOpts) socialOpts.style.display = 'none';
+
+    const tabs = document.getElementById('auth-modal-tabs');
+    if(tabs) tabs.style.display = 'none';
+    const altHeader = document.getElementById('auth-modal-alt-header');
+    if(altHeader) {
+      altHeader.style.display = 'block';
+      document.getElementById('auth-modal-alt-title').innerText = 'Cập nhật mật khẩu mới';
+    }
+  }
+});
 </script>
 </body>
 </html>
