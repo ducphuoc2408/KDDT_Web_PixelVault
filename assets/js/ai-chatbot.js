@@ -12,7 +12,7 @@
   style.innerHTML = `
     .pv-chatbot-btn {
       position: fixed;
-      bottom: 24px;
+      bottom: 40px;
       right: 24px;
       width: 60px;
       height: 60px;
@@ -216,7 +216,7 @@
     }
     
     /* Responsive cho Điện thoại Mobile */
-    @media (max-width: 480px) {
+    @media (max-width: 768px) {
       .pv-chatbot-window {
         width: 100vw;
         height: 100vh;
@@ -226,7 +226,7 @@
         border: none;
       }
       .pv-chatbot-btn {
-        bottom: 16px;
+        bottom: 32px;
         right: 16px;
         width: 50px;
         height: 50px;

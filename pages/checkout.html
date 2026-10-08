@@ -52,6 +52,9 @@
 
     <!-- Actions -->
         <div class="nav-actions">
+      <button class="hamburger" id="hamburger-btn" aria-label="Mo menu">
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
           onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
@@ -140,7 +143,7 @@
           </h3>
           
           <div style="display:flex; flex-direction:column; gap:12px;">
-            <label class="filter-option" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
+            <label class="filter-option selected" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
               <input type="radio" name="payment" value="cod" checked hidden>
               <div class="filter-checkbox" style="border-radius:50%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div style="flex:1;">
@@ -149,12 +152,12 @@
               </div>
             </label>
             
-            <label class="filter-option" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
+            <label id="banking-option" class="filter-option" style="padding:16px; border:1px solid var(--border-2); border-radius:var(--r-md); margin:0;">
               <input type="radio" name="payment" value="banking" hidden>
               <div class="filter-checkbox" style="border-radius:50%;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div style="flex:1;">
                 <div style="font-weight:600; color:var(--text-100); margin-bottom:4px;">Chuyển khoản ngân hàng</div>
-                <div style="font-size:0.75rem; color:var(--text-400);">Chuyển khoản qua số tài khoản hoặc quét mã QR (giảm 2%).</div>
+                <div style="font-size:0.75rem; color:var(--text-400);">Chuyển khoản qua số tài khoản hoặc quét mã QR.<br><span id="banking-warning" style="color:var(--red-400); display:none; margin-top:4px; font-weight:600;">(Không hỗ trợ CK dưới 10.000đ)</span></div>
               </div>
             </label>
           </div>
@@ -384,6 +387,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="../assets/js/data.js"></script>
 <script src="../assets/js/main.js"></script>
+<script src="../assets/js/mobile.js"></script>
 <script>
 let discountPct = 0;
 let appliedCode = '';
@@ -481,13 +485,46 @@ function renderCheckoutItems() {
   }
   const memberDiscountAmt = subtotal * memberPct;
   const shipping = subtotal >= 50000000 ? 0 : 30000;
-  const total = subtotal - discountAmt - memberDiscountAmt + shipping;
+  let totalDiscount = discountAmt + memberDiscountAmt;
+  let total = subtotal + shipping - totalDiscount;
+  if (total < 0) total = 0;
 
   document.getElementById('co-subtotal').textContent = formatPrice(subtotal);
   // Update or create shipping row
   const shipRow = document.getElementById('co-ship-row');
   if (shipRow) shipRow.querySelector('span:last-child').textContent = shipping > 0 ? formatPrice(shipping) : 'Miễn phí';
   document.getElementById('co-total').textContent = formatPrice(total);
+  
+  // Make sure COD visually reflects its checked state on load/render
+  if (document.querySelector('input[value="cod"]').checked) {
+    document.querySelector('input[value="cod"]').parentElement.classList.add('selected');
+  }
+
+  
+  const bankingOpt = document.getElementById('banking-option');
+  const bankingInput = document.querySelector('input[value="banking"]');
+  const bankingWarn = document.getElementById('banking-warning');
+  if (bankingOpt && bankingInput && bankingWarn) {
+    if (total < 10000) {
+      bankingOpt.style.opacity = '0.5';
+      bankingOpt.style.cursor = 'not-allowed';
+      bankingOpt.style.userSelect = 'none';
+      bankingInput.disabled = true;
+      bankingWarn.style.display = 'block';
+      if (bankingInput.checked) {
+        // Fallback to COD
+        document.querySelector('input[value="cod"]').checked = true;
+        document.querySelector('input[value="cod"]').parentElement.classList.add('selected');
+        bankingOpt.classList.remove('selected');
+      }
+    } else {
+      bankingOpt.style.opacity = '1';
+      bankingOpt.style.cursor = 'pointer';
+      bankingOpt.style.userSelect = 'auto';
+      bankingInput.disabled = false;
+      bankingWarn.style.display = 'none';
+    }
+  }
   if (appliedCode) {
     const cInput = document.getElementById('coupon-input');
     if (cInput && !cInput.value) cInput.value = appliedCode;
@@ -586,7 +623,9 @@ async function processCheckout() {
   }
   const memberDiscountAmt = subtotal * memberPct2;
   const shipping = subtotal >= 50000000 ? 0 : 30000;
-  const total = subtotal - discountAmt - memberDiscountAmt + shipping;
+  let totalDiscount2 = discountAmt + memberDiscountAmt;
+  let total = subtotal + shipping - totalDiscount2;
+  if (total < 0) total = 0;
   const productNames = Store.cart.map(i => i.name).join(', ');
 
   let appliedCouponId = null;
@@ -685,6 +724,7 @@ async function processCheckout() {
     }
   }
 
+  const orderItemsSnapshot = JSON.parse(JSON.stringify(Store.cart));
   Store.cart = [];
   cartPersist();
 
@@ -692,43 +732,50 @@ async function processCheckout() {
   const customerEmail = document.getElementById('co-email')?.value;
 
   // --- BẮT ĐẦU: CODE GỬI EMAIL TỰ ĐỘNG BẰNG EMAILJS ---
-  // Bạn cần thay thế 3 thông số dưới đây bằng ID của bạn trên EmailJS
-  const EMAILJS_SERVICE_ID = "service_b5j30gc"; 
-  const EMAILJS_TEMPLATE_ID = "template_0fozwai";
-  const EMAILJS_PUBLIC_KEY = "MHGLd65a5pGdSQFmb";
+  
+  const sendConfirmationEmail = () => {
+    const EMAILJS_SERVICE_ID = "service_b5j30gc"; 
+    const EMAILJS_TEMPLATE_ID = "template_0fozwai";
+    const EMAILJS_PUBLIC_KEY = "MHGLd65a5pGdSQFmb";
 
-  if (customerEmail && EMAILJS_SERVICE_ID !== "YOUR_SERVICE_ID") {
-    // Build HTML string for order items
-    let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">';
-    itemsHtml += '<tr style="border-bottom: 1px solid #2a2a3c; text-align: left; color: #94a3b8; font-size: 13px;"><th style="padding: 8px 0;">Sản phẩm</th><th style="padding: 8px 0; text-align: center;">SL</th><th style="padding: 8px 0; text-align: right;">Giá</th></tr>';
-    Store.cart.forEach(item => {
-      itemsHtml += `
-        <tr style="border-bottom: 1px dashed #2a2a3c;">
-          <td style="padding: 10px 0; font-size: 14px;">${item.name}</td>
-          <td style="padding: 10px 0; text-align: center; font-size: 14px;">${item.qty}</td>
-          <td style="padding: 10px 0; text-align: right; font-size: 14px; color: #d4a843;">${formatPrice(item.price * item.qty)}</td>
-        </tr>
-      `;
-    });
-    itemsHtml += '</table>';
-
-    try {
-      emailjs.init(EMAILJS_PUBLIC_KEY);
-      emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-        to_name: customerName,
-        to_email: customerEmail,
-        order_id: orderId,
-        order_total: formatPrice(total),
-        payment_method: payment === 'banking' ? 'Chuyển khoản ngân hàng' : 'Thanh toán khi nhận hàng (COD)',
-        order_items: itemsHtml
-      }).then(() => {
-        console.log('Email xác nhận đã được gửi đi!');
-      }).catch((err) => {
-        console.error('Lỗi khi gửi email:', err);
+    if (customerEmail && EMAILJS_SERVICE_ID !== "YOUR_SERVICE_ID") {
+      let itemsHtml = '<table style="width:100%; border-collapse: collapse; margin-bottom: 20px;">';
+      itemsHtml += '<tr style="border-bottom: 1px solid #2a2a3c; text-align: left; color: #94a3b8; font-size: 13px;"><th style="padding: 8px 0;">Sản phẩm</th><th style="padding: 8px 0; text-align: center;">SL</th><th style="padding: 8px 0; text-align: right;">Giá</th></tr>';
+      
+      orderItemsSnapshot.forEach(item => {
+        itemsHtml += `
+          <tr style="border-bottom: 1px dashed #2a2a3c;">
+            <td style="padding: 10px 0; font-size: 14px;">${item.name}</td>
+            <td style="padding: 10px 0; text-align: center; font-size: 14px;">${item.qty}</td>
+            <td style="padding: 10px 0; text-align: right; font-size: 14px; color: #d4a843;">${formatPrice(item.price * item.qty)}</td>
+          </tr>
+        `;
       });
-    } catch(err) {
-      console.error('Lỗi khởi tạo EmailJS:', err);
+      itemsHtml += '</table>';
+
+      try {
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          to_name: customerName,
+          to_email: customerEmail,
+          order_id: orderId,
+          order_total: ' ' + formatPrice(total),
+          payment_method: payment === 'banking' ? 'Chuyển khoản ngân hàng' : 'Thanh toán khi nhận hàng (COD)',
+          order_items: itemsHtml
+        }).then(() => {
+          console.log('Email xác nhận đã được gửi đi!');
+        }).catch((err) => {
+          console.error('Lỗi khi gửi email:', err);
+        });
+      } catch(err) {
+        console.error('Lỗi khởi tạo EmailJS:', err);
+      }
     }
+  };
+
+
+  if (payment !== 'banking') {
+    sendConfirmationEmail();
   }
   // --- KẾT THÚC: CODE GỬI EMAIL ---
 
@@ -736,7 +783,8 @@ async function processCheckout() {
 
   if (payment === 'banking') {
     // Generate VietQR URL for BIDV
-    const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact.png?amount=${Math.round(total)}&addInfo=Thanh%20toan%20don%20${orderId}&accountName=NGUYEN%20DUC%20PHUOC`;
+    const shortId = orderId.split('-')[0];
+    const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact2.png?amount=${Math.round(total)}&addInfo=Thanh%20toan%20${shortId}&accountName=NGUYEN%20DUC%20PHUOC`;
     
     successHtml = `
       <div style="grid-column:1/-1; text-align:center; padding:40px 20px; background:var(--bg-card); border-radius:var(--r-lg); border:1px solid var(--border-gold);">
@@ -756,7 +804,7 @@ async function processCheckout() {
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Số tài khoản:</span><strong>96247HH125</strong></div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Chủ tài khoản:</span><strong>NGUYỄN ĐỨC PHƯỚC</strong></div>
             <div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span style="color:var(--text-400);">Số tiền:</span><strong style="color:var(--gold-400); font-size:1.05rem;">${formatPrice(total)}</strong></div>
-            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Nội dung CK:</span><code style="background:rgba(212,168,67,0.1); padding:2px 8px; border-radius:4px; font-size:0.8rem;">Thanh toan don ${orderId}</code></div>
+            <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Nội dung CK:</span><code style="background:rgba(212,168,67,0.1); padding:2px 8px; border-radius:4px; font-size:0.8rem;">Thanh toan ${shortId}</code></div>
           </div>
           <p style="font-size:0.78rem; color:var(--text-400); margin-top:16px; font-style:italic;">* Đơn hàng sẽ được xử lý ngay sau khi chúng tôi nhận được thanh toán.</p>
         </div>
@@ -800,6 +848,7 @@ async function processCheckout() {
                 <a href="../index.html" class="btn btn-primary">Tiếp tục mua sắm</a>
               </div>
             `;
+            sendConfirmationEmail();
             window._pvSupabase.removeChannel(channel);
           }
         }

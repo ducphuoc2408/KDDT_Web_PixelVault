@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -175,6 +175,9 @@
 
     <!-- Actions -->
         <div class="nav-actions">
+      <button class="hamburger" id="hamburger-btn" aria-label="Mo menu">
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-search" id="nav-search-bar">
         <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
           onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
@@ -709,6 +712,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/main.js"></script>
+<script src="assets/js/mobile.js"></script>
 <script>
 // Render sau khi Supabase data đã tải xong
 document.addEventListener('store:ready', () => {

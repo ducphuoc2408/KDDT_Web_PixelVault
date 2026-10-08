@@ -332,7 +332,9 @@ function cartUpdate() {
     }
     const memberDiscount = subtotal * memberPct;
     const couponDiscount = subtotal * _cartCouponPct;
-    const total = subtotal - memberDiscount - couponDiscount + ship;
+    let totalDiscount = memberDiscount + couponDiscount;
+    let total = subtotal + ship - totalDiscount;
+    if (total < 0) total = 0;
     
     totalEl.innerHTML = `
       <div class="cart-summary-row"><span>Tạm tính (${count} SP)</span><span>${formatPrice(subtotal)}</span></div>
@@ -365,11 +367,13 @@ function applyCartCoupon() {
 function cartOpen() {
   document.getElementById('cart-overlay')?.classList.add('open');
   document.body.style.overflow = 'hidden';
+  if(document.getElementById('pv-chatbot-toggle')) document.getElementById('pv-chatbot-toggle').style.display = 'none';
 }
 
 function cartClose() {
   document.getElementById('cart-overlay')?.classList.remove('open');
   document.body.style.overflow = '';
+  if(document.getElementById('pv-chatbot-toggle')) document.getElementById('pv-chatbot-toggle').style.display = 'flex';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -780,10 +784,10 @@ if (localStorage.getItem('theme') !== 'dark') {
   });
 }
 
-// Khởi tạo Chatbot toàn cục trên mọi trang
+// Khởi tạo Chatbot toàn cục trên mọi trang (trừ Admin Panel)
 window.addEventListener('DOMContentLoaded', () => {
-  if (!document.querySelector('script[src*="ai-chatbot.js"]')) {
-    const isSubFolder = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/admin/');
+  if (!window.location.pathname.includes('/admin/') && !document.querySelector('script[src*="ai-chatbot.js"]')) {
+    const isSubFolder = window.location.pathname.includes('/pages/');
     const chatbotPath = isSubFolder ? '../assets/js/ai-chatbot.js' : 'assets/js/ai-chatbot.js';
     const script = document.createElement('script');
     script.src = chatbotPath;
