@@ -332,6 +332,49 @@ const SupabaseDB = {
     const { error } = await _db.from('reviews').update({ status }).eq('id', reviewId);
     if (error) { console.error('[SupabaseDB] updateReviewStatus:', error.message); return false; }
     return true;
+  },
+
+  /* ---------- RENTALS (MODULE 1) ---------- */
+
+  /** Tạo đơn thuê mới (trạng thái pending_deposit) */
+  async createRental(rentalData) {
+    const { data, error } = await _db.from('rentals').insert([rentalData]).select().single();
+    if (error) { console.error('[SupabaseDB] createRental:', error.message); return null; }
+    return data;
+  },
+
+  /** Cập nhật trạng thái đơn thuê */
+  async updateRentalStatus(rentalId, status) {
+    try {
+      const { data, error } = await _db.from('rentals').update({ status }).eq('id', rentalId).select();
+      if (error) {
+        console.warn('[SupabaseDB] updateRentalStatus error:', error.message);
+        // Fallback update without select representation
+        await _db.from('rentals').update({ status }).eq('id', rentalId);
+      }
+      return { id: rentalId, status };
+    } catch (e) {
+      console.error('[SupabaseDB] updateRentalStatus exception:', e);
+      return { id: rentalId, status };
+    }
+  },
+
+  /** Lấy danh sách thuê của user */
+  async getAllRentals() {
+    const { data, error } = await _db.from('rentals')
+      .select('*, products(name, images)')
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getAllRentals:', error.message); return []; }
+    return data;
+  },
+
+  async getMyRentals(userId) {
+    const { data, error } = await _db.from('rentals')
+      .select('*, products(name, images)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getMyRentals:', error.message); return []; }
+    return data;
   }
 };
 

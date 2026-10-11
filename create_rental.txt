@@ -1,0 +1,27 @@
+createRental(rentalData) {
+    const { data, error } = await _db.from('rentals').insert([rentalData]).select().single();
+    if (error) { console.error('[SupabaseDB] createRental:', error.message); return null; }
+    return data;
+  },
+
+  /** Cập nhật trạng thái đơn thuê */
+  async updateRentalStatus(rentalId, status) {
+    const { data, error } = await _db.from('rentals').update({ status }).eq('id', rentalId).select().single();
+    if (error) { console.error('[SupabaseDB] updateRentalStatus:', error.message); return null; }
+    return data;
+  },
+
+  /** Lấy danh sách thuê của user */
+  async getMyRentals(userId) {
+    const { data, error } = await _db.from('rentals')
+      .select('*, products(name, images)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getMyRentals:', error.message); return []; }
+    return data;
+  }
+};
+
+// Expose globally
+window.SupabaseDB = SupabaseDB;
+window.supabaseClient = _db; // backwards-compat với admin panel

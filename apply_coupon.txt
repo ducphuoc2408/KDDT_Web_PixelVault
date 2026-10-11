@@ -1,0 +1,53 @@
+function applyCoupon() {
+  const code = document.getElementById('coupon-input').value.trim().toUpperCase();
+  if (!code) return;
+
+  const coupons = Store.coupons || [];
+  const coupon = coupons.find(c => c.code === code);
+  
+  if (!coupon) {
+    showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn', 'error');
+    return;
+  }
+
+  if (coupon.max_uses > 0 && coupon.uses >= coupon.max_uses) {
+    showToast('Mã giảm giá đã hết lượt sử dụng', 'error');
+    return;
+  }
+  
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+    showToast('Mã giảm giá đã hết hạn', 'error');
+    return;
+  }
+  
+  if (coupon.is_first_order) {
+    if (!Store.currentUser) {
+      showToast('Vui lòng đăng nhập để sử dụng mã dành cho khách hàng mới', 'error');
+      return;
+    }
+    const hasPreviousOrders = Store.orders.some(o => o.userId === Store.currentUser.id && o.status !== 'cancelled');
+    if (hasPreviousOrders) {
+      showToast('Mã giảm giá này chỉ dành cho khách hàng mua lần đầu tiên', 'error');
+      return;
+    }
+  }
+
+  const sub = Store.cart.reduce((s, item) => {
+    const p = Store.products.find(x => x.id === item.id);
+    return s + (p ? p.price * item.qty : 0);
+  }, 0);
+
+  if (coupon.condition_min > 0 && sub < coupon.condition_min) {
+    showToast(`Mã ${code} áp dụng cho đơn từ ${formatPrice(coupon.condition_min)}`, 'error');
+    return;
+  }
+
+  discountPct = coupon.discount_pct / 100;
+  appliedCode = code;
+  sessionStorage.setItem('pv_coupon', JSON.stringify({ code: appliedCode, pct: discountPct }));
+  showToast(`Áp dụng mã giảm giá ${coupon.discount_pct}% thành công`, 'success');
+  
+  renderCheckoutItems();
+}
+
+async function 

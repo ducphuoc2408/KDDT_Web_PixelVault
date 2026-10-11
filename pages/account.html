@@ -128,6 +128,10 @@
             <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
             Yêu thích
           </a>
+          <a href="#" class="admin-nav-item" style="padding:10px 14px;" onclick="switchTab('rentals', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Thuê máy
+          </a>
           <a href="../admin/index.html" class="admin-nav-item" id="sidebar-admin-link" style="display:none; padding:10px 14px;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Trang quản trị
@@ -220,6 +224,12 @@
         <div id="tab-wishlist" style="display:none; background:var(--bg-card); border:1px solid var(--border-1); border-radius:var(--r-lg); padding:32px;">
           <h2 style="font-size:1.25rem; font-family:'Outfit',sans-serif; color:var(--text-100); margin-bottom:24px;">Sản phẩm yêu thích</h2>
           <div class="products-grid" id="wishlist-grid" style=""></div>
+        </div>
+
+        <!-- Rentals -->
+        <div id="tab-rentals" style="display:none; background:var(--bg-card); border:1px solid var(--border-1); border-radius:var(--r-lg); padding:32px;">
+          <h2 style="font-size:1.25rem; font-family:'Outfit',sans-serif; color:var(--text-100); margin-bottom:24px;">Lịch sử thuê máy</h2>
+          <div id="user-rentals-list" style="display:flex; flex-direction:column; gap:16px;"></div>
         </div>
       </main>
 
@@ -383,11 +393,18 @@ function switchTab(tabId, el) {
   document.querySelectorAll('.admin-nav-item').forEach(x => x.classList.remove('active'));
   el.classList.add('active');
   
-  document.getElementById('tab-profile').style.display = 'none';
-  document.getElementById('tab-orders').style.display = 'none';
-  document.getElementById('tab-wishlist').style.display = 'none';
+  const tabs = ['tab-profile', 'tab-orders', 'tab-wishlist', 'tab-rentals'];
+  tabs.forEach(id => {
+    const elTab = document.getElementById(id);
+    if (elTab) elTab.style.display = 'none';
+  });
   
-  document.getElementById(`tab-${tabId}`).style.display = 'block';
+  const target = document.getElementById(`tab-${tabId}`);
+  if (target) target.style.display = 'block';
+
+  if (tabId === 'rentals') {
+    loadUserRentals();
+  }
 }
 
 async function saveProfile(e) {
@@ -525,6 +542,177 @@ function renderWishlist() {
   
   grid.style.display = 'grid';
   grid.innerHTML = items.map(p => renderProductCard(p)).join('');
+}
+
+
+
+function renderRentalProgressStepper(status, isOverdue) {
+  if (status === 'cancelled') {
+    return `<div style="background:rgba(239,68,68,0.08); border:1px dashed rgba(239,68,68,0.3); border-radius:8px; padding:10px; margin:14px 20px; text-align:center; color:#ef4444; font-size:0.85rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      Đơn thuê đã bị hủy
+    </div>`;
+  }
+
+  let currentStep = 1;
+  let pct = 0;
+  if (status === 'pending_deposit') { currentStep = 1; pct = 15; }
+  else if (status === 'active') { currentStep = 3; pct = 68; }
+  else if (status === 'completed') { currentStep = 4; pct = 100; }
+
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>';
+  const cameraSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  const warnSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+
+  const steps = [
+    { num: 1, label: 'Thanh toán cọc', icon: currentStep > 1 ? checkSvg : '1' },
+    { num: 2, label: 'Bàn giao máy', icon: currentStep >= 2 ? (currentStep > 2 ? checkSvg : '2') : '2' },
+    { num: 3, label: isOverdue ? 'Trễ hạn' : 'Đang thuê', icon: currentStep >= 3 ? (currentStep > 3 ? checkSvg : (isOverdue ? warnSvg : cameraSvg)) : '3' },
+    { num: 4, label: 'Trả máy & Hoàn cọc', icon: currentStep === 4 ? checkSvg : '4' }
+  ];
+
+  const stepsHtml = steps.map(s => {
+    let circleBg = 'var(--bg-secondary, #1e293b)';
+    let circleBorder = 'var(--border-1, rgba(255,255,255,0.15))';
+    let circleColor = 'var(--text-400, #94a3b8)';
+    let textColor = 'var(--text-400, #94a3b8)';
+    let fontWeight = '500';
+
+    if (s.num < currentStep || (status === 'completed' && s.num <= 4)) {
+      circleBg = '#22c55e';
+      circleBorder = '#22c55e';
+      circleColor = '#ffffff';
+      textColor = '#22c55e';
+      fontWeight = '600';
+    } else if (s.num === currentStep) {
+      if (s.num === 3 && isOverdue) {
+        circleBg = 'rgba(239,68,68,0.2)';
+        circleBorder = '#ef4444';
+        circleColor = '#ef4444';
+        textColor = '#ef4444';
+        fontWeight = '700';
+      } else {
+        circleBg = 'var(--gold-400, #d97706)';
+        circleBorder = 'var(--gold-400, #d97706)';
+        circleColor = '#000000';
+        textColor = 'var(--gold-400, #d97706)';
+        fontWeight = '700';
+      }
+    }
+
+    return `<div style="display:flex; flex-direction:column; align-items:center; position:relative; z-index:2; text-align:center; flex:1;">
+      <div style="width:26px; height:26px; border-radius:50%; background:${circleBg}; border:2px solid ${circleBorder}; color:${circleColor}; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700;">
+        ${s.icon}
+      </div>
+      <span style="font-size:0.75rem; font-weight:${fontWeight}; color:${textColor}; margin-top:6px; white-space:nowrap;">${s.label}</span>
+    </div>`;
+  }).join('');
+
+  return `<div style="background:rgba(0,0,0,0.18); border-radius:8px; padding:14px 12px; margin:14px 20px 0 20px;">
+    <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-400); margin-bottom:12px; font-weight:600;">Tiến trình đơn thuê:</div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; position:relative;">
+      <div style="position:absolute; top:12px; left:12%; right:12%; height:3px; background:var(--border-1, rgba(255,255,255,0.1)); z-index:1;"></div>
+      <div style="position:absolute; top:12px; left:12%; width:${pct * 0.76}%; height:3px; background:var(--gold-400, #d97706); z-index:1; transition:width 0.3s;"></div>
+      ${stepsHtml}
+    </div>
+  </div>`;
+}
+
+function getAccountRentalOverdueInfo(endDateStr, status) {
+  if (status !== 'active' || !endDateStr) return { isOverdue: false, isTodayDue: false, days: 0 };
+  const now = new Date();
+  const parts = endDateStr.split('-');
+  if (parts.length < 3) return { isOverdue: false, isTodayDue: false, days: 0 };
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
+  const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
+
+  if (now > endOfDay) {
+    const diffMs = now.getTime() - endOfDay.getTime();
+    const overdueDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    return { isOverdue: true, isTodayDue: false, days: overdueDays };
+  } else if (now >= startOfDay && now <= endOfDay) {
+    return { isOverdue: false, isTodayDue: true, days: 0 };
+  } else {
+    const diffMs = endOfDay.getTime() - now.getTime();
+    const remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return { isOverdue: false, isTodayDue: false, days: remainingDays };
+  }
+}
+
+async function loadUserRentals() {
+  if (!Store.currentUser) return;
+  const el = document.getElementById('user-rentals-list');
+  if (!el) return;
+  el.innerHTML = '<p style="color:var(--text-400); text-align:center; padding:40px;">Đang tải...</p>';
+  
+  let rentals = [];
+  if (window.SupabaseDB && window.SupabaseDB.getMyRentals) {
+    rentals = await window.SupabaseDB.getMyRentals(Store.currentUser.id);
+  }
+  
+  // Đồng bộ trạng thái mới nhất
+  try {
+    const overrides = JSON.parse(localStorage.getItem('pv_rental_overrides') || '{}');
+    rentals.forEach(r => {
+      if (overrides[r.id]) r.status = overrides[r.id];
+    });
+  } catch(e) {}
+  
+  if (!rentals || rentals.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-400); text-align:center; padding:40px;">Bạn chưa có đơn thuê máy nào.</p>';
+    return;
+  }
+
+  el.innerHTML = rentals.map(r => {
+    const overdueInfo = getAccountRentalOverdueInfo(r.end_date, r.status);
+    let statusHtml = '';
+    if (r.status === 'pending_deposit') {
+      statusHtml = '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">Chờ xác nhận</span>';
+    } else if (r.status === 'active' && overdueInfo.isOverdue) {
+      statusHtml = `<span style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:700;display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Trễ ${overdueInfo.days} ngày!</span>`;
+    } else if (r.status === 'active' && overdueInfo.isTodayDue) {
+      statusHtml = '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hôm nay đến hạn</span>';
+    } else if (r.status === 'active') {
+      statusHtml = `<span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">Đang thuê • còn ${overdueInfo.days} ngày</span>`;
+    } else if (r.status === 'completed') {
+      statusHtml = '<span style="background:var(--bg-elevated);color:var(--text-400);padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">Đã trả máy</span>';
+    } else if (r.status === 'cancelled') {
+      statusHtml = '<span style="background:rgba(239,68,68,0.1);color:#ef4444;padding:4px 12px;border-radius:20px;font-size:0.78rem;font-weight:600;">Đã hủy</span>';
+    }
+
+    const productName = r.products ? r.products.name : 'Thiết bị';
+    const deliveryStr = r.delivery_method === 'ship' 
+      ? '<span style="display:inline-flex;align-items:center;gap:3px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Giao hàng: ' + (r.delivery_address || '') + '</span>' 
+      : '<span style="display:inline-flex;align-items:center;gap:3px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Đến lấy tại Showroom TP. Huế</span>';
+    const startStr = r.start_date ? new Date(r.start_date).toLocaleDateString('vi-VN') : '---';
+    const endStr = r.end_date ? new Date(r.end_date).toLocaleDateString('vi-VN') : '---';
+
+    const stepperHtml = renderRentalProgressStepper(r.status, overdueInfo.isOverdue);
+
+    return `<div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:var(--r-md); overflow:hidden; ${overdueInfo.isOverdue ? 'border-color:#ef4444;' : ''}">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid var(--border-1); flex-wrap:wrap; gap:8px;">
+        <div>
+          <div style="font-family:'Outfit',sans-serif; font-weight:700; font-size:1rem; color:var(--text-100);">${productName}</div>
+          <div style="font-size:0.78rem; color:var(--text-400); margin-top:2px;">Mã đơn: <span style="color:var(--gold-400); font-weight:600;">${r.id}</span></div>
+        </div>
+        <div>${statusHtml}</div>
+      </div>
+
+      ${stepperHtml}
+
+      <div style="padding:16px 20px; display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:0.875rem;">
+        <div><span style="color:var(--text-400);">Ngày bắt đầu:</span> <strong>${startStr}</strong></div>
+        <div><span style="color:var(--text-400);">Ngày hẹn trả:</span> <strong>${endStr}</strong></div>
+        <div><span style="color:var(--text-400);">Tiền thuê:</span> <strong style="color:var(--gold-400); font-weight:700;">${formatPrice(r.total_price)}</strong></div>
+        <div><span style="color:var(--text-400);">Tiền cọc:</span> <strong style="color:var(--text-200);">${formatPrice(r.deposit_amount)}</strong></div>
+        <div style="grid-column:1/-1;"><span style="color:var(--text-400);">Hình thức:</span> <strong>${deliveryStr}</strong></div>
+      </div>
+      ${overdueInfo.isOverdue ? `<div style="background:rgba(239,68,68,0.08); padding:10px 20px; font-size:0.82rem; color:#ef4444; font-weight:600; display:flex; align-items:center; gap:6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Đã quá hạn trả máy ${overdueInfo.days} ngày! Vui lòng hoàn trả tại Showroom hoặc liên hệ hotline 1900 1234 để được hỗ trợ.</div>` : ''}
+    </div>`;
+  }).join('');
 }
 </script>
 <script src="../assets/js/mobile.js"></script>

@@ -1,0 +1,24 @@
+First:
+t=${Math.round(amount)}&addInfo=Thanh%20toan%20${shortId}&accountName=NGUYEN%20DUC%20PHUOC`;
+
+      showQRModal(qrUrl, amount, Thanh toan , res.id);
+    } else {
+      showToast('Không thể tạo đơn thuê. Vui lòng thử lại.', 'error');
+    }
+  } catch (error) {
+    console.error('Error processRentalDep
+
+Second:
+rror');
+  }
+
+  btnProcess.innerHTML = 'Thanh toán ngay';
+  btnProcess.disabled = false;
+}
+
+function showQRModal(qrUrl, amount, addInfo, rentalId) {
+  let modal = document.getElementById('qr-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+   

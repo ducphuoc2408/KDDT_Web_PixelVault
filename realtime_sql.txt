@@ -1,0 +1,2 @@
+-- Optional: Bật publication cho realtime (cập nhật status qua websocket)
+ALTER PUBLICATION supabase_realtime ADD TABLE public.rentals;

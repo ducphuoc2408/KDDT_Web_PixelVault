@@ -1,0 +1,654 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelVault – Máy Ảnh Kỹ Thuật Số Chuyên Nghiệp</title>
+  <meta name="description" content="Cửa hàng máy ảnh kỹ thuật số hàng đầu Việt Nam. Sony, Canon, Fujifilm, Nikon – bảo hành chính hãng, giao hàng toàn quốc.">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4a843' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z'/><circle cx='12' cy='13' r='4'/></svg>">
+  <style>
+    /* Homepage Extras */
+    .hero-bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--border-1) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--border-1) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .hero-gradient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 32px;
+      background: var(--border-2);
+    }
+
+    /* Newsletter */
+    .newsletter-section {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+      border-top: 1px solid var(--border-1);
+      border-bottom: 1px solid var(--border-1);
+      padding: 64px 0;
+      text-align: center;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 8px;
+      max-width: 420px;
+      margin: 24px auto 0;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 12px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-2);
+      border-radius: var(--r-full);
+      color: var(--text-100);
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+    }
+
+    .newsletter-input:focus {
+      border-color: var(--border-gold);
+      box-shadow: 0 0 0 3px rgba(212,168,67,0.08);
+    }
+
+    .newsletter-input::placeholder { color: var(--text-400); }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .testimonial-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-1);
+      border-radius: var(--r-lg);
+      padding: 24px;
+      transition: all var(--dur-mid) var(--ease-1);
+    }
+
+    .testimonial-card:hover {
+      border-color: var(--border-gold);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .testimonial-stars { display: flex; gap: 2px; margin-bottom: 12px; }
+    .testimonial-text { font-size: 0.885rem; color: var(--text-300); line-height: 1.75; margin-bottom: 16px; font-style: italic; }
+
+    .testimonial-author { display: flex; align-items: center; gap: 10px; }
+    .author-avatar {
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-600), var(--gold-400));
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #06060d;
+      flex-shrink: 0;
+    }
+
+    .author-name { font-weight: 600; font-size: 0.875rem; color: var(--text-100); }
+    .author-meta { font-size: 0.73rem; color: var(--text-400); }
+
+    /* Floating promo tag */
+    .promo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: var(--r-full);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--red-400);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 900px) {
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="light">
+
+<!-- ============ NAVIGATION ============ -->
+<nav class="navbar" id="main-navbar">
+  <div class="nav-container">
+    <!-- Logo -->
+    <a href="../index.html" class="nav-logo" id="nav-logo">
+      <div class="logo-mark">
+        <svg class="logo-icon-svg" viewBox="0 0 24 24">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </div>
+      <span class="logo-text">PixelVault</span>
+    </a>
+
+    <!-- Links -->
+    <div class="nav-links" id="nav-links">
+      <a href="../index.html" class="nav-link active" id="nl-home">Trang chủ</a>
+      <div class="nav-dropdown">
+        <a href="products.html" class="nav-link" id="nl-products">Sản phẩm</a>
+        <div class="nav-dropdown-menu">
+          <a href="products.html?cat=mirrorless" class="nav-dropdown-item" id="nddi-mirrorless">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Mirrorless
+          </a>
+          <a href="products.html?cat=dslr" class="nav-dropdown-item" id="nddi-dslr">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><circle cx="12" cy="14" r="3"/></svg>
+            DSLR
+          </a>
+          <a href="products.html?cat=lens" class="nav-dropdown-item" id="nddi-lens">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+            Ống kính
+          </a>
+          <a href="products.html?cat=compact" class="nav-dropdown-item" id="nddi-compact">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
+            Compact
+          </a>
+        </div>
+      </div>
+      <a href="compare.html" class="nav-link" id="nl-compare">So sánh</a>
+      <a href="trade-in.html" class="nav-link" id="nl-tradein" style="color:var(--gold-400);font-weight:600;">Thu cũ đổi mới</a>
+      <a href="contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
+    </div>
+
+    <!-- Actions -->
+        <div class="nav-actions">
+      <button class="hamburger" id="hamburger-btn" aria-label="Mo menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-search" id="nav-search-bar">
+        <input class="nav-search-input" id="nav-q" placeholder="Tìm kiếm máy ảnh..." 
+          onkeypress="if(event.key==='Enter') window.location.href='pages/products.html?q='+this.value">
+        <button class="nav-search-btn" id="btn-nav-search"
+          onclick="window.location.href='pages/products.html?q='+document.getElementById('nav-q').value">
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <button class="nav-icon-btn" onclick="toggleTheme()" title="Đổi giao diện" aria-label="Đổi giao diện">
+        <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <button class="nav-icon-btn" id="btn-cart" onclick="cartOpen()" title="Giỏ hàng" aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge" id="cart-badge-nav" style="display:none;">0</span>
+      </button>
+      
+      <div style="position:relative;" id="user-menu-container">
+        <button class="nav-icon-btn" id="btn-user" style="display:none;" title="Tài khoản" onclick="toggleUserDropdown()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </button>
+        <div class="user-dropdown" id="user-dropdown" style="display:none; position:absolute; top:50px; right:0; background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:var(--r-md); padding:8px 0; min-width:180px; flex-direction:column; box-shadow:var(--shadow-lg); z-index:100;">
+          <a href="account.html" id="user-dropdown-name" style="padding:10px 16px; color:var(--text-200); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Tài khoản của tôi</a>
+          <div style="height:1px; background:var(--border-1); margin:4px 0;"></div>
+          <a href="#" onclick="logout()" style="padding:10px 16px; color:var(--danger); text-decoration:none; font-size:0.9rem;" onmouseover="this.style.background='var(--bg-card)'" onmouseout="this.style.background='transparent'">Đăng xuất</a>
+        </div>
+      </div>
+
+      <button class="btn btn-nav-login" id="btn-login" onclick="openModal('auth-modal')">Đăng nhập</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <img class="hero-banner" src="../assets/images/hero_banner_clean.jpg" alt="PixelVault Hero" id="hero-img">
+  
+<style>
+.legal-hero {
+    padding: 120px 20px 60px;
+    text-align: center;
+    background: radial-gradient(circle at center, rgba(212,168,67,0.1) 0%, transparent 70%);
+}
+.legal-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--gold-400);
+    margin-bottom: 20px;
+}
+.legal-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-300);
+}
+.legal-container {
+    max-width: 800px;
+    margin: 0 auto 100px;
+    padding: 0 20px;
+}
+.legal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-1);
+    border-radius: var(--r-xl);
+    padding: 40px;
+    box-shadow: var(--shadow-lg);
+    line-height: 1.8;
+    color: var(--text-200);
+}
+.legal-content h2 {
+    color: var(--text-100);
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.5rem;
+    margin: 32px 0 16px;
+    border-bottom: 1px solid var(--border-2);
+    padding-bottom: 8px;
+}
+.legal-content p {
+    margin-bottom: 16px;
+}
+.legal-content ul {
+    margin-bottom: 24px;
+    padding-left: 20px;
+}
+.legal-content li {
+    margin-bottom: 8px;
+}
+</style>
+
+<div class="legal-hero">
+    <h1 class="legal-title">Chính Sách Bảo Mật</h1>
+    <p class="legal-subtitle">Bảo vệ dữ liệu khách hàng là ưu tiên số 1 của PixelVault</p>
+</div>
+
+<div class="legal-container">
+    <div class="legal-content">
+        <p>PixelVault cam kết bảo mật tuyệt đối thông tin cá nhân của khách hàng. Chính sách này giải thích cách chúng tôi thu thập, sử dụng và bảo vệ dữ liệu của bạn.</p>
+        
+        <h2>1. Thu thập thông tin cá nhân</h2>
+        <p>Chúng tôi chỉ thu thập thông tin khi bạn tự nguyện cung cấp trong quá trình tạo tài khoản, đặt hàng hoặc làm thủ tục thuê máy. Thông tin bao gồm: Họ tên, Số điện thoại, Địa chỉ email, Địa chỉ giao hàng và Ảnh chụp giấy tờ tùy thân (chỉ đối với dịch vụ thuê).</p>
+        
+        <h2>2. Mục đích sử dụng thông tin</h2>
+        <ul>
+            <li>Xử lý các đơn đặt hàng và giao hàng.</li>
+            <li>Xác minh danh tính nhằm phòng chống rủi ro trong dịch vụ cho thuê thiết bị giá trị cao.</li>
+            <li>Cung cấp hỗ trợ, bảo hành và gửi thông báo liên quan đến trạng thái giao dịch (thông qua hệ thống Email tự động).</li>
+            <li>Nâng cấp trải nghiệm cá nhân hóa bằng hệ thống Trợ lý AI (Bot sẽ không lưu trữ dữ liệu riêng tư của bạn vào mô hình ngôn ngữ lớn).</li>
+        </ul>
+        
+        <h2>3. Lưu trữ và Bảo vệ dữ liệu</h2>
+        <p>Toàn bộ cơ sở dữ liệu của người dùng được lưu trữ trên hạ tầng điện toán đám mây Supabase an toàn. Chúng tôi áp dụng RLS (Row Level Security) để đảm bảo không ai khác ngoài chính bạn có quyền truy cập vào danh sách đơn hàng và lịch sử thuê của bạn.</p>
+
+        <h2>4. Không chia sẻ dữ liệu cho bên thứ 3</h2>
+        <p>PixelVault cam kết không mua bán, trao đổi hoặc cung cấp thông tin cá nhân của bạn cho bất kỳ bên thứ 3 nào, ngoại trừ các đơn vị vận chuyển (để giao hàng) và cơ quan chức năng (khi có yêu cầu hợp pháp).</p>
+
+        <h2>5. Dữ liệu thanh toán</h2>
+        <p>Chúng tôi không lưu trữ thông tin thẻ tín dụng hay thẻ ngân hàng của bạn. Toàn bộ quá trình quét mã QR và xác thực thanh toán được thực hiện thông qua hệ thống tự động API của ngân hàng (VietQR & SePay webhook).</p>
+    </div>
+</div>
+<!-- ============ FOOTER ============ -->
+<footer class="footer" id="main-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="../index.html" class="nav-logo" style="margin-bottom:14px; display:inline-flex;">
+          <div class="logo-mark">
+            <svg class="logo-icon-svg" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          </div>
+          <span class="logo-text">PixelVault</span>
+        </a>
+        <p>Cửa hàng máy ảnh kỹ thuật số hàng đầu Việt Nam. Hàng chính hãng, bảo hành dài hạn, dịch vụ tư vấn chuyên nghiệp.</p>
+        <div class="social-links">
+          <a href="#" class="social-btn" id="social-fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-ig" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+          </a>
+          <a href="#" class="social-btn" id="social-yt" aria-label="YouTube">
+            <svg viewBox="0 0 24 24"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/><polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div>
+        <div class="footer-heading">Sản phẩm</div>
+        <div class="footer-links">
+          <a href="products.html?cat=mirrorless" id="fl-mirrorless">Máy ảnh Mirrorless</a>
+          <a href="products.html?cat=dslr" id="fl-dslr">Máy ảnh DSLR</a>
+          <a href="products.html?cat=lens" id="fl-lens">Ống kính</a>
+          <a href="products.html?cat=compact" id="fl-compact">Máy ảnh Compact</a>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div>
+        <div class="footer-heading">Thông tin</div>
+        <div class="footer-links">
+          <a href="contact.html" id="fl-contact">Liên hệ</a>
+          <a href="#" id="fl-about">Về chúng tôi</a>
+          <a href="privacy.html" id="fl-privacy">Chính sách bảo mật</a>
+          <a href="terms.html" id="fl-terms">Điều khoản dịch vụ</a>
+          <a href="admin/index.html" id="fl-admin">Quản trị</a>
+        </div>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <div class="footer-heading">Liên hệ</div>
+        <div class="footer-links">
+          <a href="tel:19001234" id="fl-phone">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.91z"/></svg>
+            1900 1234
+          </a>
+          <a href="mailto:support@pixelvault.vn" id="fl-email">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            support@pixelvault.vn
+          </a>
+          <a href="#" id="fl-address">
+            <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            123 Lê Lợi, TP. Huế
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+      <span>© 2026 PixelVault. Đề án môn học – Nhóm 4 sinh viên CNTT.</span>
+      <span>Xây dựng với HTML · CSS · JavaScript</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ OVERLAYS ============ -->
+<!-- Cart -->
+<div class="cart-overlay" id="cart-overlay">
+  <div class="cart-drawer">
+    <div class="cart-header">
+      <h3>Giỏ hàng</h3>
+      <button class="cart-close" onclick="cartClose()" id="btn-cart-close" aria-label="Đóng giỏ hàng">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div id="cart-total"></div>
+      <a href="checkout.html" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:14px;" id="btn-checkout">
+        Tiến hành thanh toán
+        <svg style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Compare Bar -->
+<div class="compare-bar" id="compare-bar">
+  <span style="font-size:0.845rem; font-weight:600; color:var(--text-200);">So sánh</span>
+  <div class="compare-items" id="compare-slots"></div>
+  <button class="btn btn-primary btn-sm" onclick="goCompare()" id="btn-go-compare">So sánh ngay</button>
+  <button class="btn btn-secondary btn-sm" onclick="Store.compareList=[];updateCompareBar();" id="btn-clear-compare">Xóa</button>
+</div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal">
+  <div class="modal" style="max-width:400px; overflow:hidden; position:relative;">
+    <button onclick="closeModal('auth-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="modal-header" style="padding-bottom:10px;">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div id="auth-modal-tabs" style="position:relative; display:flex; gap:20px; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%;">
+        <button id="tab-login" onclick="switchAuthTab('login')" style="background:none; border:none; color:var(--text-100); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng nhập</button>
+        <button id="tab-register" onclick="switchAuthTab('register')" style="background:none; border:none; color:var(--text-400); font-size:1rem; font-weight:600; cursor:pointer; padding-bottom:8px; transition:color 0.3s ease;">Đăng ký</button>
+        <div id="auth-tab-indicator" style="position:absolute; bottom:-1px; left:0; height:2px; background:var(--gold-400); transition:all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width:82px;"></div>
+      </div>
+      <div id="auth-modal-alt-header" style="display:none; border-bottom:1px solid var(--border-1); margin-top:16px; width:100%; padding-bottom:12px; text-align:center;">
+        <h3 id="auth-modal-alt-title" style="margin:0; font-size:1.2rem; color:var(--text-100); font-weight:600;">Cập nhật mật khẩu</h3>
+      </div>
+    </div>
+    <div class="modal-body" style="padding-top:16px;">
+      <!-- Login Form -->
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="login-email" class="form-input" placeholder="email@example.com" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required autocomplete="current-password">
+        </div>
+        <div style="text-align: right; margin-bottom: 15px;">
+          <a href="javascript:void(0)" onclick="showForgotPasswordForm()" style="font-size: 0.85rem; color: var(--gold-500); text-decoration: none;">Quên mật khẩu?</a>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng nhập</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" style="display:none;">
+        <div class="form-group">
+          <label class="form-label">Họ tên</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="Nguyễn Văn A" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Đăng ký ngay</button>
+      </form>
+
+      <!-- Forgot Password Form -->
+      <form id="forgot-password-form" style="display:none;" onsubmit="sendResetEmail(event)">
+        <p style="font-size:0.9rem; color:var(--text-300); margin-bottom:16px;">Nhập email của bạn, chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" id="reset-email" class="form-input" placeholder="email@example.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Gửi link khôi phục</button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a href="javascript:void(0)" onclick="showLoginForm()" style="font-size: 0.85rem; color: var(--text-400); text-decoration: none;">Quay lại đăng nhập</a>
+        </div>
+      </form>
+
+      <!-- Update Password Form -->
+      <form id="update-password-form" style="display:none;" onsubmit="updatePassword(event)">
+        <p style="font-size:0.9rem; color:var(--text-300); margin-bottom:16px;">Vui lòng nhập mật khẩu mới của bạn.</p>
+        <div class="form-group">
+          <label class="form-label">Mật khẩu mới</label>
+          <input type="password" id="new-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center;">Cập nhật mật khẩu</button>
+      </form>
+
+      <div id="auth-social-options">
+      <div style="text-align:center; margin:20px 0; color:var(--text-400); font-size:0.85rem; display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+        Hoặc tiếp tục với
+        <div style="flex:1; height:1px; background:var(--border-1);"></div>
+      </div>
+      
+      <div style="display:flex; gap:10px; flex-direction:column;">
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Google')">
+          <svg style="width:18px;height:18px;margin-right:8px;" viewBox="0 0 24 24" fill="currentColor"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          Google
+        </button>
+        <button class="btn btn-outline" style="width:100%; justify-content:center; border-color:var(--border-1);" onclick="socialLogin('Facebook')">
+          <svg style="width:18px;height:18px;margin-right:8px;fill:#1877F2;" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          Facebook
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/main.js"></script>
+<script src="../assets/js/mobile.js"></script>
+<script>
+// Render sau khi Supabase data đã tải xong
+document.addEventListener('store:ready', () => {
+  const sorted = [...Store.products].sort((a,b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 4);
+
+  const grid = document.getElementById('featured-grid');
+  if (grid) {
+    grid.innerHTML = sorted.map(p => renderProductCard(p)).join('');
+    initScrollAnimations();
+  }
+});
+
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  const email = document.getElementById('newsletter-email').value;
+  showToast(`Đăng ký thành công với ${email}!`, 'success');
+  document.getElementById('newsletter-form').reset();
+}
+
+function showForgotPasswordForm() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-password-form').style.display = 'block';
+  document.getElementById('update-password-form').style.display = 'none';
+  const socialOpts = document.getElementById('auth-social-options');
+  if(socialOpts) socialOpts.style.display = 'none';
+
+  const tabs = document.getElementById('auth-modal-tabs');
+  if(tabs) tabs.style.display = 'none';
+  const altHeader = document.getElementById('auth-modal-alt-header');
+  if(altHeader) {
+    altHeader.style.display = 'block';
+    document.getElementById('auth-modal-alt-title').innerText = 'Khôi phục mật khẩu';
+  }
+}
+
+function showLoginForm() {
+  document.getElementById('login-form').style.display = 'block';
+  document.getElementById('register-form').style.display = 'none';
+  document.getElementById('forgot-password-form').style.display = 'none';
+  document.getElementById('update-password-form').style.display = 'none';
+  const socialOpts = document.getElementById('auth-social-options');
+  if(socialOpts) socialOpts.style.display = 'block';
+  if (typeof switchAuthTab === 'function') switchAuthTab('login');
+
+  const tabs = document.getElementById('auth-modal-tabs');
+  if(tabs) tabs.style.display = 'flex';
+  const altHeader = document.getElementById('auth-modal-alt-header');
+  if(altHeader) altHeader.style.display = 'none';
+}
+
+async function sendResetEmail(e) {
+  e.preventDefault();
+  const email = document.getElementById('reset-email').value;
+  const btn = e.target.querySelector('button');
+  btn.innerText = "Đang gửi...";
+  btn.disabled = true;
+
+  const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname,
+  });
+
+  btn.disabled = false;
+  btn.innerText = "Gửi link khôi phục";
+
+  if (error) {
+    if (typeof showToast === 'function') showToast(error.message, 'error');
+    else alert("Lỗi: " + error.message);
+  } else {
+    if (typeof showToast === 'function') showToast('Đã gửi link khôi phục! Vui lòng kiểm tra email.', 'success');
+    else alert("Đã gửi link khôi phục! Vui lòng kiểm tra email.");
+    showLoginForm();
+  }
+}
+
+async function updatePassword(e) {
+  e.preventDefault();
+  const newPassword = document.getElementById('new-password').value;
+  const btn = e.target.querySelector('button');
+  
+  if (newPassword.length < 6) {
+    if (typeof showToast === 'function') showToast("Mật khẩu phải có ít nhất 6 ký tự.", 'error');
+    else alert("Mật khẩu phải có ít nhất 6 ký tự.");
+    return;
+  }
+
+  btn.innerText = "Đang cập nhật...";
+  btn.disabled = true;
+
+  const { data, error } = await supabaseClient.auth.updateUser({
+    password: newPassword
+  });
+
+  btn.disabled = false;
+  btn.innerText = "Cập nhật mật khẩu";
+
+  if (error) {
+    if (typeof showToast === 'function') showToast(error.message, 'error');
+    else alert("Lỗi: " + error.message);
+  } else {
+    if (typeof showToast === 'function') showToast('Cập nhật mật khẩu thành công!', 'success');
+    else alert("Cập nhật mật khẩu thành công!");
+    
+    showLoginForm();
+    window.location.hash = '';
+    if (typeof closeModal === 'function') closeModal('auth-modal');
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if (window.location.hash.includes('type=recovery')) {
+    if (typeof openModal === 'function') openModal('auth-modal');
+    document.getElementById('login-form').style.display = 'none';
+    document.getElementById('register-form').style.display = 'none';
+    document.getElementById('forgot-password-form').style.display = 'none';
+    document.getElementById('update-password-form').style.display = 'block';
+    
+    const socialOpts = document.getElementById('auth-social-options');
+    if(socialOpts) socialOpts.style.display = 'none';
+
+    const tabs = document.getElementById('auth-modal-tabs');
+    if(tabs) tabs.style.display = 'none';
+    const altHeader = document.getElementById('auth-modal-alt-header');
+    if(altHeader) {
+      altHeader.style.display = 'block';
+      document.getElementById('auth-modal-alt-title').innerText = 'Cập nhật mật khẩu mới';
+    }
+  }
+});
+</script>
+<script src="../assets/js/ai-chatbot.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

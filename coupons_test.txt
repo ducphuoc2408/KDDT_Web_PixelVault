@@ -1,0 +1,42 @@
+coupons').select('*').order('created_at', { ascending: true });
+    if (error) { console.error('[SupabaseDB] getCoupons:', error.message); return []; }
+    return data;
+  },
+
+  /** Thêm mã giảm giá mới */
+  async addCoupon(couponData) {
+    const { data, error } = await _db.from('coupons').insert([couponData]).select().single();
+    if (error) { console.error('[SupabaseDB] addCoupon:', error.message); return null; }
+    return data;
+  },
+
+  /** Xóa mã giảm giá */
+  async deleteCoupon(id) {
+    const { error } = await _db.from('coupons').delete().eq('id', id);
+    if (error) { console.error('[SupabaseDB] deleteCoupon:', error.message); return false; }
+    return true;
+  },
+
+  /** Tăng lượt sử dụng */
+  async incrementCouponUsage(id, currentUses) {
+    const { error } = await _db.from('coupons').update({ uses: currentUses + 1 }).eq('id', id);
+    if (error) { console.error('[SupabaseDB] incrementCouponUsage:', error.message); return false; }
+    return true;
+  },
+
+  /* ---------- REVIEWS ---------- */
+
+  /** Lấy đánh giá của một sản phẩm (chỉ những đánh giá đã duyệt) */
+  async getProductReviews(productId) {
+    const { data, error } = await _db.from('reviews')
+      .select('*')
+      .eq('product_id', productId)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+    if (error) { console.error('[SupabaseDB] getProductReviews:', error.message); return []; }
+    return data;
+  },
+
+  /** Admin: Lấy tất cả đánh giá */
+  async getAllReviews() {
+    co

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -47,6 +47,7 @@
         </div>
       </div>
       <a href="compare.html" class="nav-link" id="nl-compare">So sánh</a>
+      <a href="trade-in.html" class="nav-link" id="nl-tradein" style="color:var(--gold-400);font-weight:600;">Thu cũ đổi mới</a>
       <a href="contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
     </div>
 
@@ -141,8 +142,8 @@
         <div class="footer-links">
           <a href="contact.html" id="fl-contact">Liên hệ</a>
           <a href="#" id="fl-about">Về chúng tôi</a>
-          <a href="#" id="fl-policy">Chính sách bảo hành</a>
-          <a href="#" id="fl-return">Chính sách đổi trả</a>
+          <a href="privacy.html" id="fl-privacy">Chính sách bảo mật</a>
+          <a href="terms.html" id="fl-terms">Điều khoản dịch vụ</a>
           <a href="admin/index.html" id="fl-admin">Quản trị</a>
         </div>
       </div>
@@ -161,7 +162,7 @@
           </a>
           <a href="#" id="fl-address">
             <svg style="width:14px;height:14px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            123 Nguyễn Huệ, Q.1, TP.HCM
+            123 Lê Lợi, TP. Huế
           </a>
         </div>
       </div>
@@ -302,6 +303,21 @@ document.addEventListener('store:ready', async () => {
 
   document.title = `${currentProduct.name} - PixelVault`;
   renderProductDetails();
+
+  // Auto-fill rental form from user profile
+  if (Store.currentUser && Store.currentUser.id && window.SupabaseDB) {
+    window.SupabaseDB.getProfile(Store.currentUser.id).then(profile => {
+      if (!profile) return;
+      const rentName = document.getElementById('rent-name');
+      const rentPhone = document.getElementById('rent-phone');
+      if (rentName && (profile.name || Store.currentUser.name)) {
+        rentName.value = profile.name || Store.currentUser.name || '';
+      }
+      if (rentPhone && profile.phone) {
+        rentPhone.value = profile.phone;
+      }
+    }).catch(e => console.warn('Profile load error:', e));
+  }
 });
 
 function renderProductDetails() {
@@ -370,6 +386,14 @@ function renderProductDetails() {
         ${specsList}
       </div>
 
+      
+      <!-- MODULE 1: Tab Mua hoặc Thuê -->
+      <div class="purchase-tabs" style="display:flex; border-bottom:1px solid var(--border-1); margin-bottom:24px; gap:8px;">
+        <button class="modal-tab active" id="tab-btn-buy" onclick="switchPurchaseTab('buy')" style="flex:1; padding:12px; font-size:1rem; border-radius:var(--r-sm) var(--r-sm) 0 0;">Mua Sản Phẩm</button>
+        <button class="modal-tab" id="tab-btn-rent" onclick="switchPurchaseTab('rent')" style="flex:1; padding:12px; font-size:1rem; border-radius:var(--r-sm) var(--r-sm) 0 0;">Thuê Thiết Bị</button>
+      </div>
+
+      <div id="purchase-buy-section">
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
         <div class="qty-control" style="border:1px solid var(--border-2); height:44px; border-radius:var(--r-sm); background:var(--bg-card);">
           <button class="qty-btn" style="width:40px; color:var(--text-100); background:transparent; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;" onclick="changeLocalQty(-1)">
@@ -383,6 +407,11 @@ function renderProductDetails() {
         <div style="font-size:0.85rem; color:var(--text-400);">Tồn kho: <strong style="color:var(--text-200);">${p.stock}</strong></div>
       </div>
 
+
+
+      <!-- MODULE 1: Giao diện Thuê thiết bị -->
+
+
       <div style="display:flex; gap:10px; margin-bottom:24px; flex-wrap:wrap;">
         <button class="btn btn-primary btn-lg" style="flex:1; min-width:160px; justify-content:center;" 
           onclick="${p.stock > 0 ? `cartAdd(${p.id}, currentQty)` : ''}" ${p.stock === 0 ? 'disabled' : ''}>
@@ -393,6 +422,90 @@ function renderProductDetails() {
           <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           Mua ngay
         </button>` : ''}
+      </div>
+      </div>
+
+      
+      <!-- MODULE 1: Giao diện Thuê thiết bị -->
+      <div id="purchase-rent-section" style="display:none; background:var(--bg-card); border:1px solid var(--border-1); padding:16px; border-radius:var(--r-md); margin-bottom:24px;">
+        <h4 style="margin-bottom:16px; color:var(--text-100); font-size:1rem;">Thông tin cá nhân (Bắt buộc)</h4>
+        
+        <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Họ và Tên</label>
+            <input type="text" id="rent-name" class="form-input" style="width:100%; padding:8px;" placeholder="Nhập họ và tên đầy đủ" required>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Số điện thoại</label>
+            <input type="text" id="rent-phone" class="form-input" style="width:100%; padding:8px;" placeholder="Nhập số điện thoại" required>
+        </div>
+        <div style="display:flex; gap:16px; margin-bottom:16px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Tải lên ảnh CCCD (Mặt trước)</label>
+            <input type="file" id="rent-cccd" class="form-input" style="width:100%; padding: 6px;" accept="image/*" required>
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Tải lên ảnh Khuôn mặt</label>
+            <input type="file" id="rent-face" class="form-input" style="width:100%; padding: 6px;" accept="image/*" required>
+          </div>
+        </div>
+
+        <h4 style="margin-bottom:16px; color:var(--text-100); font-size:1rem; margin-top:24px; border-top:1px solid var(--border-1); padding-top:16px;">Chọn thời gian & Giao hàng</h4>
+        <div style="display:flex; gap:16px; margin-bottom:16px;">
+          <div style="flex:1;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Ngày bắt đầu</label>
+            <input type="date" id="rent-start-date" class="form-input" style="width:100%; padding: 8px;" onchange="calculateRental()">
+          </div>
+          <div style="flex:1;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Ngày kết thúc</label>
+            <input type="date" id="rent-end-date" class="form-input" style="width:100%; padding: 8px;" onchange="calculateRental()">
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Hình thức nhận máy (Chỉ hỗ trợ tại TP. Huế)</label>
+            <select id="rent-delivery" class="form-input" style="width:100%; padding:8px;" onchange="document.getElementById('rent-address-wrap').style.display = this.value === 'ship' ? 'block' : 'none'; calculateRental();">
+                <option value="pickup">Đến lấy tại Showroom (123 Lê Lợi, TP. Huế)</option>
+                <option value="ship">Giao hàng hỏa tốc nội thành TP. Huế</option>
+            </select>
+        </div>
+        <div id="rent-address-wrap" style="display:none; margin-bottom:16px;">
+            <label style="display:block; font-size:0.85rem; color:var(--text-300); margin-bottom:6px;">Địa chỉ giao hàng chi tiết</label>
+            <input type="text" id="rent-address" class="form-input" style="width:100%; padding:8px;" placeholder="Ví dụ: 45 Nguyễn Huệ, Phường Vĩnh Ninh, TP. Huế">
+            <div style="font-size:0.8rem; color:var(--text-400); margin-top:4px;">* Phí vận chuyển: 50.000đ (Thanh toán cùng tiền cọc)</div>
+        </div>
+
+        <div id="rental-summary"
+ style="display:block; font-size:0.9rem; color:var(--text-200); margin-bottom:16px; background:var(--bg-elevated); padding:12px; border-radius:var(--r-sm);">
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Số ngày thuê:</span> <strong id="rent-days-val">0 ngày</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Đơn giá/ngày (5% giá trị máy):</span> <strong id="rent-daily-val">0đ</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+            <span>Tiền thuê thiết bị:</span> <strong id="rent-total-val" style="color:var(--gold-400);">0đ</strong>
+          </div>
+          <div id="rent-shipping-row" style="display:none; justify-content:space-between; margin-bottom:8px;">
+            <span>Phí vận chuyển:</span> <strong id="rent-shipping-val">0đ</strong>
+          </div> <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--border-1); padding-top:8px; margin-top:8px;">
+            <span>Tiền đặt cọc (50% giá trị máy):</span> <strong id="rent-deposit-val">0đ</strong>
+          </div>
+          <div id="rent-discount-row" style="display:none; justify-content:space-between; border-top:1px dashed var(--border-1); padding-top:8px; margin-top:8px;">
+            <span style="color:var(--text-300);">Mã giảm giá:</span> <strong id="rent-discount-val" style="color:var(--red-400);">-0đ</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-weight:bold; font-size:1.1rem; color:var(--gold-500);">
+            <span>Tổng thanh toán cọc:</span> <strong id="rent-checkout-total">0đ</strong>
+          </div>
+        </div>
+        
+        
+        <div style="display:flex; gap:8px; margin-bottom:16px;">
+          <input type="text" id="rent-coupon-input" class="form-input" placeholder="Mã giảm giá (vd: PIXEL10)" style="flex:1;">
+          <button class="btn btn-secondary" onclick="applyRentCoupon()">Áp dụng</button>
+        </div>
+        <button class="btn btn-primary btn-lg" id="btn-process-rental" style="width:100%; justify-content:center; display:flex;" disabled onclick="processRentalDeposit()">
+          Thanh toán ngay
+        </button>
       </div>
 
       <div style="display:flex; gap:20px; border-top:1px solid var(--border-1); padding-top:24px;">
@@ -545,7 +658,8 @@ async function submitReview(e) {
 
   const reviewData = {
     product_id: currentProduct.id,
-    user_id: Store.currentUser.id,
+    id: 'PVR' + Date.now(),
+      user_id: Store.currentUser.id,
     user_name: Store.currentUser.name || 'Người dùng ẩn danh',
     rating: rating,
     content: content,
@@ -562,6 +676,364 @@ async function submitReview(e) {
   
   btn.textContent = 'Gửi đánh giá';
   btn.disabled = false;
+}
+// --- MODULE 1: HỆ THỐNG CHO THUÊ THIẾT BỊ ---
+
+let rentDiscountAmt = 0;
+let rentAppliedCoupon = null;
+
+function applyRentCoupon() {
+  const code = document.getElementById('rent-coupon-input').value.trim().toUpperCase();
+  if (!code) return;
+  
+  const coupon = Store.coupons ? Store.coupons.find(c => c.code === code) : null;
+  if (!coupon) {
+    showToast('Mã giảm giá không hợp lệ hoặc đã hết hạn', 'error');
+    return;
+  }
+  
+  if (coupon.max_uses > 0 && coupon.uses >= coupon.max_uses) {
+    showToast('Mã giảm giá đã hết lượt sử dụng', 'error');
+    return;
+  }
+  if (coupon.expires_at && new Date(coupon.expires_at) < new Date()) {
+    showToast('Mã giảm giá đã hết hạn', 'error');
+    return;
+  }
+  
+  const productPrice = currentProduct.price;
+  const dailyRate = Math.round(productPrice * 0.05);
+  const startInput = document.getElementById('rent-start-date').value;
+  const endInput = document.getElementById('rent-end-date').value;
+  if (!startInput || !endInput) return;
+  const startD = new Date(startInput);
+  const endD = new Date(endInput);
+  const diffTime = endD - startD;
+  const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const totalRental = dailyRate * days;
+  
+  if (coupon.condition_min > 0 && totalRental < coupon.condition_min) {
+    showToast(`Mã ${code} áp dụng cho phí thuê từ ${formatPrice(coupon.condition_min)}`, 'error');
+    return;
+  }
+  
+  rentAppliedCoupon = coupon;
+  showToast(`Áp dụng mã giảm giá ${coupon.discount_pct}% thành công`, 'success');
+  calculateRental();
+}
+
+function switchPurchaseTab(tab) {
+  const btnBuy = document.getElementById('tab-btn-buy');
+  const btnRent = document.getElementById('tab-btn-rent');
+  const secBuy = document.getElementById('purchase-buy-section');
+  const secRent = document.getElementById('purchase-rent-section');
+
+  if (tab === 'buy') {
+    btnBuy.classList.add('active');
+    btnRent.classList.remove('active');
+    secBuy.style.display = 'block';
+    secRent.style.display = 'none';
+  } else {
+    btnRent.classList.add('active');
+    btnBuy.classList.remove('active');
+    secBuy.style.display = 'none';
+    secRent.style.display = 'block';
+    
+
+    // Set min date for date inputs
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const startInput = document.getElementById('rent-start-date');
+    const endInput = document.getElementById('rent-end-date');
+    
+    startInput.min = today;
+    endInput.min = today;
+    
+    if (!startInput.value) startInput.value = today;
+    if (!endInput.value) endInput.value = tomorrow;
+    
+    calculateRental();
+
+  }
+}
+
+function calculateRental() {
+  const startDateVal = document.getElementById('rent-start-date').value;
+  const endDateVal = document.getElementById('rent-end-date').value;
+  const summaryDiv = document.getElementById('rental-summary');
+  const btnProcess = document.getElementById('btn-process-rental');
+
+  if (!startDateVal || !endDateVal) {
+    // summaryDiv.style.display = 'none'; // Keep visible
+    btnProcess.disabled = true;
+    return;
+  }
+
+  const start = new Date(startDateVal);
+  const end = new Date(endDateVal);
+  const timeDiff = end.getTime() - start.getTime();
+  const days = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+
+  if (days <= 0) {
+    showToast('Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu', 'error');
+    // summaryDiv.style.display = 'none'; // Keep visible
+    btnProcess.disabled = true;
+    return;
+  }
+
+  // Business logic: Daily rate = 5% of product price, Deposit = 50% of product price
+  const productPrice = currentProduct.price;
+  const dailyRate = Math.round(productPrice * 0.05);
+  const totalRental = dailyRate * days;
+  
+  const depositAmount = Math.round(productPrice * 0.50);
+  
+  // Shipping fee
+  let shippingFee = 0;
+  const rentDelivery = document.getElementById('rent-delivery')?.value;
+  if (rentDelivery === 'ship') {
+    shippingFee = 50000;
+    document.getElementById('rent-shipping-row').style.display = 'flex';
+    document.getElementById('rent-shipping-val').textContent = formatPrice(shippingFee);
+  } else {
+    document.getElementById('rent-shipping-row').style.display = 'none';
+  }
+
+  let totalCheckout = depositAmount + totalRental + shippingFee; 
+
+  if (rentAppliedCoupon) {
+    rentDiscountAmt = Math.round(totalRental * (rentAppliedCoupon.discount_pct / 100));
+    if (rentDiscountAmt > totalRental) rentDiscountAmt = totalRental;
+    totalCheckout = depositAmount + totalRental - rentDiscountAmt;
+    
+    document.getElementById('rent-discount-row').style.display = 'flex';
+    document.getElementById('rent-discount-val').textContent = '-' + formatPrice(rentDiscountAmt);
+  } else {
+    rentDiscountAmt = 0;
+    document.getElementById('rent-discount-row').style.display = 'none';
+  }
+ 
+
+  document.getElementById('rent-days-val').textContent = `${days} ngày`;
+  document.getElementById('rent-daily-val').textContent = formatPrice(dailyRate);
+  document.getElementById('rent-total-val').textContent = formatPrice(totalRental);
+  document.getElementById('rent-deposit-val').textContent = formatPrice(depositAmount);
+  document.getElementById('rent-checkout-total').textContent = formatPrice(totalCheckout);
+
+  // summaryDiv.style.display = 'block';
+  btnProcess.disabled = false;
+  
+  currentProduct.rentalInfo = {
+    startDate: startDateVal,
+    endDate: endDateVal,
+    days: days,
+    dailyRate: dailyRate,
+    totalRental: totalRental,
+    depositAmount: depositAmount,
+    totalCheckout: totalCheckout
+  };
+}
+
+
+async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
+async function processRentalDeposit() {
+  if (!Store.currentUser) {
+    showToast('Vui lòng đăng nhập để đặt thuê', 'info');
+    openModal('auth-modal');
+    return;
+  }
+
+  const rentName = document.getElementById('rent-name').value.trim();
+  const rentPhone = document.getElementById('rent-phone').value.trim();
+  const fileCccd = document.getElementById('rent-cccd').files[0];
+  const fileFace = document.getElementById('rent-face').files[0];
+  const rentDelivery = document.getElementById('rent-delivery').value;
+  const rentAddress = document.getElementById('rent-address').value.trim();
+
+  if (!rentName || !rentPhone || !fileCccd || !fileFace) {
+    showToast('Vui lòng nhập đầy đủ thông tin cá nhân và tải lên cả 2 ảnh.', 'warning');
+    return;
+  }
+  if (rentDelivery === 'ship' && !rentAddress) {
+    showToast('Vui lòng nhập địa chỉ giao hàng chi tiết', 'warning');
+    return;
+  }
+
+  const rInfo = currentProduct.rentalInfo;
+  if (!rInfo) return;
+
+  const btnProcess = document.getElementById('btn-process-rental');
+  btnProcess.innerHTML = '<svg style="width:20px;height:20px;animation:spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="0"/></svg> Đang xử lý tải ảnh...';
+  btnProcess.disabled = true;
+
+  try {
+    const base64Cccd = await fileToBase64(fileCccd);
+    const base64Face = await fileToBase64(fileFace);
+    btnProcess.innerHTML = '<svg style="width:20px;height:20px;animation:spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="0"/></svg> Đang xử lý giao dịch...';
+
+    const rentalData = {
+      id: 'PVR' + Date.now(),
+      user_id: Store.currentUser.id,
+      product_id: currentProduct.id,
+      start_date: rInfo.startDate,
+      end_date: rInfo.endDate,
+      rental_days: rInfo.days,
+      daily_rate: rInfo.dailyRate,
+      deposit_amount: rInfo.depositAmount,
+      total_price: rInfo.totalCheckout,
+      status: 'pending_deposit',
+      user_name: rentName,
+      phone_number: rentPhone,
+      cccd_image_url: base64Cccd,
+      face_image_url: base64Face,
+      delivery_method: rentDelivery,
+      delivery_address: rentAddress
+    };
+
+    const res = await window.SupabaseDB.createRental(rentalData);
+    
+    if (res && res.id) {
+      const shortId = res.id.split('-')[0];
+      const amount = rInfo.totalCheckout;
+      const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact2.png?amount=${Math.round(amount)}&addInfo=Thanh%20toan%20${shortId}&accountName=NGUYEN%20DUC%20PHUOC`;
+
+      window.currentRentalDelivery = { method: rentDelivery, address: rentAddress };
+
+      showQRModal(qrUrl, amount, `Thanh toan ${shortId}`, res.id);
+    } else {
+      showToast('Không thể tạo đơn thuê. Vui lòng thử lại.', 'error');
+    }
+  } catch (error) {
+    console.error('Error processRentalDeposit:', error);
+    showToast('Lỗi hệ thống', 'error');
+  }
+
+  btnProcess.innerHTML = 'Thanh toán ngay';
+  btnProcess.disabled = false;
+}
+
+function showQRModal(qrUrl, amount, addInfo, rentalId) {
+  let modal = document.getElementById('qr-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'qr-modal';
+    modal.setAttribute('data-rental-id', rentalId);
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:400px; text-align:center;">
+      <button onclick="closeModal('qr-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <h3 style="margin-bottom:16px; color:var(--text-100);">Thanh toán đặt cọc</h3>
+      <p style="font-size:0.9rem; color:var(--text-300); margin-bottom:16px;">Vui lòng quét mã QR dưới đây qua ứng dụng ngân hàng hoặc Momo để hoàn tất đặt cọc.</p>
+      
+      <div style="background:white; padding:16px; border-radius:var(--r-md); display:inline-block; margin-bottom:16px;">
+        <img src="${qrUrl}" alt="VietQR" style="max-width:250px; height:auto; border-radius:8px;">
+      </div>
+      
+      <div style="background:var(--bg-elevated); padding:16px; border-radius:var(--r-sm); text-align:left; font-size:0.9rem;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:var(--text-400);">Số tiền:</span>
+          <strong style="color:var(--gold-500); font-size:1.1rem;">${formatPrice(amount)}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span style="color:var(--text-400);">Nội dung:</span>
+          <strong>${addInfo}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-400);">Trạng thái:</span>
+          <strong style="color:var(--warning);" id="qr-status-text">Đang chờ thanh toán... <svg style="width:14px;height:14px;animation:spin 1s linear infinite;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="0"/></svg></strong>
+        </div>
+      </div>
+    </div>
+  `;
+  openModal('qr-modal');
+
+  subscribeToRentalRealtime(rentalId);
+}
+
+function subscribeToRentalRealtime(rentalId) {
+  if (!(window._pvSupabase || window.supabaseClient)) return;
+
+  const channel = (window._pvSupabase || window.supabaseClient)
+    .channel('rental-payment-channel')
+    .on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'rentals',
+        filter: `id=eq.${rentalId}`
+      },
+      (payload) => {
+        const newRecord = payload.new;
+        if (newRecord.status === 'active' || newRecord.status === 'completed') {
+          const statusText = document.getElementById('qr-status-text');
+          if (statusText) {
+            statusText.style.color = 'var(--success)';
+            statusText.innerHTML = 'Thanh toán thành công! <svg style="width:16px;height:16px;vertical-align:middle;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+            
+            const deliveryInfo = window.currentRentalDelivery;
+            let deliveryText = '';
+            if (deliveryInfo) {
+              if (deliveryInfo.method === 'pickup') {
+                 deliveryText = 'Vui lòng mang theo CMND/CCCD gốc đến Showroom của chúng tôi (Địa chỉ tại mục Liên hệ) để nhận máy.';
+              } else {
+                 deliveryText = `Thiết bị sẽ được Giao hỏa tốc đến địa chỉ: <strong>${deliveryInfo.address}</strong>. Vui lòng chuẩn bị sẵn CMND/CCCD gốc để đối chiếu khi nhận máy!`;
+              }
+              const infoDiv = document.createElement('div');
+              infoDiv.style = "margin-top:16px; padding:12px; background:rgba(34,197,94,0.1); border:1px solid var(--success); border-radius:var(--r-sm); color:var(--text-100); font-size:0.9rem; line-height:1.5;";
+              infoDiv.innerHTML = '🎉 ' + deliveryText;
+              statusText.parentElement.parentElement.appendChild(infoDiv);
+            }
+
+            showToast('Thanh toán thành công. Đơn thuê đã được ghi nhận!', 'success');
+            setTimeout(() => {
+              closeModal('qr-modal');
+            }, 6000);
+          }
+        }
+      }
+    )
+    .subscribe();
 }
 </script>
 </body>

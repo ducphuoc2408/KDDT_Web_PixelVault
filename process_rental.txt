@@ -1,0 +1,61 @@
+function processRentalDeposit() {
+  if (!Store.currentUser) {
+    showToast('Vui lòng đăng nhập để đặt thuê', 'info');
+    openModal('auth-modal');
+    return;
+  }
+
+  const rInfo = currentProduct.rentalInfo;
+  if (!rInfo) return;
+
+  const btnProcess = document.getElementById('btn-process-rental');
+  btnProcess.innerHTML = '<svg style="width:20px;height:20px;animation:spin 1s linear infinite;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="0"/></svg> Đang xử lý...';
+  btnProcess.disabled = true;
+
+  try {
+    const rentalData = {
+      user_id: Store.currentUser.id,
+      product_id: currentProduct.id,
+      start_date: rInfo.startDate,
+      end_date: rInfo.endDate,
+      rental_days: rInfo.days,
+      daily_rate: rInfo.dailyRate,
+      deposit_amount: rInfo.depositAmount,
+      total_price: rInfo.totalCheckout,
+      status: 'pending_deposit'
+    };
+
+    const res = await window.SupabaseDB.createRental(rentalData);
+    
+    if (res && res.id) {
+      const shortId = res.id.split('-')[0];
+      const amount = rInfo.totalCheckout;
+      const qrUrl = `https://img.vietqr.io/image/BIDV-96247HH125-compact2.png?amount=${Math.round(amount)}&addInfo=Thanh%20toan%20${shortId}&accountName=NGUYEN%20DUC%20PHUOC`;
+
+      showQRModal(qrUrl, amount, addInfo, res.id);
+    } else {
+      showToast('Không thể tạo đơn thuê. Vui lòng thử lại.', 'error');
+    }
+  } catch (error) {
+    console.error('Error processRentalDeposit:', error);
+    showToast('Lỗi hệ thống', 'error');
+  }
+
+  btnProcess.innerHTML = 'Thanh toán ngay';
+  btnProcess.disabled = false;
+}
+
+function showQRModal(qrUrl, amount, addInfo, rentalId) {
+  let modal = document.getElementById('qr-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.id = 'qr-modal';
+    document.body.appendChild(modal);
+  }
+
+  modal.innerHTML = `
+    <div class="modal" style="max-width:400px; text-align:center;">
+      <button onclick="closeModal('qr-modal')" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;"><svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <h3 style="margin-bottom:16px; color:var(--text-100);">Thanh toán đặt cọc</h3>
+   

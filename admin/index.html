@@ -283,6 +283,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
         Giao dịch
       </div>
+      <div class="admin-nav-item" id="nav-rentals" onclick="showSection('rentals', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Đơn thuê máy
+        <span class="admin-nav-badge" id="pending-rentals-badge" style="display:none;">0</span>
+      </div>
       <div class="admin-nav-item" id="nav-customers" onclick="showSection('customers', this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Khách hàng
@@ -526,6 +531,16 @@
           <div class="admin-page-sub">Quản lý</div>
           <h1 class="admin-title">Giao dịch Sepay</h1>
         </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm tx-tab-btn active" id="btn-tx-sales" onclick="filterTransactions('sales')" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Giao dịch mua máy (PV)
+          </button>
+          <button class="btn btn-sm tx-tab-btn btn-secondary" id="btn-tx-rentals" onclick="filterTransactions('rentals')" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Giao dịch thuê máy (PVR)
+          </button>
+        </div>
       </div>
       <div class="data-table-wrap">
         <table class="data-table">
@@ -541,6 +556,49 @@
           </thead>
           <tbody id="transactions-body">
             <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ====== RENTALS ====== -->
+    <div id="section-rentals" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-sub">Quản lý</div>
+          <h1 class="admin-title">Đơn thuê máy</h1>
+        </div>
+
+      </div>
+
+      <!-- Filter tabs giống phần đơn hàng -->
+      <div class="order-tabs" style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="btn btn-sm rental-filter-btn active" data-status="all" onclick="filterRentals('all')">Tất cả</button>
+        <button class="btn btn-sm rental-filter-btn btn-secondary" data-status="pending_deposit" onclick="filterRentals('pending_deposit')">Chờ xác nhận</button>
+        <button class="btn btn-sm rental-filter-btn btn-secondary" data-status="active" onclick="filterRentals('active')">Đang thuê</button>
+        <button class="btn btn-sm rental-filter-btn btn-secondary" data-status="overdue" onclick="filterRentals('overdue')" style="color:#ef4444; font-weight:600; display:inline-flex; align-items:center; gap:5px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Trễ hạn
+        </button>
+        <button class="btn btn-sm rental-filter-btn btn-secondary" data-status="completed" onclick="filterRentals('completed')">Đã trả máy</button>
+        <button class="btn btn-sm rental-filter-btn btn-secondary" data-status="cancelled" onclick="filterRentals('cancelled')">Đã hủy</button>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã đơn</th>
+              <th>Khách hàng</th>
+              <th>Thiết bị thuê</th>
+              <th>Thời gian thuê</th>
+              <th>Tiền thuê / Cọc</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="rentals-body">
+            <tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu...</td></tr>
           </tbody>
         </table>
       </div>
@@ -897,6 +955,25 @@
   </div>
 </div>
 
+<!-- Rental Detail Modal -->
+<div class="modal-overlay" id="rental-modal">
+  <div class="modal" style="max-width:560px; max-height:90vh; overflow-y:auto;">
+    <button class="modal-close-btn" onclick="closeModal('rental-modal')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header">
+      <div class="modal-icon" style="background:rgba(217,119,6,0.15); color:var(--gold-400);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div>
+        <h3 class="modal-title">Chi tiết đơn thuê thiết bị</h3>
+        <p class="modal-subtitle" id="rental-modal-id" style="color:var(--gold-400); font-weight:600;"></p>
+      </div>
+    </div>
+    <div id="rental-modal-content"></div>
+  </div>
+</div>
+
 <!-- Order Detail Modal -->
 <div class="modal-overlay" id="order-modal">
   <div class="modal" style="max-width:480px;">
@@ -995,9 +1072,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Load data từ Supabase sau khi store sẵn sàng
-document.addEventListener('store:ready', () => {
+document.addEventListener('store:ready', async () => {
+  if (window.SupabaseDB && window.SupabaseDB.getAllRentals) {
+    try {
+      allAdminRentals = await window.SupabaseDB.getAllRentals() || [];
+      const overrides = JSON.parse(localStorage.getItem('pv_rental_overrides') || '{}');
+      allAdminRentals.forEach(r => {
+        if (overrides[r.id]) r.status = overrides[r.id];
+      });
+    } catch(e) {}
+  }
   updateAdminStats();
   renderDashboard();
+  updateSidebarBadges();
 });
 
 function updateAdminStats() {
@@ -1094,15 +1181,42 @@ function updateAdminStats() {
       }
     });
 
+    // Tính tiền thuê máy cả vào doanh thu
+    let todayRentalRev = 0;
+    let yesterdayRentalRev = 0;
+    let totalRentalRev = 0;
+    let activeRentalsCount = 0;
+
+    (allAdminRentals || []).forEach(r => {
+      if (r.status === 'cancelled') return;
+      const rentalAmount = Number(r.total_price || 0);
+      totalRentalRev += rentalAmount;
+      if (r.status === 'active' || r.status === 'pending_deposit') {
+        activeRentalsCount++;
+      }
+      if (r.created_at) {
+        const dStr = r.created_at.split('T')[0];
+        if (dStr === todayStr) {
+          todayRentalRev += rentalAmount;
+        } else if (dStr === yesterdayStr) {
+          yesterdayRentalRev += rentalAmount;
+        }
+      }
+    });
+
+    const combinedTodayRev = todayRev + todayRentalRev;
+    const combinedTodayGross = todayGross + todayRentalRev;
+    const combinedYesterdayRev = yesterdayRev + yesterdayRentalRev;
+
     revenueStat.innerHTML = `
-      <div style="font-size:1.6rem; color:var(--text-100); line-height:1.2; margin-bottom:4px;">${(todayRev / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; color:var(--text-300); font-weight:normal;">(Net)</span></div>
-      <div style="font-size:1.1rem; color:var(--text-300); line-height:1.2;">${(todayGross / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; font-weight:normal;">(Gross)</span></div>
+      <div style="font-size:1.6rem; color:var(--text-100); line-height:1.2; margin-bottom:4px;">${(combinedTodayRev / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; color:var(--text-300); font-weight:normal;">(Net)</span></div>
+      <div style="font-size:1.1rem; color:var(--text-300); line-height:1.2;">${(combinedTodayGross / 1000000).toFixed(1)}M đ <span style="font-size:0.8rem; font-weight:normal;">(Gross)</span></div>
     `;
     
     let revDiffPctDaily = 0;
-    if (yesterdayRev > 0) {
-      revDiffPctDaily = ((todayRev - yesterdayRev) / yesterdayRev * 100).toFixed(1);
-    } else if (todayRev > 0) {
+    if (combinedYesterdayRev > 0) {
+      revDiffPctDaily = ((combinedTodayRev - combinedYesterdayRev) / combinedYesterdayRev * 100).toFixed(1);
+    } else if (combinedTodayRev > 0) {
       revDiffPctDaily = 100;
     }
 
@@ -1111,6 +1225,8 @@ function updateAdminStats() {
       diffEl.innerHTML = `<svg style="width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="${revDiffPctDaily >= 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"/></svg> ${Math.abs(revDiffPctDaily)}% so với hôm qua`;
       diffEl.className = `stat-change ${revDiffPctDaily >= 0 ? 'up' : 'down'}`;
     }
+
+
   }
 
   const ordersStat = document.querySelector('.stat-card.blue .stat-value');
@@ -1163,6 +1279,18 @@ async function updateSidebarBadges() {
     }
   }
 
+  // Đơn thuê máy chờ xác nhận cọc
+  const pendingRentals = (allAdminRentals || []).filter(r => r.status === 'pending_deposit').length;
+  const badgeRentals = document.getElementById('pending-rentals-badge');
+  if (badgeRentals) {
+    if (pendingRentals > 0) {
+      badgeRentals.textContent = pendingRentals;
+      badgeRentals.style.display = 'inline-flex';
+    } else {
+      badgeRentals.style.display = 'none';
+    }
+  }
+
   try {
     const allReviews = await window.SupabaseDB.getAllReviews();
     const pendingReviews = allReviews.filter(r => r.status === 'pending').length;
@@ -1182,9 +1310,11 @@ async function updateSidebarBadges() {
 function showSection(section, navEl) {
   document.querySelectorAll('[id^="section-"]').forEach(s => s.style.display = 'none');
   document.querySelectorAll('.admin-nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById(`section-${section}`).style.display = 'block';
-  if (navEl) navEl.classList.add('active');
-  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons, transactions: renderTransactions };
+  const secEl = document.getElementById(`section-${section}`);
+  if (secEl) secEl.style.display = 'block';
+  const targetNav = navEl || document.getElementById(`nav-${section}`);
+  if (targetNav) targetNav.classList.add('active');
+  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons, transactions: renderTransactions, rentals: renderRentals };
   if (renders[section]) renders[section]();
 }
 
@@ -1212,6 +1342,17 @@ function renderRevenueChart() {
     if (o.status !== 'cancelled') {
         daily[key] += Number(o.total || 0);
     }
+  });
+
+  (allAdminRentals || []).forEach(r => {
+    if (!r.created_at || r.status === 'cancelled') return;
+    const d = new Date(r.created_at);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const key = yyyy + '-' + mm + '-' + dd;
+    if (!daily[key]) daily[key] = 0;
+    daily[key] += Number(r.total_price || 0);
   });
   
   const sortedKeys = [];
@@ -1381,7 +1522,7 @@ function filterAdminProducts() {
       <td style="font-weight:700; color:var(--gold-400); white-space:nowrap;">${formatPrice(p.price)}</td>
       <td style="color:${p.stock===0?'var(--red-400)':p.stock<=5?'var(--gold-400)':'var(--green-400)'}; font-weight:600;">${p.stock===0?'Hết hàng':p.stock+' sp'}</td>
       <td style="white-space:nowrap;">
-        <span style="color:var(--gold-400); font-size:0.78rem;">${'★'.repeat(Math.round(p.rating))} ${p.rating}</span>
+        <span style="color:var(--gold-400); font-size:0.78rem;"><svg viewBox="0 0 24 24" fill="var(--gold-400)" stroke="none" style="width:13px;height:13px;vertical-align:text-bottom;margin-right:2px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>${p.rating}</span>
       </td>
       <td><span class="order-status ${p.stock>0?'status-completed':'status-cancelled'}">${p.stock>0?'Đang bán':'Hết hàng'}</span></td>
       <td>
@@ -1398,26 +1539,481 @@ function filterAdminProducts() {
 }
 
 /* -------- Transactions -------- */
+let allTransactions = [];
+let currentTxFilter = 'sales'; // 'sales' (PV) or 'rentals' (PVR)
+
 async function renderTransactions() {
   const tbody = document.getElementById('transactions-body');
   if (!tbody) return;
-  const transactions = await window.SupabaseDB.getTransactions();
-  if (!transactions || transactions.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-400);">Chưa có giao dịch nào</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải giao dịch...</td></tr>';
+  if (window.SupabaseDB && window.SupabaseDB.getTransactions) {
+    allTransactions = await window.SupabaseDB.getTransactions() || [];
+  }
+  applyTxFilter();
+}
+
+function filterTransactions(type) {
+  currentTxFilter = type;
+  document.querySelectorAll('.tx-tab-btn').forEach(b => {
+    b.classList.remove('active');
+    b.classList.add('btn-secondary');
+  });
+  const activeBtn = document.getElementById(type === 'sales' ? 'btn-tx-sales' : 'btn-tx-rentals');
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.classList.remove('btn-secondary');
+  }
+  applyTxFilter();
+}
+
+function applyTxFilter() {
+  const tbody = document.getElementById('transactions-body');
+  if (!tbody) return;
+
+  // Lọc giao dịch theo chuẩn Cách B: rental_id (Thuê máy PVR) vs order_id (Mua máy PV)
+  const isRentalTx = (t) => {
+    const rid = String(t.rental_id || '').toUpperCase();
+    const oid = String(t.order_id || '').toUpperCase();
+    const c = String(t.content || '').toUpperCase();
+    return Boolean(t.rental_id) || rid.startsWith('PVR') || oid.startsWith('PVR') || c.includes('PVR');
+  };
+
+  let list = allTransactions;
+  if (currentTxFilter === 'sales') {
+    list = allTransactions.filter(t => !isRentalTx(t));
+  } else if (currentTxFilter === 'rentals') {
+    list = allTransactions.filter(t => isRentalTx(t));
+  }
+
+  if (list.length === 0) {
+    const emptyMsg = currentTxFilter === 'sales' 
+      ? 'Chưa có giao dịch mua máy nào (Mã PV)' 
+      : 'Chưa có giao dịch thuê máy nào (Mã PVR)';
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-400);">${emptyMsg}</td></tr>`;
     return;
   }
-  tbody.innerHTML = transactions.map(t => {
+
+  tbody.innerHTML = list.map(t => {
     const dateStr = t.payment_time ? new Date(t.payment_time).toLocaleString('vi-VN') : '';
+    const isPVR = isRentalTx(t);
+    const code = t.rental_id || t.order_id || 'N/A';
     return `<tr>
-      <td style="font-weight:700; color:var(--gold-400); font-size:0.82rem;">${t.order_id || 'N/A'}</td>
+      <td style="font-weight:700; color:${isPVR ? '#38bdf8' : 'var(--gold-400)'}; font-size:0.82rem;">${code}</td>
       <td style="font-weight:500;">${t.transaction_id || 'N/A'}</td>
       <td style="font-weight:700; color:var(--green-400);">+${formatPrice(t.amount)}</td>
-      <td style="max-width:160px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.content || ''}</td>
+      <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${t.content || ''}</td>
       <td><span class="order-status status-completed">${t.gateway || 'sepay'}</span></td>
       <td style="color:var(--text-400); font-size:0.82rem;">${dateStr}</td>
     </tr>`;
   }).join('');
 }
+
+/* -------- Rentals -------- */
+let allAdminRentals = [];
+let currentAdminRentalFilter = 'all';
+
+function viewAdminImage(dataUrl) {
+  if (!dataUrl || dataUrl.length < 10) return;
+  let modal = document.getElementById('admin-image-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'admin-image-modal';
+    modal.className = 'modal-overlay';
+    modal.innerHTML = `
+      <div class="modal" style="max-width:800px; padding:20px; text-align:center;">
+        <button class="modal-close-btn" onclick="closeModal('admin-image-modal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <img id="admin-image-preview" src="" style="max-width:100%; max-height:80vh; border-radius:8px; object-fit:contain;">
+      </div>`;
+    document.body.appendChild(modal);
+  }
+  document.getElementById('admin-image-preview').src = dataUrl;
+  openModal('admin-image-modal');
+}
+
+function getAdminRentalOverdueInfo(endDateStr, status) {
+  if (status !== 'active' || !endDateStr) return { isOverdue: false, isTodayDue: false, days: 0 };
+  const now = new Date();
+  const parts = endDateStr.split('-');
+  if (parts.length < 3) return { isOverdue: false, isTodayDue: false, days: 0 };
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  
+  // Hết ngày hẹn trả: 23:59:59.999 của ngày đó
+  const endOfDay = new Date(year, month, day, 23, 59, 59, 999);
+  const startOfDay = new Date(year, month, day, 0, 0, 0, 0);
+
+  if (now > endOfDay) {
+    // Đã qua ngày hôm sau mới tính là trễ hạn
+    const diffMs = now.getTime() - endOfDay.getTime();
+    const overdueDays = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+    return { isOverdue: true, isTodayDue: false, days: overdueDays };
+  } else if (now >= startOfDay && now <= endOfDay) {
+    // Đúng ngày hẹn trả (khách vẫn còn thời gian trả đến hết ngày)
+    return { isOverdue: false, isTodayDue: true, days: 0 };
+  } else {
+    // Chưa đến hạn
+    const diffMs = endOfDay.getTime() - now.getTime();
+    const remainingDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    return { isOverdue: false, isTodayDue: false, days: remainingDays };
+  }
+}
+
+async function renderRentals() {
+  const tbody = document.getElementById('rentals-body');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu...</td></tr>';
+
+  if (window.SupabaseDB && window.SupabaseDB.getAllRentals) {
+    allAdminRentals = await window.SupabaseDB.getAllRentals() || [];
+  }
+  
+  // Đồng bộ các trạng thái vừa cập nhật từ bộ nhớ máy
+  try {
+    const overrides = JSON.parse(localStorage.getItem('pv_rental_overrides') || '{}');
+    allAdminRentals.forEach(r => {
+      if (overrides[r.id]) r.status = overrides[r.id];
+    });
+  } catch(e) {}
+
+  filterRentals(currentAdminRentalFilter);
+  updateSidebarBadges();
+  updateAdminStats();
+}
+
+function filterRentals(status) {
+  currentAdminRentalFilter = status || 'all';
+
+  document.querySelectorAll('.rental-filter-btn').forEach(btn => {
+    if (btn.getAttribute('data-status') === currentAdminRentalFilter) {
+      btn.classList.add('active');
+      btn.classList.remove('btn-secondary');
+    } else {
+      btn.classList.remove('active');
+      btn.classList.add('btn-secondary');
+    }
+  });
+
+  const tbody = document.getElementById('rentals-body');
+  if (!tbody) return;
+
+  let filtered = allAdminRentals;
+  if (currentAdminRentalFilter === 'pending_deposit') {
+    filtered = allAdminRentals.filter(r => r.status === 'pending_deposit');
+  } else if (currentAdminRentalFilter === 'active') {
+    filtered = allAdminRentals.filter(r => r.status === 'active' && !getAdminRentalOverdueInfo(r.end_date, r.status).isOverdue);
+  } else if (currentAdminRentalFilter === 'overdue') {
+    filtered = allAdminRentals.filter(r => r.status === 'active' && getAdminRentalOverdueInfo(r.end_date, r.status).isOverdue);
+  } else if (currentAdminRentalFilter === 'completed') {
+    filtered = allAdminRentals.filter(r => r.status === 'completed');
+  } else if (currentAdminRentalFilter === 'cancelled') {
+    filtered = allAdminRentals.filter(r => r.status === 'cancelled');
+  }
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-400);">Không có đơn thuê máy nào trong mục này</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(r => {
+    const overdueInfo = getAdminRentalOverdueInfo(r.end_date, r.status);
+    let statusHtml = '';
+    if (r.status === 'pending_deposit') {
+      statusHtml = '<span class="order-status status-pending">Chờ xác nhận</span>';
+    } else if (r.status === 'active' && overdueInfo.isOverdue) {
+      statusHtml = `<span class="order-status" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); font-weight:700; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Trễ ${overdueInfo.days} ngày</span>`;
+    } else if (r.status === 'active' && overdueInfo.isTodayDue) {
+      statusHtml = '<span class="order-status" style="background:rgba(245,158,11,0.15); color:#f59e0b; font-weight:600; display:inline-flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Hôm nay đến hạn</span>';
+    } else if (r.status === 'active') {
+      statusHtml = `<span class="order-status status-processing">Đang thuê (còn ${overdueInfo.days}d)</span>`;
+    } else if (r.status === 'completed') {
+      statusHtml = '<span class="order-status status-completed">Đã trả máy</span>';
+    } else if (r.status === 'cancelled') {
+      statusHtml = '<span class="order-status status-cancelled">Đã hủy</span>';
+    }
+
+    const startStr = r.start_date ? new Date(r.start_date).toLocaleDateString('vi-VN') : '---';
+    const endStr = r.end_date ? new Date(r.end_date).toLocaleDateString('vi-VN') : '---';
+    const productName = r.products ? r.products.name : 'Thiết bị';
+    const deliveryStr = r.delivery_method === 'ship' ? '<span style="display:inline-flex;align-items:center;gap:3px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Giao hàng</span>' : '<span style="display:inline-flex;align-items:center;gap:3px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Showroom TP. Huế</span>';
+
+    let stepButtons = `<button class="btn btn-secondary btn-sm" onclick="viewRental('${r.id}')">Chi tiết</button>`;
+    if (r.status === 'pending_deposit') {
+      stepButtons += ` <button class="btn btn-primary btn-sm" onclick="updateAdminRentalStatus('${r.id}', 'active')">Giao máy</button>`;
+      stepButtons += ` <button class="btn btn-sm" style="background:rgba(239,68,68,0.1); color:var(--red-400); border:none; border-radius:var(--r-full); padding:4px 10px; font-size:0.75rem; cursor:pointer;" onclick="updateAdminRentalStatus('${r.id}', 'cancelled')">Hủy</button>`;
+    } else if (r.status === 'active') {
+      stepButtons += ` <button class="btn btn-sm" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); border-radius:var(--r-full); padding:4px 12px; font-size:0.75rem; font-weight:600; cursor:pointer;" onclick="updateAdminRentalStatus('${r.id}', 'completed')">Trả máy</button>`;
+    }
+
+    return `<tr style="${overdueInfo.isOverdue ? 'background:rgba(239,68,68,0.04);' : ''}">
+      <td style="font-weight:700; color:var(--gold-400); font-size:0.82rem;">${r.id}</td>
+      <td style="font-size:0.85rem;">
+        <strong>${r.user_name || 'Khách hàng'}</strong><br>
+        <span style="color:var(--text-400); font-size:0.8rem;">${r.phone_number || ''} • ${deliveryStr}</span>
+      </td>
+      <td style="font-weight:600; font-size:0.88rem; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${productName}</td>
+      <td style="font-size:0.82rem; color:var(--text-300);">
+        ${startStr} &rarr; ${endStr}<br>
+        <span style="color:var(--text-400); font-size:0.75rem;">(${r.rental_days || 1} ngày)</span>
+      </td>
+      <td style="font-size:0.85rem;">
+        <strong style="color:var(--text-100); font-size:0.88rem;">${formatPrice(r.total_price)}</strong><br>
+        <span style="color:var(--text-400); font-size:0.75rem;">Cọc: ${formatPrice(r.deposit_amount)}</span>
+      </td>
+      <td>${statusHtml}</td>
+      <td>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          ${stepButtons}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+
+function renderAdminRentalProgressStepper(status, isOverdue) {
+  if (status === 'cancelled') {
+    return `<div style="background:rgba(239,68,68,0.08); border:1px dashed rgba(239,68,68,0.3); border-radius:8px; padding:10px; text-align:center; color:#ef4444; font-size:0.85rem; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      Đơn thuê đã bị hủy
+    </div>`;
+  }
+
+  let currentStep = 1;
+  let pct = 0;
+  if (status === 'pending_deposit') { currentStep = 1; pct = 15; }
+  else if (status === 'active') { currentStep = 3; pct = 68; }
+  else if (status === 'completed') { currentStep = 4; pct = 100; }
+
+  const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="20 6 9 17 4 12"/></svg>';
+  const cameraSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+  const warnSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+
+  const steps = [
+    { num: 1, label: 'Thanh toán cọc', icon: currentStep > 1 ? checkSvg : '1' },
+    { num: 2, label: 'Bàn giao máy', icon: currentStep >= 2 ? (currentStep > 2 ? checkSvg : '2') : '2' },
+    { num: 3, label: isOverdue ? 'Trễ hạn' : 'Đang thuê', icon: currentStep >= 3 ? (currentStep > 3 ? checkSvg : (isOverdue ? warnSvg : cameraSvg)) : '3' },
+    { num: 4, label: 'Trả máy & Hoàn cọc', icon: currentStep === 4 ? checkSvg : '4' }
+  ];
+
+  const stepsHtml = steps.map(s => {
+    let circleBg = 'var(--bg-secondary, #1e293b)';
+    let circleBorder = 'var(--border-1, rgba(255,255,255,0.15))';
+    let circleColor = 'var(--text-400, #94a3b8)';
+    let textColor = 'var(--text-400, #94a3b8)';
+    let fontWeight = '500';
+
+    if (s.num < currentStep || (status === 'completed' && s.num <= 4)) {
+      circleBg = '#22c55e';
+      circleBorder = '#22c55e';
+      circleColor = '#ffffff';
+      textColor = '#22c55e';
+      fontWeight = '600';
+    } else if (s.num === currentStep) {
+      if (s.num === 3 && isOverdue) {
+        circleBg = 'rgba(239,68,68,0.2)';
+        circleBorder = '#ef4444';
+        circleColor = '#ef4444';
+        textColor = '#ef4444';
+        fontWeight = '700';
+      } else {
+        circleBg = 'var(--gold-400, #d97706)';
+        circleBorder = 'var(--gold-400, #d97706)';
+        circleColor = '#000000';
+        textColor = 'var(--gold-400, #d97706)';
+        fontWeight = '700';
+      }
+    }
+
+    return `<div style="display:flex; flex-direction:column; align-items:center; position:relative; z-index:2; text-align:center; flex:1;">
+      <div style="width:26px; height:26px; border-radius:50%; background:${circleBg}; border:2px solid ${circleBorder}; color:${circleColor}; display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:700;">
+        ${s.icon}
+      </div>
+      <span style="font-size:0.75rem; font-weight:${fontWeight}; color:${textColor}; margin-top:6px; white-space:nowrap;">${s.label}</span>
+    </div>`;
+  }).join('');
+
+  return `<div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:8px; padding:14px 12px; margin-bottom:14px;">
+    <div style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-400); margin-bottom:12px; font-weight:600;">Tiến trình xử lý đơn thuê:</div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; position:relative;">
+      <div style="position:absolute; top:12px; left:12%; right:12%; height:3px; background:var(--border-1, rgba(255,255,255,0.1)); z-index:1;"></div>
+      <div style="position:absolute; top:12px; left:12%; width:${pct * 0.76}%; height:3px; background:var(--gold-400, #d97706); z-index:1; transition:width 0.3s;"></div>
+      ${stepsHtml}
+    </div>
+  </div>`;
+}
+
+function viewRental(id) {
+  const r = allAdminRentals.find(x => x.id === id);
+  if (!r) return;
+
+  const overdueInfo = getAdminRentalOverdueInfo(r.end_date, r.status);
+  const overdueFee = overdueInfo.isOverdue ? (overdueInfo.days * (Number(r.daily_rate) || 0)) : 0;
+  
+  const startStr = r.start_date ? new Date(r.start_date).toLocaleDateString('vi-VN') : '---';
+  const endStr = r.end_date ? new Date(r.end_date).toLocaleDateString('vi-VN') : '---';
+  const productName = r.products ? r.products.name : 'Thiết bị';
+  const deliveryStr = r.delivery_method === 'ship' 
+    ? `<span style="display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Giao tận nơi: ${r.delivery_address || '---'}</span>` 
+    : '<span style="display:inline-flex;align-items:center;gap:4px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Nhận tại Showroom (123 Hùng Vương, TP. Huế)</span>';
+
+  let deadlineAlert = '';
+  if (overdueInfo.isOverdue) {
+    deadlineAlert = `<div style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; border-radius:8px; padding:12px; color:#ef4444;">
+      <div style="font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        ĐÃ TRỄ HẠN ${overdueInfo.days} NGÀY!
+      </div>
+      <div style="font-size:0.82rem; margin-top:4px; color:var(--text-200);">Ngày hẹn trả: <strong>${endStr}</strong> (Qua ngày hôm sau mới tính trễ)</div>
+      <div style="font-size:0.85rem; margin-top:6px; font-weight:600; color:#ef4444;">Phụ thu quá hạn ước tính: +${formatPrice(overdueFee)} (${overdueInfo.days} ngày &times; ${formatPrice(r.daily_rate)}/ngày)</div>
+    </div>`;
+  } else if (overdueInfo.isTodayDue) {
+    deadlineAlert = `<div style="background:rgba(245,158,11,0.1); border:1px solid #f59e0b; border-radius:8px; padding:10px 12px; color:#f59e0b; font-weight:600; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Hôm nay là hạn chót trả máy (${endStr}). Khách có thể trả trước 24h hôm nay.
+    </div>`;
+  } else if (r.status === 'active') {
+    deadlineAlert = `<div style="background:rgba(34,197,94,0.1); border:1px solid #22c55e; border-radius:8px; padding:10px 12px; color:#22c55e; font-size:0.88rem; display:flex; align-items:center; gap:6px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><circle cx="12" cy="12" r="10"/><polyline points="16 10 11 15 8 12"/></svg>
+      Đang trong hạn thuê: Còn <strong>${overdueInfo.days}</strong> ngày (Hạn trả: ${endStr}).
+    </div>`;
+  }
+
+  const cccdImgHtml = r.cccd_image_url ? `
+    <div style="flex:1;">
+      <div style="font-size:0.8rem; color:var(--text-400); margin-bottom:4px;">Ảnh CCCD / Hộ chiếu:</div>
+      <img src="${r.cccd_image_url}" style="width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid var(--border-1); cursor:pointer;" onclick="viewAdminImage('${r.cccd_image_url}')" title="Bấm để phóng to">
+    </div>` : `<div style="flex:1; color:var(--text-400); font-size:0.8rem;">Chưa có ảnh CCCD</div>`;
+
+  const faceImgHtml = r.face_image_url ? `
+    <div style="flex:1;">
+      <div style="font-size:0.8rem; color:var(--text-400); margin-bottom:4px;">Ảnh khuôn mặt:</div>
+      <img src="${r.face_image_url}" style="width:100%; height:110px; object-fit:cover; border-radius:6px; border:1px solid var(--border-1); cursor:pointer;" onclick="viewAdminImage('${r.face_image_url}')" title="Bấm để phóng to">
+    </div>` : `<div style="flex:1; color:var(--text-400); font-size:0.8rem;">Chưa có ảnh khuôn mặt</div>`;
+
+  let actionButtons = '';
+  if (r.status === 'pending_deposit') {
+    actionButtons = `
+      <button class="btn btn-primary btn-sm" onclick="updateAdminRentalStatus('${r.id}', 'active')" style="display:inline-flex; align-items:center; gap:6px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+        Bàn giao máy cho khách
+      </button>
+      <button class="btn btn-sm" style="background:rgba(239,68,68,0.1); color:var(--red-400); border:none; border-radius:var(--r-full); padding:6px 14px; font-size:0.8rem; cursor:pointer;" onclick="updateAdminRentalStatus('${r.id}', 'cancelled')">Hủy đơn</button>
+    `;
+  } else if (r.status === 'active') {
+    actionButtons = `
+      <button class="btn btn-sm" style="background:#22c55e; color:#fff; border:none; border-radius:var(--r-full); padding:8px 18px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" onclick="updateAdminRentalStatus('${r.id}', 'completed')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Xác nhận đã trả máy & Hoàn cọc
+      </button>
+    `;
+  }
+
+  const modalEl = document.getElementById('rental-modal-content');
+  if (modalEl) {
+    document.getElementById('rental-modal-id').textContent = `Mã đơn: ${r.id}`;
+    modalEl.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:14px; font-size:0.875rem;">
+        ${renderAdminRentalProgressStepper(r.status, overdueInfo.isOverdue)}
+
+        ${deadlineAlert}
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; background:var(--bg-elevated); padding:12px; border-radius:8px;">
+          <div><span style="color:var(--text-400); font-size:0.8rem;">Khách hàng:</span><br><strong>${r.user_name || '---'}</strong></div>
+          <div><span style="color:var(--text-400); font-size:0.8rem;">Số điện thoại:</span><br><strong>${r.phone_number || '---'}</strong></div>
+          <div style="grid-column:1/-1;"><span style="color:var(--text-400); font-size:0.8rem;">Hình thức nhận máy:</span><br><span>${deliveryStr}</span></div>
+        </div>
+
+        <div style="background:var(--bg-elevated); padding:12px; border-radius:8px;">
+          <div style="color:var(--text-400); font-size:0.8rem; margin-bottom:4px;">Thiết bị thuê:</div>
+          <div style="font-weight:700; font-size:1.05rem; color:var(--gold-400);">${productName}</div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.83rem; color:var(--text-300);">
+            <span>Từ: <strong>${startStr}</strong></span>
+            <span>Đến: <strong>${endStr}</strong></span>
+            <span>Số ngày: <strong>${r.rental_days || 1} ngày</strong></span>
+          </div>
+        </div>
+
+        <div style="background:var(--bg-elevated); padding:12px; border-radius:8px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Tiền cọc (50%):</span><strong style="color:var(--gold-400);">${formatPrice(r.deposit_amount)}</strong></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Tiền thuê thiết bị:</span><span>${formatPrice(r.total_price)}</span></div>
+          <div style="display:flex; justify-content:space-between;"><span style="color:var(--text-400);">Phí giao hàng:</span><span>${r.delivery_method === 'ship' ? '50.000đ' : '0đ'}</span></div>
+          ${overdueFee > 0 ? `<div style="display:flex; justify-content:space-between; color:#ef4444; font-weight:700;"><span>Phụ thu trễ hạn:</span><span>+${formatPrice(overdueFee)}</span></div>` : ''}
+        </div>
+
+        <div>
+          <div style="font-weight:600; margin-bottom:6px;">Ảnh xác thực định danh (CCCD & Mặt):</div>
+          <div style="display:flex; gap:10px;">
+            ${cccdImgHtml}
+            ${faceImgHtml}
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px; justify-content:space-between; align-items:center; margin-top:10px; padding-top:12px; border-top:1px solid var(--border-1); flex-wrap:wrap;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.8rem; color:var(--text-400);">Chuyển trạng thái:</span>
+            <select style="padding:6px 10px; border-radius:6px; background:var(--bg-card); color:var(--text-100); border:1px solid var(--border-1); font-size:0.82rem;" onchange="updateAdminRentalStatus('${r.id}', this.value)">
+              <option value="">Chọn trạng thái...</option>
+              <option value="pending_deposit" ${r.status==='pending_deposit'?'selected':''}>1. Chờ cọc</option>
+              <option value="active" ${r.status==='active'?'selected':''}>2. Đang thuê (Đã giao máy)</option>
+              <option value="completed" ${r.status==='completed'?'selected':''}>3. Đã trả máy & Hoàn cọc</option>
+              <option value="cancelled" ${r.status==='cancelled'?'selected':''}>4. Đã hủy</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            ${actionButtons}
+            <button class="btn btn-secondary btn-sm" onclick="closeModal('rental-modal')">Đóng</button>
+          </div>
+        </div>
+      </div>
+    `;
+    openModal('rental-modal');
+  }
+}
+
+async function updateAdminRentalStatus(id, newStatus) {
+  if (!newStatus) return;
+  showToast('Đang cập nhật...', 'info');
+
+  // 1. Cập nhật ngay trong mảng bộ nhớ để giao diện đổi ngay lập tức
+  const target = allAdminRentals.find(x => x.id === id);
+  if (target) {
+    target.status = newStatus;
+  }
+
+  // 2. Lưu bộ nhớ tạm localStorage để F5 không bị mất
+  try {
+    const overrides = JSON.parse(localStorage.getItem('pv_rental_overrides') || '{}');
+    overrides[id] = newStatus;
+    localStorage.setItem('pv_rental_overrides', JSON.stringify(overrides));
+  } catch(e) {}
+
+  // 3. Đóng modal và render lại bảng ngay lập tức
+  closeModal('rental-modal');
+  filterRentals(currentAdminRentalFilter);
+
+  // 4. Đồng bộ lên cơ sở dữ liệu Supabase
+  try {
+    if (window.SupabaseDB && window.SupabaseDB.updateRentalStatus) {
+      await window.SupabaseDB.updateRentalStatus(id, newStatus);
+    }
+  } catch (err) {
+    console.warn('[Admin] Sync updateRentalStatus to Supabase error:', err);
+  }
+
+  const statusLabels = {
+    pending_deposit: 'Chờ cọc',
+    active: 'Đang thuê (Đã giao máy)',
+    completed: 'Đã trả máy & Hoàn cọc',
+    cancelled: 'Đã hủy'
+  };
+  updateSidebarBadges();
+  updateAdminStats();
+  showToast(`Đơn ${id}: ${statusLabels[newStatus] || newStatus}`, 'success');
+}
+
 
 /* -------- Orders -------- */
 function renderOrders() { filterOrders(); }
@@ -1542,6 +2138,7 @@ function renderReports() {
   const rangeStr = document.getElementById('report-date-range')?.value;
   
   let allOrders = Store.orders || [];
+  let allRentals = allAdminRentals || [];
   
   if (rangeStr) {
     const parts = rangeStr.split(' to ');
@@ -1551,17 +2148,24 @@ function renderReports() {
     to.setHours(23,59,59,999);
     
     allOrders = allOrders.filter(o => new Date(o.date) >= from && new Date(o.date) <= to);
+    allRentals = allRentals.filter(r => r.created_at && new Date(r.created_at) >= from && new Date(r.created_at) <= to);
   }
 
   const completedOrders = allOrders.filter(o => o.status === 'completed');
   const cancelledOrders = allOrders.filter(o => o.status === 'cancelled');
   
+  // Tinh tien thue may (cac don khong bi huy)
+  const validRentals = allRentals.filter(r => r.status !== 'cancelled');
+  const rentalRevenue = validRentals.reduce((sum, r) => sum + Number(r.total_price || 0), 0);
+  
   // 1. Calculate Top Stats
-  const totalRevenue = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-  const totalGross = completedOrders.reduce((sum, o) => sum + Number(o.total || 0) + Number(o.discountAmount || 0), 0);
-  const totalOrders = completedOrders.length;
+  const orderRevenue = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const totalRevenue = orderRevenue + rentalRevenue;
+  const totalGross = completedOrders.reduce((sum, o) => sum + Number(o.total || 0) + Number(o.discountAmount || 0), 0) + rentalRevenue;
+  const totalOrders = completedOrders.length + validRentals.length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-  const returnRate = allOrders.length > 0 ? (cancelledOrders.length / allOrders.length * 100).toFixed(1) : 0;
+  const totalTransactionsCount = allOrders.length + allRentals.length;
+  const returnRate = totalTransactionsCount > 0 ? ((cancelledOrders.length + allRentals.filter(r => r.status === 'cancelled').length) / totalTransactionsCount * 100).toFixed(1) : 0;
 
   // Render Top Stats
   const revEl = document.querySelector('#section-reports .stat-card.gold .stat-value');
@@ -1577,7 +2181,7 @@ function renderReports() {
   if (avgEl) avgEl.textContent = formatPrice(avgOrderValue);
   if (retEl) retEl.textContent = returnRate + '%';
 
-  // 2. Revenue by Category
+  // 2. Revenue by Category (Hien them muc Thue thiet bi)
   const catSales = {};
   completedOrders.forEach(o => {
     (o.items || []).forEach(item => {
@@ -1587,6 +2191,11 @@ function renderReports() {
       }
     });
   });
+
+  // Cong doanh thu Thue thiet bi vao danh muc
+  if (rentalRevenue > 0 || validRentals.length > 0) {
+    catSales['Thuê thiết bị'] = (catSales['Thuê thiết bị'] || 0) + rentalRevenue;
+  }
 
   const catEl = document.getElementById('category-chart');
   if (catEl) {

@@ -1,0 +1,20 @@
+erName}</b> đã mua sắm tại PixelVault.<br>
+          Mã đơn hàng của bạn là <b style="color:var(--gold-400);">${orderId}</b>. Chúng tôi sẽ liên hệ sớm nhất để xác nhận đơn hàng và giao hàng (COD).
+        </p>
+        <a href="../index.html" class="btn btn-primary">Trở về Trang chủ</a>
+      </div>
+    `;
+  }
+
+  document.getElementById('checkout-grid').innerHTML = successHtml;
+
+  // Listen for realtime payment confirmation
+  if (payment === 'banking' && window._pvSupabase) {
+    const channel = window._pvSupabase.channel('payment-success-channel')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` },
+        (payload) => {
+          if (payload.new && (payload.new.status === 'confirmed' || payload.new.status === 'paid')) {
+            document.getElementById('checkout-grid').innerHTML = `
+              <div style="grid-column:1/-1; text-align:center; padding:80px 20px; background:var(--bg-card); border-radius:
