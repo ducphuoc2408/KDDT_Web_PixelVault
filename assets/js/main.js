@@ -923,3 +923,90 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// ============================================
+// 4. ĐỒNG BỘ NAV & THANH GẠCH DƯỚI CHẠY THEO PAGE
+// ============================================
+function initNavGlider() {
+  const navLinksContainer = document.getElementById('nav-links');
+  if (!navLinksContainer) return;
+
+  // 1. Tự động nhận diện page hiện tại & set active class chuẩn xác
+  const path = window.location.pathname.toLowerCase();
+  const currentFile = path.split('/').pop() || 'index.html';
+
+  const linkMap = {
+    '': 'nl-home',
+    'index.html': 'nl-home',
+    'products.html': 'nl-products',
+    'product-detail.html': 'nl-products',
+    'compare.html': 'nl-compare',
+    'trade-in.html': 'nl-tradein',
+    'contact.html': 'nl-contact'
+  };
+
+  const targetId = linkMap[currentFile];
+  const allLinks = navLinksContainer.querySelectorAll('.nav-link');
+  
+  if (targetId) {
+    allLinks.forEach(l => l.classList.remove('active'));
+    const activeEl = document.getElementById(targetId);
+    if (activeEl) activeEl.classList.add('active');
+  }
+
+  // 2. Tạo thanh glider trượt mượt mà
+  let glider = navLinksContainer.querySelector('.nav-gliding-indicator');
+  if (!glider) {
+    glider = document.createElement('div');
+    glider.className = 'nav-gliding-indicator';
+    navLinksContainer.appendChild(glider);
+  }
+  navLinksContainer.classList.add('has-glider');
+
+  function moveGliderTo(el) {
+    if (!el || el.offsetParent === null) {
+      glider.style.opacity = '0';
+      return;
+    }
+    const containerRect = navLinksContainer.getBoundingClientRect();
+    const targetRect = el.getBoundingClientRect();
+    
+    // Canh chỉnh thanh indicator nằm gọn gàng dưới chữ
+    const paddingX = 14;
+    const width = Math.max(16, targetRect.width - (paddingX * 2));
+    const x = (targetRect.left - containerRect.left) + paddingX;
+    
+    glider.style.width = width + 'px';
+    glider.style.transform = `translateX(${x}px)`;
+    glider.style.opacity = '1';
+  }
+
+  function resetGlider() {
+    const currentActive = navLinksContainer.querySelector('.nav-link.active');
+    if (currentActive) {
+      moveGliderTo(currentActive);
+    } else {
+      glider.style.opacity = '0';
+    }
+  }
+
+  // Chờ font và layout ổn định rồi tính vị trí
+  requestAnimationFrame(resetGlider);
+  setTimeout(resetGlider, 150);
+
+  // Hover effects: trượt theo con trỏ chuột
+  allLinks.forEach(link => {
+    link.addEventListener('mouseenter', () => moveGliderTo(link));
+  });
+
+  navLinksContainer.addEventListener('mouseleave', resetGlider);
+  window.addEventListener('resize', resetGlider);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNavGlider);
+} else {
+  initNavGlider();
+}
+window.addEventListener('load', initNavGlider);
+
+
