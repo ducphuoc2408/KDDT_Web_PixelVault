@@ -163,12 +163,13 @@
             <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
             Ống kính
           </a>
-          <a href="products.html?cat=compact" class="nav-dropdown-item" id="nddi-compact">
-            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
-            Compact
+          <a href="consignment.html" class="nav-dropdown-item" id="nddi-consignment" style="color:var(--gold-400); font-weight:600;">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Hàng Cũ - Ký Gửi
           </a>
         </div>
       </div>
+      <a href="consignment.html" class="nav-link" id="nl-consignment">Hàng cũ ký gửi</a>
       <a href="compare.html" class="nav-link" id="nl-compare">So sánh</a>
       <a href="trade-in.html" class="nav-link" id="nl-tradein">Thu cũ đổi mới</a>
       <a href="contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
@@ -513,9 +514,12 @@
 <script src="../assets/js/main.js"></script>
 <script src="../assets/js/mobile.js"></script>
 <script>
-// Render sau khi Supabase data đã tải xong
+// Render sau khi Supabase data đã tải xong (Loại trừ hàng cũ ký gửi)
 document.addEventListener('store:ready', () => {
-  const sorted = [...Store.products].sort((a,b) => (b.reviews || 0) - (a.reviews || 0)).slice(0, 4);
+  const sorted = [...Store.products]
+    .filter(p => p.category !== 'used-consignment' && !p.isConsignment && !(p.tags && p.tags.includes('Hàng Cũ Ký Gửi')))
+    .sort((a,b) => (b.reviews || 0) - (a.reviews || 0))
+    .slice(0, 4);
 
   const grid = document.getElementById('featured-grid');
   if (grid) {

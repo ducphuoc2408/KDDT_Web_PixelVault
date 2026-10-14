@@ -288,6 +288,11 @@
         Đơn thuê máy
         <span class="admin-nav-badge" id="pending-rentals-badge" style="display:none;">0</span>
       </div>
+      <div class="admin-nav-item" id="nav-consignments" onclick="showSection('consignments', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Hàng Cũ - Ký Gửi
+        <span class="admin-nav-badge" id="pending-consignments-badge" style="display:none; background:var(--gold-400); color:#000; font-weight:700;">0</span>
+      </div>
       <div class="admin-nav-item" id="nav-customers" onclick="showSection('customers', this)">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Khách hàng
@@ -604,6 +609,132 @@
       </div>
     </div>
 
+    <!-- ====== CONSIGNMENTS (HÀNG CŨ - KÝ GỬI & GIẢI NGÂN SAU 3 NGÀY) ====== -->
+    <div id="section-consignments" style="display:none;">
+      <div class="admin-topbar">
+        <div>
+          <div class="admin-page-sub">Quản lý C2C & Đối soát hoa hồng 5%</div>
+          <h1 class="admin-title">Hàng Cũ - Ký Gửi & Giải Ngân</h1>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-secondary btn-sm" onclick="renderConsignments()" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Làm mới
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Thống kê nhanh Ký Gửi -->
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr); margin-bottom:20px;">
+        <div class="stat-card gold">
+          <div class="stat-header">
+            <span class="stat-label">Chờ duyệt (Pending)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          </div>
+          <div class="stat-value" id="cs-stat-pending">0</div>
+          <div class="stat-change up" style="color:var(--gold-400);">Cần kiểm định</div>
+        </div>
+
+        <div class="stat-card blue">
+          <div class="stat-header">
+            <span class="stat-label">Đang bán ngoài Web</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></div>
+          </div>
+          <div class="stat-value" id="cs-stat-approved">0</div>
+          <div class="stat-change up">Đã duyệt kiểm định</div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="stat-header">
+            <span class="stat-label">Chờ giải ngân (Bảo hành 72h)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+          </div>
+          <div class="stat-value" id="cs-stat-delivered">0</div>
+          <div class="stat-change up" style="color:#c084fc;">Đã giao thành công</div>
+        </div>
+
+        <div class="stat-card green">
+          <div class="stat-header">
+            <span class="stat-label">Doanh thu hoa hồng (5%)</span>
+            <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="stat-value" id="cs-stat-commission" style="color:var(--green-400);">0 đ</div>
+          <div class="stat-change up" style="color:var(--green-400);">Đã thu về quỹ</div>
+        </div>
+      </div>
+
+      <!-- Tab Chuyển đổi giữa Duyệt đơn và Giải ngân -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; gap:8px;">
+          <button class="btn btn-sm cs-tab-btn active" id="btn-cs-tab-moderation" onclick="switchConsignmentTab('moderation')" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            1. Kiểm Duyệt Yêu Cầu Ký Gửi
+          </button>
+          <button class="btn btn-sm cs-tab-btn btn-secondary" id="btn-cs-tab-payout" onclick="switchConsignmentTab('payout')" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            2. Giải Ngân Sau 3 Ngày (72 Giờ)
+          </button>
+        </div>
+
+        <!-- Filter trạng thái riêng cho từng tab -->
+        <div id="cs-moderation-filters" style="display:flex; gap:6px;">
+          <button class="btn btn-sm cs-mod-filter active" data-mod-status="all" onclick="filterConsignmentModeration('all')">Tất cả</button>
+          <button class="btn btn-sm cs-mod-filter btn-secondary" data-mod-status="pending_approval" onclick="filterConsignmentModeration('pending_approval')">Chờ duyệt</button>
+          <button class="btn btn-sm cs-mod-filter btn-secondary" data-mod-status="approved" onclick="filterConsignmentModeration('approved')">Đã duyệt (Đang bán)</button>
+          <button class="btn btn-sm cs-mod-filter btn-secondary" data-mod-status="rejected" onclick="filterConsignmentModeration('rejected')">Từ chối</button>
+        </div>
+
+        <div id="cs-payout-filters" style="display:none; gap:6px;">
+          <button class="btn btn-sm cs-pay-filter active" data-pay-status="all" onclick="filterConsignmentPayout('all')">Tất cả đơn giao</button>
+          <button class="btn btn-sm cs-pay-filter btn-secondary" data-pay-status="ready" onclick="filterConsignmentPayout('ready')" style="color:#22c55e; font-weight:700;">Đủ điều kiện giải ngân (>3 ngày)</button>
+          <button class="btn btn-sm cs-pay-filter btn-secondary" data-pay-status="waiting" onclick="filterConsignmentPayout('waiting')">Đang trong 72h bảo hành</button>
+          <button class="btn btn-sm cs-pay-filter btn-secondary" data-pay-status="completed" onclick="filterConsignmentPayout('completed')">Đã giải ngân</button>
+        </div>
+      </div>
+
+      <!-- VIEW 1: BẢNG KIỂM DUYỆT FORM KÝ GỬI -->
+      <div id="view-cs-moderation" class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã phiếu</th>
+              <th>Người ký gửi</th>
+              <th>Thiết bị & Tình trạng</th>
+              <th>Tiền khách nhận</th>
+              <th>Hoa hồng (5%)</th>
+              <th>Giá niêm yết Web</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="cs-moderation-body">
+            <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- VIEW 2: BẢNG THEO DÕI VÀ GIẢI NGÂN SAU 3 NGÀY -->
+      <div id="view-cs-payout" class="data-table-wrap" style="display:none;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Mã phiếu / Đơn</th>
+              <th>Người ký gửi & STK Ngân hàng</th>
+              <th>Thiết bị đã bán</th>
+              <th>Thời điểm giao hàng</th>
+              <th>Thời gian bảo hành (72h)</th>
+              <th>Số tiền giải ngân</th>
+              <th>Hoa hồng giữ lại (5%)</th>
+              <th>Trạng thái & Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="cs-payout-body">
+            <tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- ====== ORDERS ====== -->
     <div id="section-orders" style="display:none;">
       <div class="admin-topbar">
@@ -617,6 +748,7 @@
           <option value="confirmed">Đã xác nhận</option>
           <option value="processing">Đang xử lý</option>
           <option value="shipping">Đang giao</option>
+          <option value="delivered">Đã giao (Bảo hành 72h)</option>
           <option value="completed">Hoàn tất</option>
           <option value="cancelled">Đã hủy</option>
         </select>
@@ -714,7 +846,7 @@
           </button>
         </div>
       </div>
-      <div class="stats-grid" style="margin-bottom:20px;">
+      <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:20px;">
         <div class="stat-card gold">
           <div class="stat-header"><span class="stat-label">Tổng doanh thu</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
           <div class="stat-value">0 đ</div>
@@ -724,6 +856,19 @@
           <div class="stat-header"><span class="stat-label">Tổng đơn hàng</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div></div>
           <div class="stat-value">0</div>
           <div class="stat-change up"><svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg> Số đơn hoàn tất</div>
+        </div>
+        <div class="stat-card green" style="cursor:pointer; transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'" onclick="showSection('consignments', document.getElementById('nav-consignments'))" title="Xem danh sách ký gửi">
+          <div class="stat-header">
+            <span class="stat-label">Hoa hồng ký gửi (5%)</span>
+            <div class="stat-icon" style="background:rgba(34,197,94,0.15);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            </div>
+          </div>
+          <div class="stat-value" id="report-consignment-commission" style="color:var(--green-400);">0 đ</div>
+          <div class="stat-change up">
+            <svg style="width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            <span id="report-consignment-count">Doanh thu hoa hồng C2C</span>
+          </div>
         </div>
         <div class="stat-card purple">
           <div class="stat-header"><span class="stat-label">Giá trị đơn TB</span><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div></div>
@@ -1082,8 +1227,14 @@ document.addEventListener('store:ready', async () => {
       });
     } catch(e) {}
   }
+  if (window.SupabaseDB && window.SupabaseDB.getConsignmentRequests) {
+    try {
+      window.allAdminConsignments = await window.SupabaseDB.getConsignmentRequests() || [];
+    } catch(e) {}
+  }
   updateAdminStats();
   renderDashboard();
+  if (typeof updateConsignmentDashboardStats === 'function') updateConsignmentDashboardStats();
   updateSidebarBadges();
 });
 
@@ -1304,6 +1455,23 @@ async function updateSidebarBadges() {
       }
     }
   } catch(e) {}
+
+  // Đơn ký gửi chờ duyệt
+  try {
+    const consignments = (window.allAdminConsignments && window.allAdminConsignments.length) 
+      ? window.allAdminConsignments 
+      : (window.SupabaseDB ? await window.SupabaseDB.getConsignmentRequests() : []);
+    const pendingCs = (consignments || []).filter(c => c.status === 'pending_approval').length;
+    const badgeCs = document.getElementById('pending-consignments-badge');
+    if (badgeCs) {
+      if (pendingCs > 0) {
+        badgeCs.textContent = pendingCs;
+        badgeCs.style.display = 'inline-flex';
+      } else {
+        badgeCs.style.display = 'none';
+      }
+    }
+  } catch(e) {}
 }
 
 /* -------- Section Switch -------- */
@@ -1314,7 +1482,7 @@ function showSection(section, navEl) {
   if (secEl) secEl.style.display = 'block';
   const targetNav = navEl || document.getElementById(`nav-${section}`);
   if (targetNav) targetNav.classList.add('active');
-  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons, transactions: renderTransactions, rentals: renderRentals };
+  const renders = { dashboard: renderDashboard, products: renderAdminProducts, orders: renderOrders, customers: renderCustomers, reviews: renderReviews, reports: renderReports, promotions: renderCoupons, transactions: renderTransactions, rentals: renderRentals, consignments: renderConsignments };
   if (renders[section]) renders[section]();
 }
 
@@ -1323,6 +1491,7 @@ function renderDashboard() {
   renderRevenueChart();
   renderTopProducts();
   renderRecentOrders();
+  updateConsignmentDashboardStats();
 }
 
 function renderRevenueChart() {
@@ -2015,6 +2184,608 @@ async function updateAdminRentalStatus(id, newStatus) {
 }
 
 
+/* ============================================================
+   MODULE: HÀNG CŨ - KÝ GỬI & GIẢI NGÂN SAU 3 NGÀY (72H)
+   ============================================================ */
+window.allAdminConsignments = [];
+let currentCsTab = 'moderation'; // 'moderation' | 'payout'
+let currentCsModFilter = 'all';  // 'all' | 'pending_approval' | 'approved' | 'rejected'
+let currentCsPayFilter = 'all';  // 'all' | 'ready' | 'waiting' | 'completed'
+
+async function renderConsignments() {
+  const tbodyMod = document.getElementById('cs-moderation-body');
+  const tbodyPay = document.getElementById('cs-payout-body');
+  if (tbodyMod) tbodyMod.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu ký gửi...</td></tr>';
+  if (tbodyPay) tbodyPay.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--text-400);">Đang tải dữ liệu giải ngân...</td></tr>';
+
+  if (window.SupabaseDB && window.SupabaseDB.getConsignmentRequests) {
+    window.allAdminConsignments = await window.SupabaseDB.getConsignmentRequests() || [];
+  }
+
+  // Cập nhật thống kê nhanh trên đầu trang
+  updateConsignmentKPIs();
+  updateConsignmentDashboardStats();
+  updateSidebarBadges();
+
+  if (currentCsTab === 'moderation') {
+    renderCsModerationTable();
+  } else {
+    renderCsPayoutTable();
+  }
+}
+
+function updateConsignmentKPIs() {
+  const list = window.allAdminConsignments || [];
+  const pending = list.filter(c => c.status === 'pending_approval').length;
+  const approved = list.filter(c => c.status === 'approved').length;
+  const delivered = list.filter(c => c.status === 'delivered').length;
+  
+  // Tính tổng hoa hồng 5% từ các đơn đã giao thành công hoặc đã giải ngân
+  const totalCommission = list
+    .filter(c => c.status === 'delivered' || c.status === 'payout_completed')
+    .reduce((sum, c) => sum + (Number(c.commission_fee) || 0), 0);
+
+  const elPending = document.getElementById('cs-stat-pending');
+  const elApproved = document.getElementById('cs-stat-approved');
+  const elDelivered = document.getElementById('cs-stat-delivered');
+  const elComm = document.getElementById('cs-stat-commission');
+
+  if (elPending) elPending.textContent = pending;
+  if (elApproved) elApproved.textContent = approved;
+  if (elDelivered) elDelivered.textContent = delivered;
+  if (elComm) elComm.textContent = formatPrice(totalCommission);
+}
+
+function updateConsignmentDashboardStats() {
+  const list = window.allAdminConsignments || [];
+  const totalCommission = list
+    .filter(c => c.status === 'delivered' || c.status === 'payout_completed' || c.status === 'sold')
+    .reduce((sum, c) => sum + (Number(c.commission_fee) || 0), 0);
+  
+  const completedCount = list.filter(c => c.status === 'payout_completed').length;
+  const deliveredCount = list.filter(c => c.status === 'delivered').length;
+
+  const elCardComm = document.getElementById('report-consignment-commission') || document.getElementById('stat-consignment-commission');
+  const elCardCount = document.getElementById('report-consignment-count') || document.getElementById('stat-consignment-count');
+
+  if (elCardComm) elCardComm.textContent = formatPrice(totalCommission);
+  if (elCardCount) {
+    elCardCount.textContent = `${completedCount} đơn giải ngân (${deliveredCount} đang giao)`;
+  }
+}
+
+function switchConsignmentTab(tab) {
+  currentCsTab = tab;
+  const btnMod = document.getElementById('btn-cs-tab-moderation');
+  const btnPay = document.getElementById('btn-cs-tab-payout');
+  const viewMod = document.getElementById('view-cs-moderation');
+  const viewPay = document.getElementById('view-cs-payout');
+  const filterMod = document.getElementById('cs-moderation-filters');
+  const filterPay = document.getElementById('cs-payout-filters');
+
+  if (tab === 'moderation') {
+    btnMod?.classList.add('active');
+    btnMod?.classList.remove('btn-secondary');
+    btnPay?.classList.remove('active');
+    btnPay?.classList.add('btn-secondary');
+    if (viewMod) viewMod.style.display = 'block';
+    if (viewPay) viewPay.style.display = 'none';
+    if (filterMod) filterMod.style.display = 'flex';
+    if (filterPay) filterPay.style.display = 'none';
+    renderCsModerationTable();
+  } else {
+    btnPay?.classList.add('active');
+    btnPay?.classList.remove('btn-secondary');
+    btnMod?.classList.remove('active');
+    btnMod?.classList.add('btn-secondary');
+    if (viewMod) viewMod.style.display = 'none';
+    if (viewPay) viewPay.style.display = 'block';
+    if (filterMod) filterMod.style.display = 'none';
+    if (filterPay) filterPay.style.display = 'flex';
+    renderCsPayoutTable();
+  }
+}
+
+function filterConsignmentModeration(status) {
+  currentCsModFilter = status;
+  document.querySelectorAll('.cs-mod-filter').forEach(btn => {
+    if (btn.getAttribute('data-mod-status') === status) {
+      btn.classList.add('active');
+      btn.classList.remove('btn-secondary');
+    } else {
+      btn.classList.remove('active');
+      btn.classList.add('btn-secondary');
+    }
+  });
+  renderCsModerationTable();
+}
+
+function filterConsignmentPayout(status) {
+  currentCsPayFilter = status;
+  document.querySelectorAll('.cs-pay-filter').forEach(btn => {
+    if (btn.getAttribute('data-pay-status') === status) {
+      btn.classList.add('active');
+      btn.classList.remove('btn-secondary');
+    } else {
+      btn.classList.remove('active');
+      btn.classList.add('btn-secondary');
+    }
+  });
+  renderCsPayoutTable();
+}
+
+function getConsignment72hInfo(c) {
+  if (c.status === 'payout_completed') {
+    return { isCompleted: true, canPayout: false, hoursPassed: 999, hoursRemaining: 0 };
+  }
+  const deliveredTime = c.delivered_at ? new Date(c.delivered_at).getTime() : 0;
+  if (!deliveredTime) {
+    return { isCompleted: false, canPayout: false, hoursPassed: 0, hoursRemaining: 72, notDelivered: true };
+  }
+  const now = Date.now();
+  const diffMs = now - deliveredTime;
+  const hoursPassed = diffMs / (1000 * 60 * 60);
+  const hoursRemaining = Math.max(0, 72 - hoursPassed);
+
+  return {
+    isCompleted: false,
+    canPayout: hoursPassed >= 72,
+    hoursPassed: hoursPassed,
+    hoursRemaining: hoursRemaining
+  };
+}
+
+function renderCsModerationTable() {
+  const tbody = document.getElementById('cs-moderation-body');
+  if (!tbody) return;
+
+  let list = window.allAdminConsignments || [];
+  if (currentCsModFilter !== 'all') {
+    list = list.filter(c => c.status === currentCsModFilter);
+  }
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-400);">Không có yêu cầu ký gửi nào trong mục này.</td></tr>';
+    return;
+  }
+
+  const statusMap = {
+    pending_approval: ['status-pending',    'Chờ duyệt'],
+    approved:         ['status-completed',  'Đang bán ngoài Web'],
+    rejected:         ['status-cancelled',  'Từ chối'],
+    sold:             ['status-processing', 'Đã có khách mua'],
+    delivered:        ['status-processing', 'Đã giao (Chờ giải ngân)'],
+    payout_completed: ['status-completed',  'Đã giải ngân']
+  };
+
+  tbody.innerHTML = list.map(c => {
+    const [cls, label] = statusMap[c.status] || ['status-pending', c.status];
+    const imgSrc = (c.images && c.images[0]) || 'assets/images/sony_alpha.jpg';
+
+    const prodIdBadge = c.product_id 
+      ? `<span class="spec-tag" style="padding:1px 6px; font-size:0.68rem; background:rgba(34,197,94,0.12); color:#22c55e; border:1px solid rgba(34,197,94,0.3);">SP #${c.product_id}</span>`
+      : (c.status === 'approved' 
+          ? `<button class="btn btn-sm" style="padding:2px 6px; font-size:0.68rem; background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid rgba(239,68,68,0.3); border-radius:4px; cursor:pointer;" onclick="fixConsignmentProductAdmin('${c.id}')" title="Chưa có Product ID, bấm để tạo ngay">⚠️ Bấm Tạo SP</button>`
+          : '');
+
+    return `<tr>
+      <td>
+        <strong style="color:var(--gold-400); font-size:0.82rem;">${c.id}</strong><br>
+        <div style="margin-top:4px;">${prodIdBadge}</div>
+        ${c.order_id ? `<div style="font-size:0.72rem; color:var(--text-400); margin-top:2px;">Đơn: <strong>${c.order_id}</strong></div>` : ''}
+      </td>
+      <td>
+        <div style="font-weight:600; color:var(--text-100); font-size:0.88rem;">${c.seller_name || c.seller_bank_holder || 'Khách ký gửi'}</div>
+        <div style="font-size:0.75rem; color:var(--text-400);">${c.seller_email ? c.seller_email + ' • ' : ''}${c.seller_phone}</div>
+        <div style="font-size:0.75rem; color:var(--text-300); font-family:monospace;">${c.seller_bank_name}: ${c.seller_bank_account}</div>
+      </td>
+      <td>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <img src="${imgSrc}" style="width:38px; height:38px; border-radius:6px; object-fit:cover; background:var(--bg-secondary);" onerror="this.src='assets/images/sony_alpha.jpg'">
+          <div>
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-100); max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.product_name}</div>
+            <div style="font-size:0.75rem; color:var(--gold-500); font-weight:600;">${c.brand} • <span class="spec-tag" style="padding:1px 6px; font-size:0.7rem;">${c.condition}</span></div>
+          </div>
+        </div>
+      </td>
+      <td style="font-weight:700; color:var(--text-100);">${formatPrice(c.asking_price)}</td>
+      <td style="font-weight:600; color:var(--gold-400);">+ ${formatPrice(c.commission_fee)}</td>
+      <td style="font-weight:800; color:#4ade80; font-size:0.95rem;">${formatPrice(c.final_price)}</td>
+      <td><span class="order-status ${cls}">${label}</span></td>
+      <td>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
+          <button class="btn btn-secondary btn-sm" onclick="viewConsignmentDetail('${c.id}')">Xem</button>
+          ${c.status === 'pending_approval' ? `
+            <button class="btn btn-primary btn-sm" onclick="approveConsignmentAdmin('${c.id}')" title="Duyệt và tự động đăng bán ngoài Web">Duyệt</button>
+            <button class="btn btn-sm" style="background:rgba(239,68,68,0.1); color:var(--red-400); border:none; border-radius:var(--r-full); padding:4px 10px; font-size:0.75rem; cursor:pointer;" onclick="rejectConsignmentAdmin('${c.id}')">Từ chối</button>
+          ` : ''}
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.12); color:#ef4444; border:1px solid rgba(239,68,68,0.25); border-radius:var(--r-full); padding:4px 8px; font-size:0.75rem; cursor:pointer;" onclick="deleteConsignmentAdmin('${c.id}')" title="Xóa vĩnh viễn phiếu ký gửi này">Xóa</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCsPayoutTable() {
+  const tbody = document.getElementById('cs-payout-body');
+  if (!tbody) return;
+
+  // Lọc các đơn đã giao thành công hoặc đã giải ngân
+  let list = (window.allAdminConsignments || []).filter(c => c.status === 'delivered' || c.status === 'payout_completed' || c.delivered_at);
+
+  if (currentCsPayFilter === 'ready') {
+    list = list.filter(c => getConsignment72hInfo(c).canPayout);
+  } else if (currentCsPayFilter === 'waiting') {
+    list = list.filter(c => !getConsignment72hInfo(c).canPayout && !getConsignment72hInfo(c).isCompleted);
+  } else if (currentCsPayFilter === 'completed') {
+    list = list.filter(c => c.status === 'payout_completed');
+  }
+
+  if (list.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-400);">Không có đơn hàng nào cần xử lý giải ngân trong mục này.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => {
+    const info = getConsignment72hInfo(c);
+    const delivDateStr = c.delivered_at ? new Date(c.delivered_at).toLocaleString('vi-VN') : 'Đang xử lý';
+
+    let timerHtml = '';
+    let actionBtn = '';
+
+    if (info.isCompleted) {
+      timerHtml = '<span class="order-status status-completed">Đã giải ngân hoàn tất</span>';
+      actionBtn = `<span style="font-size:0.78rem; color:var(--green-400); font-weight:600;">✓ Hoàn tất</span>`;
+    } else if (info.canPayout) {
+      timerHtml = `
+        <span class="order-status" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); font-weight:700; display:inline-flex; align-items:center; gap:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:12px;height:12px;"><polyline points="20 6 9 17 4 12"/></svg>
+          Đủ điều kiện giải ngân (>3 ngày)
+        </span>
+        <div style="font-size:0.72rem; color:var(--text-400); margin-top:2px;">Đã giao: ${Math.floor(info.hoursPassed / 24)} ngày trước</div>
+      `;
+      actionBtn = `
+        <button class="btn btn-primary btn-sm" onclick="openPayoutModal('${c.id}')" style="background:#22c55e; border-color:#22c55e; color:#fff; font-weight:700; box-shadow:0 0 12px rgba(34,197,94,0.3);">
+          Giải Ngân Cho Người Ký Gửi
+        </button>
+      `;
+    } else {
+      const remainingHours = Math.ceil(info.hoursRemaining);
+      timerHtml = `
+        <span class="order-status status-pending" style="display:inline-flex; align-items:center; gap:4px; font-weight:600;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Đang bảo hành (Còn ${remainingHours}h)
+        </span>
+        <div style="font-size:0.72rem; color:var(--text-400); margin-top:2px;">Chưa đủ 72 giờ bao test</div>
+      `;
+      actionBtn = `
+        <button class="btn btn-secondary btn-sm" onclick="openPayoutModal('${c.id}')" title="Xem chi tiết & có thể giải ngân trước hạn">
+          Chi tiết STK (${remainingHours}h)
+        </button>
+      `;
+    }
+
+    return `<tr>
+      <td>
+        <strong style="color:var(--gold-400); font-size:0.82rem;">${c.id}</strong><br>
+        <span style="font-size:0.75rem; color:var(--text-400);">Đơn: ${c.order_id || 'PV-ORDER'}</span>
+      </td>
+      <td>
+        <div style="font-weight:700; color:var(--text-100);">${c.seller_name || c.seller_bank_holder}</div>
+        <div style="font-size:0.82rem; color:var(--gold-400); font-weight:600;">${c.seller_bank_name}: <span style="font-family:monospace; color:var(--text-100);">${c.seller_bank_account}</span></div>
+        <div style="font-size:0.75rem; color:var(--text-400);">${c.seller_email ? c.seller_email + ' • ' : ''}SĐT: ${c.seller_phone}</div>
+      </td>
+      <td>
+        <div style="font-weight:600; color:var(--text-100); max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${c.product_name}</div>
+        <div style="font-size:0.75rem; color:var(--text-400);">Giá bán Web: ${formatPrice(c.final_price)}</div>
+      </td>
+      <td style="font-size:0.82rem; color:var(--text-300);">${delivDateStr}</td>
+      <td>${timerHtml}</td>
+      <td><strong style="color:var(--gold-400); font-size:1rem;">${formatPrice(c.asking_price)}</strong></td>
+      <td><strong style="color:var(--green-400); font-size:0.92rem;">+ ${formatPrice(c.commission_fee)}</strong></td>
+      <td>
+        <div style="display:flex; gap:6px; align-items:center;">
+          ${actionBtn}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function viewConsignmentDetail(id) {
+  const c = (window.allAdminConsignments || []).find(x => x.id === id);
+  if (!c) return;
+
+  const imgSrc = (c.images && c.images[0]) || 'assets/images/sony_alpha.jpg';
+  const modalBody = document.getElementById('cdm-body');
+  if (!modalBody) return;
+
+  modalBody.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; gap:16px; align-items:flex-start;">
+        <img src="${imgSrc}" style="width:120px; height:120px; border-radius:8px; object-fit:cover; border:1px solid var(--border-1);" onerror="this.src='assets/images/sony_alpha.jpg'">
+        <div style="flex:1;">
+          <div style="font-size:0.8rem; color:var(--gold-400); font-weight:700; text-transform:uppercase;">${c.brand} • ${c.category}</div>
+          <h3 style="font-size:1.15rem; font-weight:800; color:var(--text-100); margin:4px 0;">${c.product_name}</h3>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+            <span class="spec-tag" style="background:rgba(212,168,67,0.15); color:var(--gold-400); font-weight:600;">Tình trạng: ${c.condition}</span>
+            <span class="spec-tag">Mã Đơn: ${c.id}</span>
+            ${c.product_id ? `<span class="spec-tag" style="background:rgba(34,197,94,0.15); color:#22c55e;">ID Sản Phẩm: #${c.product_id}</span>` : ''}
+            ${c.order_id ? `<span class="spec-tag" style="background:rgba(59,130,246,0.15); color:#60a5fa;">Mã Mua: ${c.order_id}</span>` : ''}
+          </div>
+          <div style="font-size:0.84rem; color:var(--text-300);">${c.description || 'Không có mô tả thêm.'}</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:8px; padding:12px; display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Họ tên người ký gửi:</span><br><strong>${c.seller_name || c.seller_bank_holder}</strong></div>
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Email liên hệ:</span><br><strong>${c.seller_email || 'Chưa cung cấp'}</strong></div>
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Số điện thoại:</span><br><strong>${c.seller_phone}</strong></div>
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Ngân hàng nhận giải ngân:</span><br><strong>${c.seller_bank_name}</strong></div>
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Số tài khoản:</span><br><strong style="font-family:monospace; color:var(--gold-400);">${c.seller_bank_account}</strong></div>
+        <div><span style="font-size:0.75rem; color:var(--text-400);">Tên chủ tài khoản:</span><br><strong style="text-transform:uppercase;">${c.seller_bank_holder || c.seller_name}</strong></div>
+        ${c.delivered_at ? `<div style="grid-column:1/-1;"><span style="font-size:0.75rem; color:var(--text-400);">Thời điểm giao hàng thành công:</span><br><strong style="color:#22c55e;">${new Date(c.delivered_at).toLocaleString('vi-VN')}</strong></div>` : ''}
+      </div>
+
+      <div style="background:linear-gradient(135deg, rgba(212,168,67,0.06), rgba(212,168,67,0.12)); border:1px solid rgba(212,168,67,0.25); border-radius:8px; padding:14px; display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--text-300);">Số tiền người gửi nhận:</span><strong style="color:var(--text-100); font-size:1rem;">${formatPrice(c.asking_price)}</strong></div>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem;"><span style="color:var(--text-300);">Hoa hồng dịch vụ PixelVault (5%):</span><strong style="color:var(--gold-400);">+ ${formatPrice(c.commission_fee)}</strong></div>
+        <div style="display:flex; justify-content:space-between; font-size:0.95rem; border-top:1px dashed rgba(212,168,67,0.3); padding-top:8px;">
+          <span style="font-weight:700; color:var(--text-100);">Giá niêm yết bán Web:</span>
+          <strong style="color:#4ade80; font-size:1.15rem; font-family:'Outfit',sans-serif;">${formatPrice(c.final_price)}</strong>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('consignment-detail-modal')">Đóng</button>
+        ${c.status === 'pending_approval' ? `
+          <button class="btn btn-primary btn-sm" onclick="approveConsignmentAdmin('${c.id}'); closeModal('consignment-detail-modal');">Duyệt Đăng Bán</button>
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.1); color:var(--red-400); border:none; border-radius:var(--r-full); padding:6px 14px;" onclick="rejectConsignmentAdmin('${c.id}'); closeModal('consignment-detail-modal');">Từ chối</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  openModal('consignment-detail-modal');
+}
+
+async function approveConsignmentAdmin(id) {
+  showToast('Đang duyệt thiết bị...', 'info');
+  try {
+    const updated = await window.SupabaseDB.approveConsignmentRequest(id);
+    if (updated) {
+      showToast(`Đã duyệt thành công "${updated.product_name}"! Thiết bị đã xuất hiện trên danh mục Hàng Cũ - Ký Gửi ngoài Web.`, 'success');
+      renderConsignments();
+    }
+  } catch (err) {
+    console.error('Lỗi khi duyệt ký gửi:', err);
+    showToast('Lỗi khi duyệt, vui lòng thử lại', 'error');
+  }
+}
+
+async function rejectConsignmentAdmin(id) {
+  const reason = prompt('Nhập lý do từ chối (tùy chọn):', 'Thiết bị không đạt tiêu chuẩn kiểm định của PixelVault');
+  if (reason === null) return;
+  showToast('Đang cập nhật...', 'info');
+  try {
+    await window.SupabaseDB.rejectConsignmentRequest(id, reason);
+    showToast(`Đã từ chối yêu cầu ký gửi ${id}`, 'info');
+    renderConsignments();
+  } catch (err) {
+    console.error('Lỗi khi từ chối ký gửi:', err);
+  }
+}
+
+async function deleteConsignmentAdmin(id) {
+  if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn phiếu ký gửi ${id} không? Hành động này sẽ gỡ sản phẩm khỏi Web và không thể hoàn tác.`)) return;
+  showToast('Đang xóa bản ghi...', 'info');
+  try {
+    await window.SupabaseDB.deleteConsignmentRequest(id);
+    window.allAdminConsignments = (window.allAdminConsignments || []).filter(x => x.id !== id);
+    renderConsignments();
+    if (typeof renderCsPayoutTable === 'function') renderCsPayoutTable();
+    if (typeof updateConsignmentKPIs === 'function') updateConsignmentKPIs();
+    showToast(`Đã xóa vĩnh viễn phiếu ký gửi ${id}!`, 'success');
+  } catch (err) {
+    console.error('Lỗi khi xóa ký gửi:', err);
+    showToast('Lỗi khi xóa bản ghi', 'error');
+  }
+}
+
+async function fixConsignmentProductAdmin(id) {
+  showToast('Đang tạo liên kết sản phẩm và sửa dữ liệu...', 'info');
+  try {
+    const list = window.allAdminConsignments || [];
+    const item = list.find(x => x.id === id);
+    if (!item) return;
+
+    // 1. Tự động chuẩn hóa tên và email nếu đang rỗng
+    if ((!item.seller_name || item.seller_name === 'Khách ký gửi') && item.seller_bank_holder) {
+      item.seller_name = item.seller_bank_holder;
+    }
+    if (!item.seller_email) {
+      item.seller_email = 'phuocnguyen@pixelvault.vn';
+    }
+
+    // 2. Thử gọi RPC duyệt trên Supabase
+    let synced = false;
+    if (window._pvSupabase) {
+      try {
+        const { data: rpcData, error: rpcErr } = await window._pvSupabase.rpc('approve_consignment_request', { p_req_id: id });
+        if (!rpcErr && rpcData) {
+          item.product_id = rpcData.product_id;
+          synced = true;
+        }
+      } catch (_) {}
+    }
+
+    // 3. Fallback thêm sản phẩm qua addProduct
+    if (!synced && !item.product_id) {
+      const catLower = (item.product_name || '').toLowerCase();
+      let validCat = 'mirrorless';
+      if (catLower.includes('lens') || catLower.includes('ống kính')) validCat = 'lens';
+      else if (catLower.includes('dslr')) validCat = 'dslr';
+      else if (catLower.includes('pin') || catLower.includes('thẻ') || catLower.includes('tripod') || catLower.includes('túi')) validCat = 'accessory';
+
+      const productData = {
+        name: `${item.product_name} (Hàng Cũ Ký Gửi - ${item.condition || '99%'})`,
+        brand: item.brand,
+        category: validCat,
+        price: item.final_price,
+        originalPrice: item.final_price,
+        images: item.images && item.images.length > 0 ? item.images : ['assets/images/sony_alpha.jpg'],
+        stock: 1,
+        badge: item.condition || '99%',
+        rating: 5.0,
+        reviews: 0,
+        tags: ['Hàng Cũ Ký Gửi', item.condition || '99%', item.brand],
+        description: `[HÀNG CŨ - KÝ GỬI KIỂM ĐỊNH] ${item.product_name}. Tình trạng: ${item.condition}. ${item.description || ''}`
+      };
+      const newProd = await window.SupabaseDB.addProduct(productData);
+      if (newProd) {
+        item.product_id = newProd.id;
+      }
+    }
+
+    // 4. Lưu lại lên Supabase và Local
+    if (window._pvSupabase) {
+      try {
+        await window._pvSupabase.from('consignment_requests').update({
+          seller_name: item.seller_name,
+          seller_email: item.seller_email,
+          product_id: item.product_id || null,
+          status: 'approved',
+          updated_at: new Date().toISOString()
+        }).eq('id', id);
+      } catch (e) {
+        console.warn('Supabase update notice:', e);
+      }
+    }
+
+    if (window.SupabaseDB && window.SupabaseDB._saveLocalConsignment) {
+      window.SupabaseDB._saveLocalConsignment(item);
+    }
+
+    showToast(`Đã đồng bộ sản phẩm #${item.product_id || ''} cho đơn ký gửi ${id}!`, 'success');
+    renderConsignments();
+  } catch (err) {
+    console.error('Lỗi khi fix consignment product:', err);
+    showToast('Lỗi khi liên kết sản phẩm, vui lòng kiểm tra SQL RLS', 'error');
+  }
+}
+
+function openPayoutModal(id) {
+  const c = (window.allAdminConsignments || []).find(x => x.id === id);
+  if (!c) return;
+
+  const info = getConsignment72hInfo(c);
+  const modalBody = document.getElementById('cpm-body');
+  if (!modalBody) return;
+
+  // Xử lý mã ngân hàng cho VietQR API
+  const bankMap = {
+    'MB Bank': 'MB', 'MB': 'MB',
+    'Vietcombank': 'VCB', 'VCB': 'VCB',
+    'Techcombank': 'TCB', 'TCB': 'TCB',
+    'BIDV': 'BIDV',
+    'ACB': 'ACB',
+    'TPBank': 'TPB', 'TPB': 'TPB',
+    'VPBank': 'VPB', 'VPB': 'VPB',
+    'VietinBank': 'ICB'
+  };
+  const bankCode = bankMap[c.seller_bank_name] || 'MB';
+  const cleanAcc = (c.seller_bank_account || '').replace(/\s+/g, '');
+  const contentMsg = encodeURIComponent(`GIAI NGAN ${c.id}`);
+  const holderName = encodeURIComponent((c.seller_bank_holder || c.seller_name || '').toUpperCase());
+  const vietQrUrl = `https://img.vietqr.io/image/${bankCode}-${cleanAcc}-compact2.png?amount=${c.asking_price}&addInfo=${contentMsg}&accountName=${holderName}`;
+
+  let alertBox = '';
+  if (info.canPayout) {
+    alertBox = `
+      <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:8px; padding:10px 14px; color:#22c55e; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:16px;height:16px;flex-shrink:0;"><polyline points="20 6 9 17 4 12"/></svg>
+        <span><strong>Đủ điều kiện giải ngân:</strong> Đơn hàng đã giao thành công được ${Math.floor(info.hoursPassed)} giờ (trên 72h bảo hành). Không có khiếu nại phát sinh từ người mua.</span>
+      </div>
+    `;
+  } else {
+    alertBox = `
+      <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:10px 14px; color:#f59e0b; font-size:0.85rem; display:flex; align-items:center; gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span><strong>Cảnh báo:</strong> Đơn hàng mới giao được ${Math.floor(info.hoursPassed)} giờ (còn ${Math.ceil(info.hoursRemaining)} giờ trong hạn 72h bảo hành). Chỉ giải ngân sớm nếu khách hàng đã xác nhận nghiệm thu sớm!</span>
+      </div>
+    `;
+  }
+
+  modalBody.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      ${alertBox}
+
+      <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:16px; align-items:center;">
+        <!-- Thông tin chuyển khoản -->
+        <div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-400); font-weight:700;">Thông Tin Người Thụ Hưởng</div>
+          
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-400);">Chủ tài khoản:</span>
+            <div style="font-size:1rem; font-weight:800; color:var(--text-100); text-transform:uppercase;">${c.seller_bank_holder || c.seller_name}</div>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-400);">Số tài khoản:</span>
+            <div style="font-size:1.15rem; font-weight:800; font-family:monospace; color:var(--gold-400);">${c.seller_bank_account}</div>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-400);">Ngân hàng:</span>
+            <div style="font-size:0.9rem; font-weight:600; color:var(--text-100);">${c.seller_bank_name}</div>
+          </div>
+
+          <div style="border-top:1px solid var(--border-1); padding-top:8px;">
+            <span style="font-size:0.75rem; color:var(--text-400);">Số tiền giải ngân về STK:</span>
+            <div style="font-size:1.3rem; font-weight:800; color:#4ade80; font-family:'Outfit',sans-serif;">${formatPrice(c.asking_price)}</div>
+          </div>
+
+          <div>
+            <span style="font-size:0.75rem; color:var(--text-400);">Hoa hồng sàn PixelVault giữ lại (5%):</span>
+            <div style="font-size:0.9rem; font-weight:700; color:var(--gold-400);">+ ${formatPrice(c.commission_fee)}</div>
+          </div>
+        </div>
+
+        <!-- Mã VietQR thanh toán nhanh -->
+        <div style="text-align:center; background:#fff; padding:12px; border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+          <div style="font-size:0.72rem; color:#475569; font-weight:700; text-transform:uppercase; margin-bottom:6px;">Quét Mã VietQR Chuyển Khoản</div>
+          <img src="${vietQrUrl}" style="width:100%; max-width:200px; height:auto; display:block; margin:0 auto; border-radius:6px;" alt="VietQR Giai Ngan">
+          <div style="font-size:0.7rem; color:#64748b; margin-top:6px;">Tự động điền đúng STK & ${formatPrice(c.asking_price)}</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; border-top:1px solid var(--border-1); padding-top:14px;">
+        <button class="btn btn-secondary btn-sm" onclick="closeModal('consignment-payout-modal')">Hủy / Đóng</button>
+        <button class="btn btn-primary btn-sm" onclick="confirmPayoutAdmin('${c.id}')" style="background:#22c55e; border-color:#22c55e; color:#fff; font-weight:700; padding:9px 20px;">
+          Xác Nhận Đã Chuyển Khoản Giải Ngân
+        </button>
+      </div>
+    </div>
+  `;
+  openModal('consignment-payout-modal');
+}
+
+async function confirmPayoutAdmin(id) {
+  const c = (window.allAdminConsignments || []).find(x => x.id === id);
+  if (!c) return;
+
+  showToast('Đang xác nhận giải ngân...', 'info');
+  try {
+    await window.SupabaseDB.payoutConsignmentRequest(id);
+    closeModal('consignment-payout-modal');
+    showToast(`Đã giải ngân thành công ${formatPrice(c.asking_price)} cho ${c.seller_name}! Hệ thống đã ghi nhận hoa hồng ${formatPrice(c.commission_fee)} vào doanh thu.`, 'success');
+    renderConsignments();
+  } catch (err) {
+    console.error('Lỗi khi giải ngân:', err);
+    showToast('Lỗi khi cập nhật giải ngân, vui lòng thử lại', 'error');
+  }
+}
+
+
 /* -------- Orders -------- */
 function renderOrders() { filterOrders(); }
 
@@ -2025,11 +2796,24 @@ function filterOrders() {
     confirmed:  ['status-confirmed',  'Đã xác nhận'],
     processing: ['status-processing', 'Đang xử lý'],
     shipping:   ['status-shipping',   'Đang giao'],
+    delivered:  ['status-processing', 'Đã giao (Bảo hành 72h)'],
     completed:  ['status-completed',  'Hoàn tất'],
     cancelled:  ['status-cancelled',  'Đã hủy'],
   };
-  const nextStatus = { pending: 'confirmed', confirmed: 'processing', processing: 'shipping', shipping: 'completed' };
-  const nextLabel  = { pending: 'Xác nhận', confirmed: 'Xử lý', processing: 'Giao hàng', shipping: 'Hoàn tất' };
+  const nextStatus = { 
+    pending: 'confirmed', 
+    confirmed: 'processing', 
+    processing: 'shipping', 
+    shipping: 'delivered',
+    delivered: 'completed'
+  };
+  const nextLabel  = { 
+    pending: 'Xác nhận', 
+    confirmed: 'Xử lý', 
+    processing: 'Giao hàng', 
+    shipping: 'Giao thành công',
+    delivered: 'Hoàn tất'
+  };
 
   let orders = Store.orders;
   if (statusFilter) orders = orders.filter(o => o.status === statusFilter);
@@ -2139,6 +2923,7 @@ function renderReports() {
   
   let allOrders = Store.orders || [];
   let allRentals = allAdminRentals || [];
+  let allConsignments = window.allAdminConsignments || [];
   
   if (rangeStr) {
     const parts = rangeStr.split(' to ');
@@ -2149,6 +2934,10 @@ function renderReports() {
     
     allOrders = allOrders.filter(o => new Date(o.date) >= from && new Date(o.date) <= to);
     allRentals = allRentals.filter(r => r.created_at && new Date(r.created_at) >= from && new Date(r.created_at) <= to);
+    allConsignments = allConsignments.filter(c => {
+      const d = c.delivered_at || c.updated_at || c.created_at;
+      return d && new Date(d) >= from && new Date(d) <= to;
+    });
   }
 
   const completedOrders = allOrders.filter(o => o.status === 'completed');
@@ -2157,19 +2946,27 @@ function renderReports() {
   // Tinh tien thue may (cac don khong bi huy)
   const validRentals = allRentals.filter(r => r.status !== 'cancelled');
   const rentalRevenue = validRentals.reduce((sum, r) => sum + Number(r.total_price || 0), 0);
+
+  // Tinh tien hoa hong ky gui (don da giao hoac da giai ngan)
+  const validConsignments = allConsignments.filter(c => c.status === 'delivered' || c.status === 'payout_completed' || c.status === 'sold');
+  const consignmentCommission = validConsignments.reduce((sum, c) => sum + (Number(c.commission_fee) || 0), 0);
+  const completedCsCount = allConsignments.filter(c => c.status === 'payout_completed').length;
+  const deliveredCsCount = allConsignments.filter(c => c.status === 'delivered').length;
   
   // 1. Calculate Top Stats
   const orderRevenue = completedOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
-  const totalRevenue = orderRevenue + rentalRevenue;
-  const totalGross = completedOrders.reduce((sum, o) => sum + Number(o.total || 0) + Number(o.discountAmount || 0), 0) + rentalRevenue;
-  const totalOrders = completedOrders.length + validRentals.length;
+  const totalRevenue = orderRevenue + rentalRevenue + consignmentCommission;
+  const totalGross = completedOrders.reduce((sum, o) => sum + Number(o.total || 0) + Number(o.discountAmount || 0), 0) + rentalRevenue + consignmentCommission;
+  const totalOrders = completedOrders.length + validRentals.length + validConsignments.length;
   const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
-  const totalTransactionsCount = allOrders.length + allRentals.length;
-  const returnRate = totalTransactionsCount > 0 ? ((cancelledOrders.length + allRentals.filter(r => r.status === 'cancelled').length) / totalTransactionsCount * 100).toFixed(1) : 0;
+  const totalTransactionsCount = allOrders.length + allRentals.length + allConsignments.length;
+  const returnRate = totalTransactionsCount > 0 ? ((cancelledOrders.length + allRentals.filter(r => r.status === 'cancelled').length + allConsignments.filter(c => c.status === 'rejected').length) / totalTransactionsCount * 100).toFixed(1) : 0;
 
   // Render Top Stats
   const revEl = document.querySelector('#section-reports .stat-card.gold .stat-value');
   const ordEl = document.querySelector('#section-reports .stat-card.blue .stat-value');
+  const commEl = document.getElementById('report-consignment-commission');
+  const commCountEl = document.getElementById('report-consignment-count');
   const avgEl = document.querySelector('#section-reports .stat-card.purple .stat-value');
   const retEl = document.querySelector('#section-reports .stat-card.red .stat-value');
   
@@ -2178,10 +2975,12 @@ function renderReports() {
     <div style="font-size:1rem; color:var(--text-300); line-height:1.2;">${formatPrice(totalGross)} <span style="font-size:0.8rem; font-weight:normal;">(Gross)</span></div>
   `;
   if (ordEl) ordEl.textContent = totalOrders.toLocaleString('vi-VN');
+  if (commEl) commEl.textContent = formatPrice(consignmentCommission);
+  if (commCountEl) commCountEl.textContent = `${completedCsCount} đơn giải ngân (${deliveredCsCount} đang giao)`;
   if (avgEl) avgEl.textContent = formatPrice(avgOrderValue);
   if (retEl) retEl.textContent = returnRate + '%';
 
-  // 2. Revenue by Category (Hien them muc Thue thiet bi)
+  // 2. Revenue by Category (Hien them muc Thue thiet bi va Hoa hong ky gui)
   const catSales = {};
   completedOrders.forEach(o => {
     (o.items || []).forEach(item => {
@@ -2195,6 +2994,10 @@ function renderReports() {
   // Cong doanh thu Thue thiet bi vao danh muc
   if (rentalRevenue > 0 || validRentals.length > 0) {
     catSales['Thuê thiết bị'] = (catSales['Thuê thiết bị'] || 0) + rentalRevenue;
+  }
+  // Cong doanh thu Hoa hong ky gui vao danh muc
+  if (consignmentCommission > 0 || validConsignments.length > 0) {
+    catSales['Hoa hồng ký gửi'] = (catSales['Hoa hồng ký gửi'] || 0) + consignmentCommission;
   }
 
   const catEl = document.getElementById('category-chart');
@@ -2634,7 +3437,15 @@ function viewOrder(id) {
 }
 
 async function updateOrderStatus(id, status) {
-  const labels = { pending:'Chờ xác nhận', confirmed:'Đã xác nhận', processing:'Đang xử lý', shipping:'Đang giao', completed:'Hoàn tất', cancelled:'Đã hủy' };
+  const labels = { 
+    pending:'Chờ xác nhận', 
+    confirmed:'Đã xác nhận', 
+    processing:'Đang xử lý', 
+    shipping:'Đang giao', 
+    delivered:'Đã giao thành công (Bắt đầu 72h)', 
+    completed:'Hoàn tất', 
+    cancelled:'Đã hủy' 
+  };
   
   const oldOrder = Store.orders.find(x => x.id === id);
   const oldStatus = oldOrder ? oldOrder.status : '';
@@ -2644,14 +3455,49 @@ async function updateOrderStatus(id, status) {
     const idx = Store.orders.findIndex(x => x.id === id);
     if (idx >= 0) Store.orders[idx] = updated;
     showToast(`Đơn ${id}: ${labels[status]}`, 'success');
-    
-    // Lưu ý: total_spent và order_count của khách hàng được Trigger Database tự động tính toán chuẩn xác từ bảng orders
   } else {
     // Cập nhật local nếu Supabase lỗi (admin đang test offline)
     const o = Store.orders.find(x => x.id === id);
-    if (o) o.status = status;
+    if (o) {
+      o.status = status;
+      if (status === 'delivered' || status === 'completed') o.delivered_at = new Date().toISOString();
+    }
     showToast(`Đã cập nhật trạng thái (local)`, 'info');
   }
+
+  // Tự động kích hoạt đếm 72h nếu đơn hàng có chứa sản phẩm ký gửi
+  if (status === 'delivered' || status === 'completed') {
+    const targetOrder = Store.orders.find(x => x.id === id);
+    if (targetOrder) {
+      const items = targetOrder.items || [];
+      const prodName = targetOrder.product || '';
+      (window.allAdminConsignments || []).forEach(c => {
+        const isMatched = items.some(it => (c.product_id && (c.product_id == it.id || c.product_id == it.product_id)) || (c.product_name && (c.product_name === it.name || c.product_name === it.product)))
+          || (prodName && (c.product_name === prodName || prodName.includes(c.product_name)));
+        
+        if (isMatched && c.status !== 'payout_completed') {
+          c.status = 'delivered';
+          c.order_id = id;
+          c.delivered_at = new Date().toISOString();
+          if (window.SupabaseDB && window.SupabaseDB._saveLocalConsignment) {
+            window.SupabaseDB._saveLocalConsignment(c);
+          }
+          // Đồng bộ cập nhật lên Supabase Cloud
+          if (window._pvSupabase) {
+            window._pvSupabase.from('consignment_requests').update({
+              status: 'delivered',
+              order_id: id,
+              delivered_at: c.delivered_at,
+              updated_at: c.delivered_at
+            }).eq('id', c.id).then(() => {}).catch(e => console.warn(e));
+          }
+        }
+      });
+      if (typeof updateConsignmentKPIs === 'function') updateConsignmentKPIs();
+      if (typeof updateConsignmentDashboardStats === 'function') updateConsignmentDashboardStats();
+    }
+  }
+
   renderOrders();
   renderRecentOrders();
   // Update badge
@@ -2846,6 +3692,44 @@ async function deleteCoupon(id) {
           <button type="submit" class="btn btn-primary">Tạo mã</button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+
+<!-- Consignment Detail Modal -->
+<div class="modal-overlay" id="consignment-detail-modal">
+  <div class="modal wide" style="max-width:620px;">
+    <button class="modal-close-btn" onclick="closeModal('consignment-detail-modal')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header" style="padding-bottom:12px; border-bottom:1px solid var(--border-1);">
+      <h2 class="modal-title" style="font-size:1.15rem; font-family:'Outfit',sans-serif; color:var(--text-100);" id="cdm-title">Chi Tiết Yêu Cầu Ký Gửi</h2>
+    </div>
+    <div class="modal-body" id="cdm-body" style="padding-top:16px;">
+      <!-- Nội dung động được render bằng renderConsignmentDetailModal() -->
+    </div>
+  </div>
+</div>
+
+<!-- Consignment Payout Modal (Giải Ngân Sau 3 Ngày Kèm VietQR) -->
+<div class="modal-overlay" id="consignment-payout-modal">
+  <div class="modal wide" style="max-width:580px;">
+    <button class="modal-close-btn" onclick="closeModal('consignment-payout-modal')">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header" style="padding-bottom:12px; border-bottom:1px solid var(--border-1);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; border-radius:50%; background:rgba(34,197,94,0.15); color:#22c55e; display:flex; align-items:center; justify-content:center;">
+          <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        </div>
+        <div>
+          <h2 class="modal-title" style="font-size:1.15rem; font-family:'Outfit',sans-serif; color:var(--text-100); margin:0;">Giải Ngân Cho Người Ký Gửi</h2>
+          <div style="font-size:0.75rem; color:#22c55e; font-weight:600; margin-top:2px;">Đã hoàn tất thời gian bảo hành 72h (3 ngày)</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body" id="cpm-body" style="padding-top:16px;">
+      <!-- Render nội dung giải ngân và mã VietQR thanh toán -->
     </div>
   </div>
 </div>

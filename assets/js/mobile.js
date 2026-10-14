@@ -60,7 +60,14 @@
     'Ống kính</a>' +
     '<a href="' + base + 'pages/products.html?cat=compact" class="mobile-nav-link" style="font-size:0.85rem;padding:10px 14px;">' +
     '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>' +
-    'Compact</a></div></div>' +
+    'Compact</a>' +
+    '<a href="' + base + 'pages/consignment.html" class="mobile-nav-link" style="font-size:0.85rem;padding:10px 14px;color:var(--gold-400);font-weight:600;">' +
+    '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' +
+    'Hàng cũ ký gửi</a></div></div>' +
+
+    '<a href="' + base + 'pages/consignment.html" class="mobile-nav-link" id="mnl-consignment">' +
+    '<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>' +
+    'Hàng cũ ký gửi</a>' +
 
     '<a href="' + base + 'pages/compare.html" class="mobile-nav-link" id="mnl-compare">' +
     '<svg viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>' +
@@ -156,14 +163,15 @@
     var path = window.location.pathname;
     var page = path.split('/').pop() || 'index.html';
     var map = {
-      'index.html':   'mnl-home',
-      '':             'mnl-home',
-      'products.html': null,
-      'compare.html': 'mnl-compare',
-      'trade-in.html': 'mnl-tradein',
-      'contact.html': 'mnl-contact',
-      'account.html': null,
-      'checkout.html': null
+      'index.html':       'mnl-home',
+      '':                 'mnl-home',
+      'products.html':    null,
+      'consignment.html': 'mnl-consignment',
+      'compare.html':     'mnl-compare',
+      'trade-in.html':    'mnl-tradein',
+      'contact.html':     'mnl-contact',
+      'account.html':     null,
+      'checkout.html':    null
     };
     var id = map[page];
     if (id) {

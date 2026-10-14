@@ -3086,3 +3086,75 @@ body::before {
   cursor: not-allowed;
 }
 
+/* ============ CONSIGNMENT IMAGE UPLOAD STYLES ============ */
+.cs-drop-zone {
+  border: 2px dashed var(--border-2);
+  border-radius: var(--r-md);
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-card);
+  transition: border-color var(--dur-fast), background var(--dur-fast);
+  user-select: none;
+}
+.cs-drop-zone:hover, .cs-drop-zone.drag-over {
+  border-color: var(--gold-400);
+  background: rgba(212,168,67,0.06);
+}
+.cs-img-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+.cs-img-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-1);
+}
+.cs-img-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cs-img-thumb .cs-rm-img {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transition: transform 0.15s, background 0.15s;
+}
+.cs-img-thumb .cs-rm-img:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+.cs-img-thumb .cs-cover-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.75);
+  color: var(--gold-400);
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  padding: 2px 0;
+  text-transform: uppercase;
+}
+
+

@@ -44,8 +44,13 @@
             <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><rect x="1" y="6" width="22" height="15" rx="2"/><circle cx="12" cy="13" r="3"/><path d="M8 6l1-2h6l1 2"/></svg>
             Compact
           </a>
+          <a href="consignment.html" class="nav-dropdown-item" id="nddi-consignment" style="color:var(--gold-400); font-weight:600;">
+            <svg class="nav-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Hàng Cũ - Ký Gửi
+          </a>
         </div>
       </div>
+      <a href="consignment.html" class="nav-link" id="nl-consignment">Hàng cũ ký gửi</a>
       <a href="compare.html" class="nav-link" id="nl-compare">So sánh</a>
       <a href="trade-in.html" class="nav-link" id="nl-tradein">Thu cũ đổi mới</a>
       <a href="contact.html" class="nav-link" id="nl-contact">Liên hệ</a>
@@ -94,9 +99,20 @@
 
 <div class="section" style="margin-top: var(--nav-h);">
   <div class="container">
-    <div class="section-header" style="text-align:left; margin-bottom:32px;">
-      <h1 class="section-title">Khám Phá Sản Phẩm</h1>
-      <p class="section-desc" style="margin:0;">Lựa chọn thiết bị nhiếp ảnh chuyên nghiệp từ các thương hiệu hàng đầu thế giới.</p>
+    <div class="section-header" style="text-align:left; margin-bottom:32px; display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+      <div>
+        <h1 class="section-title">Khám Phá Sản Phẩm</h1>
+        <p class="section-desc" style="margin:0;">Lựa chọn thiết bị nhiếp ảnh chuyên nghiệp từ các thương hiệu hàng đầu thế giới.</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="consignment.html" class="btn btn-secondary" style="gap:8px; border-color:rgba(212,168,67,0.4); color:var(--gold-400);">
+          <svg style="width:16px;height:16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Sàn Hàng Cũ Ký Gửi
+        </a>
+        <button class="btn btn-primary" onclick="openConsignmentModal()" id="btn-open-consignment" style="gap:8px; box-shadow:0 0 20px rgba(212,168,67,0.25);">
+          Đăng Ký Ký Gửi
+        </button>
+      </div>
     </div>
 
     <!-- Active Filters -->
@@ -116,6 +132,7 @@
           <label class="filter-option"><input type="checkbox" hidden value="dslr" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Máy ảnh DSLR</span></label>
           <label class="filter-option"><input type="checkbox" hidden value="lens" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Ống kính (Lens)</span></label>
           <label class="filter-option"><input type="checkbox" hidden value="compact" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label">Máy ảnh Compact</span></label>
+          <label class="filter-option"><input type="checkbox" hidden value="used-consignment" data-filter="cat"><div class="filter-checkbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="filter-label" style="font-weight:700; color:var(--gold-400);">Hàng Cũ - Ký Gửi</span></label>
         </div>
 
         <div class="filter-section">
@@ -357,6 +374,186 @@
   </div>
 </div>
 
+<!-- ============ CONSIGNMENT MODAL (FORM KÝ GỬI HÀNG CŨ) ============ -->
+<div class="modal-overlay" id="consignment-modal">
+  <div class="modal" style="max-width:620px; max-height:90vh; overflow-y:auto; position:relative;">
+    <button onclick="closeModal('consignment-modal')" class="modal-close-btn" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-300); cursor:pointer;">
+      <svg viewBox="0 0 24 24" style="width:24px; height:24px;" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-header" style="padding-bottom:14px; border-bottom:1px solid var(--border-1);">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div class="modal-icon" style="background:rgba(212,168,67,0.12); color:var(--gold-400); width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </div>
+        <div>
+          <h2 style="font-size:1.25rem; font-family:'Outfit',sans-serif; font-weight:800; color:var(--text-100); margin:0;">Đăng Ký Ký Gửi Máy Cũ</h2>
+          <p style="font-size:0.8rem; color:var(--text-400); margin:3px 0 0;">PixelVault kiểm định thiết bị, niêm yết bán & giải ngân sau 3 ngày giao hàng thành công.</p>
+        </div>
+      </div>
+    </div>
+
+    <form id="consignment-form" onsubmit="submitConsignment(event)" style="padding-top:18px;">
+      <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Tên thiết bị / Model máy <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="cs-product-name" class="form-input" placeholder="Ví dụ: Sony Alpha A7 Mark IV (Body)" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Thương hiệu <span style="color:#ef4444;">*</span></label>
+          <select id="cs-brand" class="form-input" required>
+            <option value="Sony">Sony</option>
+            <option value="Canon">Canon</option>
+            <option value="Fujifilm">Fujifilm</option>
+            <option value="Nikon">Nikon</option>
+            <option value="Panasonic">Panasonic</option>
+            <option value="Olympus">Olympus</option>
+            <option value="Khác">Khác</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div class="form-group">
+          <label class="form-label">Tình trạng máy <span style="color:#ef4444;">*</span></label>
+          <select id="cs-condition" class="form-input" required>
+            <option value="Like New 99%">Like New 99% (Đẹp keng, ít chụp)</option>
+            <option value="98%">98% (Xước nhẹ, hoạt động hoàn hảo)</option>
+            <option value="95%">95% (Có hao mòn ngoại hình)</option>
+            <option value="90%">90% (Cũ theo thời gian)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả tình trạng & Phụ kiện đi kèm</label>
+          <input type="text" id="cs-description" class="form-input" placeholder="Ví dụ: ~3.500 shot, đủ hộp sạc zin, 2 pin, dây đeo...">
+        </div>
+      </div>
+
+      <!-- Khu vực tải ảnh thiết bị lên (Upload trực tiếp từ máy/điện thoại) -->
+      <div class="form-group" style="margin-bottom:18px;">
+        <label class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>Tải ảnh thiết bị lên <span style="color:#ef4444;">*</span> <span style="font-size:0.78rem; color:var(--text-400); font-weight:normal;">(chụp rõ ngoại hình, sensor, màn hình)</span></span>
+          <span id="cs-image-count" style="font-size:0.8rem; color:var(--gold-400); font-weight:600;">Chưa có ảnh nào</span>
+        </label>
+        
+        <div id="cs-drop-zone" class="cs-drop-zone" onclick="document.getElementById('cs-file-input').click()"
+             ondragover="event.preventDefault(); this.classList.add('drag-over');"
+             ondragleave="this.classList.remove('drag-over');"
+             ondrop="csHandleDrop(event)">
+          <input type="file" id="cs-file-input" accept="image/*" multiple style="display:none;" onchange="csHandleFileSelect(event)">
+          <svg style="width:34px;height:34px;stroke:var(--gold-400);fill:none;stroke-width:1.6;margin:0 auto 8px;display:block;" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          <div style="font-size:0.9rem; color:var(--text-100); margin-bottom:4px; font-weight:600;">
+            Bấm vào đây để chọn ảnh từ máy hoặc kéo thả ảnh vào
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-400);">
+            Hỗ trợ chọn nhiều ảnh cùng lúc · Tối đa 5MB mỗi ảnh (JPG, PNG, WEBP)
+          </div>
+        </div>
+
+        <!-- Preview grid ảnh đã chọn -->
+        <div id="cs-preview-grid" class="cs-img-grid" style="display:none; margin-top:12px;"></div>
+        <div id="cs-upload-progress" style="display:none; margin-top:8px; font-size:0.82rem; color:var(--gold-400); font-weight:600;"></div>
+      </div>
+
+      <!-- Khung thông tin người ký gửi -->
+      <div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:10px; padding:14px; margin-bottom:14px;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--gold-400); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Thông Tin Người Ký Gửi
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" style="font-size:0.8rem;">Họ và tên người ký gửi <span style="color:#ef4444;">*</span></label>
+            <input type="text" id="cs-seller-name" class="form-input" style="font-size:0.85rem;" placeholder="Ví dụ: Nguyễn Văn A" required>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" style="font-size:0.8rem;">Email nhận thông báo duyệt & giải ngân <span style="color:#ef4444;">*</span></label>
+            <input type="email" id="cs-seller-email" class="form-input" style="font-size:0.85rem;" placeholder="email@example.com" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:0.8rem;">Số điện thoại liên hệ (Zalo) <span style="color:#ef4444;">*</span></label>
+          <input type="tel" id="cs-phone" class="form-input" style="font-size:0.85rem;" placeholder="0912 345 678" required>
+        </div>
+      </div>
+
+      <!-- Khung thông tin tài khoản giải ngân -->
+      <div style="background:var(--bg-elevated); border:1px solid var(--border-1); border-radius:10px; padding:14px; margin-bottom:18px;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--gold-400); margin-bottom:10px; display:flex; align-items:center; gap:6px;">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Thông Tin Nhận Tiền Giải Ngân (Sau 72h Giao Hàng Thành Công)
+        </div>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:10px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" style="font-size:0.8rem;">Ngân hàng thụ hưởng <span style="color:#ef4444;">*</span></label>
+            <select id="cs-bank-name" class="form-input" style="font-size:0.85rem;" required>
+              <option value="MB Bank">MB Bank (Quân Đội)</option>
+              <option value="Vietcombank">Vietcombank</option>
+              <option value="Techcombank">Techcombank</option>
+              <option value="BIDV">BIDV</option>
+              <option value="ACB">ACB (Á Châu)</option>
+              <option value="TPBank">TPBank (Tiên Phong)</option>
+              <option value="VPBank">VPBank</option>
+              <option value="VietinBank">VietinBank</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" style="font-size:0.8rem;">Số tài khoản ngân hàng <span style="color:#ef4444;">*</span></label>
+            <input type="text" id="cs-bank-account" class="form-input" style="font-size:0.85rem;" placeholder="Nhập số tài khoản" required>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0;">
+          <label class="form-label" style="font-size:0.8rem;">Tên chủ tài khoản (viết hoa không dấu) <span style="color:#ef4444;">*</span></label>
+          <input type="text" id="cs-bank-holder" class="form-input" style="font-size:0.85rem; text-transform:uppercase;" placeholder="NGUYEN VAN A" required>
+        </div>
+      </div>
+
+      <!-- Khung tính giá và hoa hồng -->
+      <div style="background:linear-gradient(135deg, rgba(212,168,67,0.06), rgba(212,168,67,0.12)); border:1px solid rgba(212,168,67,0.3); border-radius:12px; padding:16px; margin-bottom:20px;">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label class="form-label" style="font-weight:700; color:var(--text-100); display:flex; justify-content:space-between;">
+            <span>[Số tiền bạn muốn nhận về] (VND) <span style="color:#ef4444;">*</span></span>
+            <span style="color:var(--gold-400); font-weight:600; font-size:0.8rem;">Ví dụ: 10,000,000 đ</span>
+          </label>
+          <input type="number" id="cs-asking-price" class="form-input" style="font-size:1.1rem; font-weight:700; color:var(--gold-400);" placeholder="10000000" min="500000" step="100000" required oninput="calcConsignmentPrice()">
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem; border-top:1px dashed rgba(212,168,67,0.3); padding-top:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--text-300);">Số tiền thực nhận về STK:</span>
+            <strong style="color:var(--text-100); font-size:0.95rem;" id="calc-seller-receive">0 đ</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="color:var(--text-300);">Phí hoa hồng dịch vụ PixelVault (5%):</span>
+            <span style="color:var(--gold-400); font-weight:600;" id="calc-commission">0 đ</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:10px 12px; border-radius:8px; margin-top:4px;">
+            <span style="font-weight:700; color:var(--text-100);">Giá niêm yết bán ngoài Web:</span>
+            <strong style="font-size:1.15rem; color:#4ade80; font-family:'Outfit',sans-serif;" id="calc-web-price">0 đ</strong>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-400); line-height:1.4; margin-top:4px;">
+            * Công thức: Giá Web = Số tiền nhận / 0.95 (Đã bao gồm 5% hoa hồng vận hành & bảo hành 72h). Số tiền được chuyển về STK của bạn sau 3 ngày hoàn tất giao hàng.
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('consignment-modal')">Đóng</button>
+        <button type="submit" class="btn btn-primary" id="btn-submit-cs" style="padding:10px 24px; font-weight:700;">
+          Gửi Yêu Cầu Ký Gửi
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast-container" id="toast-container"></div>
 
@@ -372,11 +569,12 @@ let _storeReady = false;
 
 function _tryInit() {
   if (!_domReady || !_storeReady) return;
-  // Đọc URL params
+  // Đọc URL params (hỗ trợ cả cat và category theo yêu cầu)
   const params = new URLSearchParams(window.location.search);
-  if (params.has('q'))     { document.getElementById('nav-q').value = params.get('q'); }
-  if (params.has('cat'))   setCheckboxValue('cat',   params.get('cat'));
-  if (params.has('brand')) setCheckboxValue('brand', params.get('brand'));
+  if (params.has('q'))        { document.getElementById('nav-q').value = params.get('q'); }
+  const catVal = params.get('category') || params.get('cat');
+  if (catVal)                 setCheckboxValue('cat', catVal);
+  if (params.has('brand'))    setCheckboxValue('brand', params.get('brand'));
   applyFilters();
 }
 
@@ -453,7 +651,12 @@ function applyFilters() {
   // Filter
   let results = Store.products.filter(p => {
     const matchQ = !q || (p.name || '').toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q);
-    const matchCat = selectedCats.length === 0 || selectedCats.includes(p.category);
+    const matchCat = selectedCats.length === 0 || selectedCats.some(cat => {
+      if (cat === 'used-consignment') {
+        return p.category === 'used-consignment' || p.isConsignment === true || (p.tags && p.tags.includes('Hàng Cũ Ký Gửi'));
+      }
+      return p.category === cat;
+    });
     const matchBrand = selectedBrands.length === 0 || selectedBrands.includes(p.brand);
     const matchPrice = p.price >= minPrice && p.price <= maxPrice;
     
@@ -557,6 +760,248 @@ function renderActiveFilters(q, minPrice, maxPrice, cats, brands, status) {
     tags.push(`<button class="btn btn-ghost btn-sm" onclick="clearFilters()">Xóa tất cả</button>`);
   }
   container.innerHTML = tags.join('');
+}
+
+/* ============ XỬ LÝ FORM KÝ GỬI HÀNG CŨ & TẢI ẢNH ============ */
+let _csImages = []; // Array of { file: File, previewUrl: string, base64: string }
+
+function openConsignmentModal() {
+  openModal('consignment-modal');
+  calcConsignmentPrice();
+
+  // Tự động autofill thông tin từ tài khoản đăng nhập nếu có
+  try {
+    const user = (window.Store && window.Store.currentUser) || null;
+    if (user) {
+      const nameEl = document.getElementById('cs-seller-name');
+      const emailEl = document.getElementById('cs-seller-email');
+      const phoneEl = document.getElementById('cs-phone');
+      const holderEl = document.getElementById('cs-bank-holder');
+      if (nameEl && !nameEl.value && user.name) nameEl.value = user.name;
+      if (emailEl && !emailEl.value && user.email) emailEl.value = user.email;
+      if (phoneEl && !phoneEl.value && user.phone) phoneEl.value = user.phone;
+      if (holderEl && !holderEl.value && user.name) holderEl.value = user.name.toUpperCase();
+    }
+  } catch (e) {}
+}
+
+function csHandleFileSelect(e) {
+  const files = Array.from(e.target.files || []);
+  csAddFiles(files);
+  e.target.value = '';
+}
+
+function csHandleDrop(e) {
+  e.preventDefault();
+  const dropZone = document.getElementById('cs-drop-zone');
+  if (dropZone) dropZone.classList.remove('drag-over');
+  const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+  csAddFiles(files);
+}
+
+function csAddFiles(files) {
+  const validFiles = files.filter(f => {
+    if (f.size > 5 * 1024 * 1024) {
+      showToast(`Ảnh "${f.name}" quá 5MB. Vui lòng chọn ảnh dung lượng nhẹ hơn`, 'error');
+      return false;
+    }
+    return true;
+  });
+
+  if (validFiles.length === 0) return;
+
+  validFiles.forEach(file => {
+    const previewUrl = URL.createObjectURL(file);
+    const item = { file, previewUrl, base64: '' };
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      item.base64 = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+
+    _csImages.push(item);
+  });
+
+  csRenderPreviewGrid();
+  showToast(`Đã thêm ${validFiles.length} ảnh thiết bị`, 'info');
+}
+
+function csRemoveImage(idx) {
+  if (_csImages[idx] && _csImages[idx].previewUrl) {
+    try { URL.revokeObjectURL(_csImages[idx].previewUrl); } catch(e) {}
+  }
+  _csImages.splice(idx, 1);
+  csRenderPreviewGrid();
+}
+
+function csRenderPreviewGrid() {
+  const grid = document.getElementById('cs-preview-grid');
+  const countLabel = document.getElementById('cs-image-count');
+  if (!grid) return;
+
+  if (_csImages.length === 0) {
+    grid.style.display = 'none';
+    if (countLabel) countLabel.textContent = 'Chưa có ảnh nào';
+    return;
+  }
+
+  grid.style.display = 'grid';
+  if (countLabel) {
+    countLabel.textContent = `Đã chọn ${_csImages.length} ảnh (${_csImages.length > 1 ? 'Ảnh đầu tiên là ảnh bìa' : 'Ảnh đại diện'})`;
+  }
+
+  grid.innerHTML = _csImages.map((img, i) => `
+    <div class="cs-img-thumb">
+      <img src="${img.previewUrl || img.base64}" alt="Ảnh ${i + 1}">
+      <button type="button" class="cs-rm-img" onclick="csRemoveImage(${i})" title="Xóa ảnh này">×</button>
+      ${i === 0 ? '<div class="cs-cover-badge">Ảnh Bìa</div>' : ''}
+    </div>
+  `).join('');
+}
+
+async function csUploadAllImages() {
+  const progressEl = document.getElementById('cs-upload-progress');
+  if (_csImages.length === 0) return [];
+
+  if (progressEl) {
+    progressEl.style.display = 'block';
+    progressEl.textContent = `Đang xử lý & tải lên 0/${_csImages.length} ảnh...`;
+  }
+
+  const uploadedUrls = [];
+  let count = 0;
+
+  for (const item of _csImages) {
+    let finalUrl = '';
+    // 1. Thử upload lên Supabase Storage bucket 'product-images' nếu có
+    if (window._pvSupabase && window._pvSupabase.storage && item.file) {
+      try {
+        const ext = (item.file.name.split('.').pop() || 'jpg').toLowerCase();
+        const safeName = `consignments/${Date.now()}_${Math.random().toString(36).slice(2, 9)}.${ext}`;
+        const { data, error } = await window._pvSupabase.storage
+          .from('product-images')
+          .upload(safeName, item.file, { cacheControl: '3600', upsert: false });
+
+        if (!error && data) {
+          const { data: urlData } = window._pvSupabase.storage.from('product-images').getPublicUrl(safeName);
+          if (urlData && urlData.publicUrl) {
+            finalUrl = urlData.publicUrl;
+          }
+        } else if (error) {
+          console.warn('[Storage] Upload notice, using base64 fallback:', error.message);
+        }
+      } catch (stErr) {
+        console.warn('[Storage] Upload exception, using base64 fallback:', stErr);
+      }
+    }
+
+    // 2. Fallback sang base64 data-URL nếu storage chưa mở quyền
+    if (!finalUrl) {
+      if (item.base64) {
+        finalUrl = item.base64;
+      } else if (item.file) {
+        finalUrl = await new Promise((resolve) => {
+          const r = new FileReader();
+          r.onload = (ev) => resolve(ev.target.result);
+          r.onerror = () => resolve('assets/images/sony_alpha.jpg');
+          r.readAsDataURL(item.file);
+        });
+      }
+    }
+
+    if (finalUrl) uploadedUrls.push(finalUrl);
+    count++;
+    if (progressEl) progressEl.textContent = `Đang xử lý & tải lên ${count}/${_csImages.length} ảnh...`;
+  }
+
+  if (progressEl) progressEl.style.display = 'none';
+  return uploadedUrls;
+}
+
+function calcConsignmentPrice() {
+  const asking = parseFloat(document.getElementById('cs-asking-price')?.value) || 0;
+  if (asking <= 0) {
+    document.getElementById('calc-seller-receive').textContent = '0 đ';
+    document.getElementById('calc-commission').textContent = '0 đ';
+    document.getElementById('calc-web-price').textContent = '0 đ';
+    return;
+  }
+  // Công thức: Giá Web = asking / 0.95 (làm tròn hàng nghìn đồng)
+  const webPrice = Math.round((asking / 0.95) / 1000) * 1000;
+  const commission = webPrice - asking;
+
+  document.getElementById('calc-seller-receive').textContent = formatPrice(asking);
+  document.getElementById('calc-commission').textContent = `+ ${formatPrice(commission)}`;
+  document.getElementById('calc-web-price').textContent = formatPrice(webPrice);
+}
+
+async function submitConsignment(e) {
+  e.preventDefault();
+  const btn = document.getElementById('btn-submit-cs');
+
+  if (_csImages.length === 0) {
+    showToast('Vui lòng tải lên ít nhất 1 ảnh chụp thiết bị của bạn', 'error');
+    document.getElementById('cs-drop-zone')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Đang xử lý ảnh & gửi...';
+
+  const productName = document.getElementById('cs-product-name').value.trim();
+  const brand = document.getElementById('cs-brand').value;
+  const condition = document.getElementById('cs-condition').value;
+  const description = document.getElementById('cs-description').value.trim();
+
+  const sellerName = document.getElementById('cs-seller-name').value.trim();
+  const sellerEmail = document.getElementById('cs-seller-email').value.trim();
+  const bankName = document.getElementById('cs-bank-name').value;
+  const bankAccount = document.getElementById('cs-bank-account').value.trim();
+  const bankHolder = document.getElementById('cs-bank-holder').value.trim();
+  const phone = document.getElementById('cs-phone').value.trim();
+  const askingPrice = parseFloat(document.getElementById('cs-asking-price').value) || 0;
+
+  if (askingPrice < 100000) {
+    showToast('Số tiền nhận về tối thiểu là 100.000đ', 'error');
+    btn.disabled = false;
+    btn.textContent = 'Gửi Yêu Cầu Ký Gửi';
+    return;
+  }
+
+  try {
+    // 1. Tải ảnh lên
+    const images = await csUploadAllImages();
+
+    const payload = {
+      productName,
+      brand,
+      condition,
+      images: images.length > 0 ? images : ['assets/images/sony_alpha.jpg'],
+      description,
+      sellerName,
+      sellerEmail,
+      sellerBankName: bankName,
+      sellerBankAccount: bankAccount,
+      sellerBankHolder: bankHolder,
+      sellerPhone: phone,
+      askingPrice
+    };
+
+    const res = await window.SupabaseDB.createConsignmentRequest(payload);
+    closeModal('consignment-modal');
+    document.getElementById('consignment-form').reset();
+    _csImages = [];
+    csRenderPreviewGrid();
+    calcConsignmentPrice();
+    showToast(`Đã gửi yêu cầu ký gửi thành công (Mã: ${res.id})! PixelVault sẽ kiểm duyệt trong 2-4 giờ làm việc.`, 'success');
+  } catch (err) {
+    console.error('Lỗi khi gửi yêu cầu ký gửi:', err);
+    showToast('Có lỗi xảy ra, vui lòng thử lại!', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Gửi Yêu Cầu Ký Gửi';
+  }
 }
 </script>
 </body>

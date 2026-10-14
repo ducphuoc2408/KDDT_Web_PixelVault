@@ -76,6 +76,53 @@ async function initStore() {
       window.SupabaseDB.getOrders().catch(() => []),
       window.SupabaseDB.getCoupons().catch(() => []),
     ]);
+
+    // Đồng bộ các sản phẩm ký gửi đã approved vào Store.products
+    if (window.SupabaseDB.getConsignmentRequests) {
+      try {
+        const consignments = await window.SupabaseDB.getConsignmentRequests();
+        const approvedConsignments = consignments.filter(c => c.status === 'approved');
+        approvedConsignments.forEach(c => {
+          const pseudoId = c.product_id ? Number(c.product_id) : (900000 + parseInt(String(c.id).replace(/\D/g, '').slice(-5) || '1'));
+          const existing = products.find(p => (c.product_id && Number(p.id) === Number(c.product_id)) || Number(p.id) === Number(pseudoId) || p.name === c.product_name);
+          
+          if (existing) {
+            existing.isConsignment = true;
+            existing.consignmentId = c.id;
+            existing.category = 'used-consignment';
+            existing.badge = c.condition || existing.badge || '99%';
+            existing.price = Number(c.final_price || existing.price);
+            existing.originalPrice = Number(c.final_price || existing.originalPrice);
+            existing.stock = 1;
+            existing.reviews = 0;
+            if (!existing.tags) existing.tags = [];
+            if (!existing.tags.includes('Hàng Cũ Ký Gửi')) existing.tags.unshift('Hàng Cũ Ký Gửi');
+          } else {
+            products.unshift({
+              id: pseudoId,
+              name: c.product_name,
+              brand: c.brand,
+              category: 'used-consignment',
+              price: Number(c.final_price),
+              originalPrice: Number(c.final_price),
+              images: (c.images && c.images.length) ? c.images : ['assets/images/sony_alpha.jpg'],
+              specs: { 'Tình trạng': c.condition || '99%', 'Bảo hành': 'Bao test 72h' },
+              tags: ['Hàng Cũ Ký Gửi', c.condition || '99%', c.brand],
+              rating: 5.0,
+              reviews: 0,
+              stock: 1,
+              badge: c.condition || 'Like New 99%',
+              description: `[HÀNG CŨ - KÝ GỬI KIỂM ĐỊNH] ${c.product_name}. Tình trạng: ${c.condition}. ${c.description || ''}`,
+              isConsignment: true,
+              consignmentId: c.id
+            });
+          }
+        });
+      } catch (ce) {
+        console.warn('[Store] consignments sync:', ce);
+      }
+    }
+
     Store.products = products;
     Store.orders   = orders;
     Store.coupons  = coupons;
@@ -223,9 +270,9 @@ function initScrollAnimations() {
    CART
    ============================================================ */
 function cartAdd(productId, qty = 1) {
-  const p = Store.products.find(x => x.id === productId);
+  const p = Store.products.find(x => x.id === productId || String(x.id) === String(productId));
   if (!p || p.stock === 0) return;
-  const existing = Store.cart.find(x => x.id === productId);
+  const existing = Store.cart.find(x => x.id === productId || String(x.id) === String(productId));
   if (existing) {
     existing.qty = Math.min(existing.qty + qty, p.stock);
   } else {
@@ -237,13 +284,13 @@ function cartAdd(productId, qty = 1) {
 }
 
 function cartRemove(productId) {
-  Store.cart = Store.cart.filter(x => x.id !== productId);
+  Store.cart = Store.cart.filter(x => x.id !== productId && String(x.id) !== String(productId));
   cartPersist();
   cartUpdate();
 }
 
 function cartSetQty(productId, qty) {
-  const item = Store.cart.find(x => x.id === productId);
+  const item = Store.cart.find(x => x.id === productId || String(x.id) === String(productId));
   if (!item) return;
   if (qty <= 0) { cartRemove(productId); return; }
   item.qty = Math.min(qty, item.stock);

@@ -210,6 +210,24 @@ const SupabaseDB = {
       const { error: itemsError } = await _db.from('order_items').insert(orderItems);
       if (itemsError) {
          console.error('[SupabaseDB] createOrder (order_items):', itemsError.message);
+      } else {
+        // Tự động match order_id và chuyển status = 'sold' cho các sản phẩm hàng cũ ký gửi
+        try {
+          for (const item of orderData.items) {
+            const pid = item.id || item.product_id;
+            if (pid) {
+              await _db.from('consignment_requests')
+                .update({ 
+                  order_id: orderId, 
+                  status: 'sold', 
+                  updated_at: new Date().toISOString() 
+                })
+                .eq('product_id', pid);
+            }
+          }
+        } catch (csErr) {
+          console.warn('[SupabaseDB] Auto link consignment order notice:', csErr);
+        }
       }
     }
     
@@ -225,7 +243,24 @@ const SupabaseDB = {
 
   /** Admin: Cập nhật trạng thái đơn hàng */
   async updateOrderStatus(orderId, status) {
-    const { data, error } = await _db.from('orders').update({ status }).eq('id', orderId).select().single();
+    const updatePayload = { status };
+    if (status === 'delivered' || status === 'completed') {
+      updatePayload.delivered_at = new Date().toISOString();
+      // Tự động cập nhật mốc delivered_at vào consignment_requests để kích hoạt đếm ngược 72h
+      try {
+        await _db.from('consignment_requests')
+          .update({
+            delivered_at: updatePayload.delivered_at,
+            status: 'delivered',
+            updated_at: updatePayload.delivered_at
+          })
+          .eq('order_id', orderId)
+          .neq('status', 'payout_completed');
+      } catch (csErr) {
+        console.warn('[SupabaseDB] Auto update consignment delivered_at notice:', csErr);
+      }
+    }
+    const { data, error } = await _db.from('orders').update(updatePayload).eq('id', orderId).select().single();
     if (error) { console.error('[SupabaseDB] updateOrderStatus:', error.message); return null; }
     return mapOrder(data);
   },
@@ -375,6 +410,254 @@ const SupabaseDB = {
       .order('created_at', { ascending: false });
     if (error) { console.error('[SupabaseDB] getMyRentals:', error.message); return []; }
     return data;
+  },
+
+  /* ---------- CONSIGNMENT (HÀNG CŨ - KÝ GỬI & GIẢI NGÂN) ---------- */
+
+  /** Tạo yêu cầu ký gửi mới */
+  async createConsignmentRequest(reqData) {
+    const askingPrice = Number(reqData.askingPrice || reqData.asking_price || 0);
+    // Tính giá niêm yết ngoài web: askingPrice / 0.95 (làm tròn đến hàng nghìn đồng)
+    const finalPrice = Math.round((askingPrice / 0.95) / 1000) * 1000;
+    const commissionFee = finalPrice - askingPrice;
+    const reqId = reqData.id || ('CR' + Date.now());
+
+    const currentUserName = (window.Store && window.Store.currentUser && window.Store.currentUser.name) || '';
+    const currentUserEmail = (window.Store && window.Store.currentUser && window.Store.currentUser.email) || '';
+    const currentUserId = (window.Store && window.Store.currentUser && window.Store.currentUser.id) || null;
+
+    const sellerName = reqData.sellerName || reqData.seller_name || reqData.sellerBankHolder || currentUserName || 'Khách ký gửi';
+    const sellerEmail = reqData.sellerEmail || reqData.seller_email || currentUserEmail || '';
+
+    const row = {
+      id:                  reqId,
+      seller_id:           reqData.sellerId || reqData.seller_id || currentUserId,
+      seller_name:         sellerName,
+      seller_phone:        reqData.sellerPhone || reqData.seller_phone || '',
+      seller_email:        sellerEmail,
+      seller_bank_name:    reqData.sellerBankName || reqData.seller_bank_name || 'MB Bank',
+      seller_bank_account: reqData.sellerBankAccount || reqData.seller_bank_account || '',
+      seller_bank_holder:  (reqData.sellerBankHolder || reqData.seller_bank_holder || sellerName).toUpperCase(),
+      product_name:        reqData.productName || reqData.product_name,
+      brand:               reqData.brand || 'Khác',
+      category:            'used-consignment',
+      condition:           reqData.condition || 'Like New 99%',
+      description:         reqData.description || '',
+      images:              Array.isArray(reqData.images) && reqData.images.length > 0 ? reqData.images : ['assets/images/sony_alpha.jpg'],
+      asking_price:        askingPrice,
+      commission_rate:     5.0,
+      commission_fee:      commissionFee,
+      final_price:         finalPrice,
+      status:              'pending_approval',
+      created_at:          new Date().toISOString(),
+      updated_at:          new Date().toISOString()
+    };
+
+    // 1. Lưu vào Supabase
+    try {
+      const { data, error } = await _db.from('consignment_requests').insert([row]).select().single();
+      if (!error && data) {
+        this._saveLocalConsignment(data);
+        return data;
+      }
+      if (error) console.warn('[SupabaseDB] createConsignmentRequest cloud notice:', error.message);
+    } catch (e) {
+      console.warn('[SupabaseDB] createConsignmentRequest fallback to local:', e);
+    }
+
+    // 2. Fallback lưu vào LocalStorage
+    this._saveLocalConsignment(row);
+    return row;
+  },
+
+  /** Lấy danh sách yêu cầu ký gửi - Lấy trực tiếp từ Supabase (Cloud là nguồn dữ liệu chuẩn duy nhất) */
+  async getConsignmentRequests() {
+    try {
+      const { data, error } = await _db.from('consignment_requests').select('*').order('created_at', { ascending: false });
+      if (!error && Array.isArray(data)) {
+        // Đồng bộ ghi đè vào localStorage: nếu trên Cloud đã bị xóa thì Local cũng bị xóa sạch
+        try {
+          localStorage.setItem('pv_consignments', JSON.stringify(data));
+        } catch (_) {}
+        return data;
+      }
+      if (error) {
+        console.warn('[SupabaseDB] getConsignmentRequests notice:', error.message);
+      }
+    } catch (e) {
+      console.warn('[SupabaseDB] getConsignmentRequests cloud notice:', e);
+    }
+
+    // Chỉ fallback sang localStorage khi mất kết nối mạng
+    return this._getLocalConsignments();
+  },
+
+  /** Xóa vĩnh viễn yêu cầu ký gửi (cả trên Supabase và LocalStorage) */
+  async deleteConsignmentRequest(id) {
+    // 1. Xóa trên Cloud
+    try {
+      await _db.from('consignment_requests').delete().eq('id', id);
+    } catch (e) {
+      console.warn('[SupabaseDB] deleteConsignmentRequest cloud notice:', e);
+    }
+
+    // 2. Xóa trong LocalStorage
+    try {
+      const list = this._getLocalConsignments().filter(x => x && x.id !== id);
+      localStorage.setItem('pv_consignments', JSON.stringify(list));
+    } catch (_) {}
+
+    // 3. Xóa trong Store.products
+    try {
+      if (window.Store && Array.isArray(window.Store.products)) {
+        window.Store.products = window.Store.products.filter(p => p.consignmentId !== id);
+      }
+    } catch (_) {}
+
+    return true;
+  },
+
+  /** Admin: Duyệt yêu cầu ký gửi -> Chuyển sang approved và đưa lên web bán */
+  async approveConsignmentRequest(id) {
+    // 1. Thử gọi RPC trên Supabase (nếu đã tạo script SQL)
+    try {
+      const { data: rpcData, error: rpcErr } = await _db.rpc('approve_consignment_request', { p_req_id: id });
+      if (!rpcErr && rpcData) {
+        this._saveLocalConsignment(rpcData);
+        // Load lại danh sách sản phẩm nếu có
+        try {
+          const prods = await this.getProducts();
+          if (window.Store) window.Store.products = prods;
+        } catch (_) {}
+        return rpcData;
+      }
+    } catch (e) {
+      console.warn('[SupabaseDB] RPC approve_consignment_request not available, falling back to client JS:', e);
+    }
+
+    // 2. Fallback xử lý trực tiếp phía Client
+    const list = await this.getConsignmentRequests();
+    const item = list.find(x => x.id === id);
+    if (!item) return null;
+
+    item.status = 'approved';
+    item.updated_at = new Date().toISOString();
+
+    // Tự động tạo sản phẩm trong bảng products nếu chưa có
+    try {
+      if (!item.product_id) {
+        const catLower = (item.product_name || '').toLowerCase();
+        let validCat = 'mirrorless';
+        if (catLower.includes('lens') || catLower.includes('ống kính')) validCat = 'lens';
+        else if (catLower.includes('dslr')) validCat = 'dslr';
+        else if (catLower.includes('pin') || catLower.includes('thẻ') || catLower.includes('tripod') || catLower.includes('túi')) validCat = 'accessory';
+
+        const productData = {
+          name: `${item.product_name} (Hàng Cũ Ký Gửi - ${item.condition || '99%'})`,
+          brand: item.brand,
+          category: validCat,
+          price: item.final_price,
+          originalPrice: item.final_price,
+          images: item.images && item.images.length > 0 ? item.images : ['assets/images/sony_alpha.jpg'],
+          stock: 1,
+          badge: item.condition || '99%',
+          rating: 5.0,
+          reviews: 0,
+          tags: ['Hàng Cũ Ký Gửi', item.condition || '99%', item.brand],
+          description: `[HÀNG CŨ - KÝ GỬI KIỂM ĐỊNH] ${item.product_name}. Tình trạng: ${item.condition}. ${item.description || ''}`
+        };
+        const newProduct = await this.addProduct(productData);
+        if (newProduct) {
+          item.product_id = newProduct.id;
+          if (window.Store && Array.isArray(window.Store.products)) {
+            const exists = window.Store.products.find(p => p.id === newProduct.id);
+            if (!exists) window.Store.products.unshift(newProduct);
+          }
+        }
+      }
+    } catch(err) {
+      console.warn('[SupabaseDB] Auto add product for approved consignment:', err);
+    }
+
+    // Cập nhật lên cloud
+    try {
+      await _db.from('consignment_requests').update({ 
+        status: 'approved', 
+        product_id: item.product_id || null, 
+        updated_at: item.updated_at 
+      }).eq('id', id);
+    } catch (e) {}
+
+    this._saveLocalConsignment(item);
+    return item;
+  },
+
+  /** Admin: Từ chối yêu cầu ký gửi */
+  async rejectConsignmentRequest(id, notes = '') {
+    const list = await this.getConsignmentRequests();
+    const item = list.find(x => x.id === id);
+    if (!item) return null;
+
+    item.status = 'rejected';
+    item.admin_notes = notes;
+    item.updated_at = new Date().toISOString();
+
+    try {
+      await _db.from('consignment_requests').update({ 
+        status: 'rejected', 
+        admin_notes: notes, 
+        updated_at: item.updated_at 
+      }).eq('id', id);
+    } catch (e) {}
+
+    this._saveLocalConsignment(item);
+    return item;
+  },
+
+  /** Admin: Giải ngân sau 3 ngày cho người ký gửi */
+  async payoutConsignmentRequest(id, notes = '') {
+    const list = await this.getConsignmentRequests();
+    const item = list.find(x => x.id === id);
+    if (!item) return null;
+
+    item.status = 'payout_completed';
+    item.payout_completed_at = new Date().toISOString();
+    item.admin_notes = notes || 'Đã chuyển khoản giải ngân thành công qua ngân hàng';
+    item.updated_at = item.payout_completed_at;
+
+    try {
+      await _db.from('consignment_requests').update({ 
+        status: 'payout_completed', 
+        payout_completed_at: item.payout_completed_at,
+        admin_notes: item.admin_notes,
+        updated_at: item.updated_at 
+      }).eq('id', id);
+    } catch (e) {}
+
+    this._saveLocalConsignment(item);
+    return item;
+  },
+
+  /* Helper quản lý localStorage cho Consignment (chỉ lưu các đơn thật) */
+  _getLocalConsignments() {
+    try {
+      const raw = JSON.parse(localStorage.getItem('pv_consignments') || '[]');
+      if (!Array.isArray(raw)) return [];
+      // Lọc bỏ triệt để mọi bản ghi mẫu nếu trước đây vô tình lưu vào browser
+      return raw.filter(item => item && item.id && !item.id.startsWith('CR-PENDING-') && !item.id.startsWith('CR-APP-') && !item.id.startsWith('CR-DELIV-'));
+    } catch (e) {
+      return [];
+    }
+  },
+
+  _saveLocalConsignment(item) {
+    try {
+      const list = this._getLocalConsignments();
+      const idx = list.findIndex(x => x.id === item.id);
+      if (idx >= 0) list[idx] = { ...list[idx], ...item };
+      else list.unshift(item);
+      localStorage.setItem('pv_consignments', JSON.stringify(list));
+    } catch (e) {}
   }
 };
 
