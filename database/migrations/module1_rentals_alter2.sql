@@ -1,0 +1,7 @@
+ALTER TABLE public.rentals
+ADD COLUMN IF NOT EXISTS user_name TEXT,
+ADD COLUMN IF NOT EXISTS phone_number TEXT,
+ADD COLUMN IF NOT EXISTS cccd_image_url TEXT,
+ADD COLUMN IF NOT EXISTS face_image_url TEXT,
+ADD COLUMN IF NOT EXISTS delivery_method TEXT,
+ADD COLUMN IF NOT EXISTS delivery_address TEXT;

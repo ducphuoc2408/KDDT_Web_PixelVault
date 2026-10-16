@@ -3,8 +3,11 @@
    Toàn bộ data được lấy từ Supabase – không còn hardcode
    ============================================================ */
 
-const SUPABASE_URL = 'https://cklxpfaylobqcymnyahm.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrbHhwZmF5bG9icWN5bW55YWhtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MTc4MTcsImV4cCI6MjEwNjA5MzgxN30.URLcP2ISCqdnw_IUHwW6Bv-hx5_qJAnbGnT1U4qnfew';
+// SUPABASE_URL và SUPABASE_KEY được load từ config.js
+// Xem .env.example để biết cách cấu hình
+if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_KEY === 'undefined') {
+  console.error('[PixelVault] Thiếu config! Hãy tạo file assets/js/config.js từ .env.example');
+}
 
 // Khởi tạo Supabase client (window.supabase được load từ CDN)
 // Singleton – tránh tạo duplicate client

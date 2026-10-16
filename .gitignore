@@ -1,1 +1,34 @@
-/test_fixed.txt
+# ============================================================
+# PixelVault – .gitignore
+# ============================================================
+
+# ── Dependencies ──
+node_modules/
+
+# ── Environment & Secrets ──
+.env
+.env.local
+.env.production
+assets/js/config.js
+
+# ── OS Generated ──
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# ── IDE / Editor ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Logs ──
+*.log
+npm-debug.log*
+
+# ── Temp / Dev artifacts ──
+test_*.txt
+test_*.js
+*.tmp
