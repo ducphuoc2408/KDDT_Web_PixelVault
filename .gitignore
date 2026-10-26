@@ -9,7 +9,7 @@ node_modules/
 .env
 .env.local
 .env.production
-assets/js/config.js
+# assets/js/config.js  ← anon key, safe to publish
 
 # ── OS Generated ──
 .DS_Store
